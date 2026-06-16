@@ -29,6 +29,8 @@
       </div>
 
       <div class="header-controls">
+        <div class="course-switcher" id="course-switcher" aria-label="학습서 선택"></div>
+
         <div class="progress-container" aria-label="학습 진도">
           <span class="progress-text">학습 진도 <strong id="progress-percentage">0%</strong></span>
           <div class="progress-bar-bg">
@@ -52,17 +54,7 @@
         <div class="sidebar-inner">
           <div class="sidebar-header">
             <h3>학습 목차</h3>
-            <p>처음 배우는 사람을 위한 단계별 학습 과정</p>
-          </div>
-          <div class="course-switcher" id="course-switcher" aria-label="학습서 카테고리">
-            <button class="course-tab active" type="button" data-course="sql">
-              <i data-lucide="database"></i>
-              SQL
-            </button>
-            <button class="course-tab" type="button" data-course="vue">
-              <i data-lucide="component"></i>
-              Vue.js
-            </button>
+            <p id="sidebar-course-desc">선택한 학습서의 단계별 목차</p>
           </div>
           <nav class="curriculum-list" id="curriculum-list"></nav>
         </div>

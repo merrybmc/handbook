@@ -13,6 +13,7 @@ const sidebar = document.getElementById("sidebar");
 const sidebarToggle = document.getElementById("sidebar-toggle");
 const curriculumList = document.getElementById("curriculum-list");
 const courseSwitcher = document.getElementById("course-switcher");
+const sidebarCourseDesc = document.getElementById("sidebar-course-desc");
 const lessonBody = document.getElementById("lesson-body");
 const progressPercentage = document.getElementById("progress-percentage");
 const progressFill = document.getElementById("progress-fill");
@@ -36,12 +37,39 @@ const verificationFeedback = document.getElementById("verification-feedback");
 const tabTitles = document.querySelectorAll(".tab-title");
 const tabPanes = document.querySelectorAll(".tab-pane");
 
+const courseMeta = {
+  sql: {
+    label: "SQL",
+    icon: "database",
+    desc: "MySQL, PostgreSQL, Redis, Elasticsearch"
+  },
+  vue: {
+    label: "Vue.js",
+    icon: "component",
+    desc: "Todo 앱과 쇼핑몰 프로젝트"
+  }
+};
+
 function getChapterCourse(chapter) {
   return chapter.course || "sql";
 }
 
+function getCourses() {
+  const ids = [...new Set(curriculum.map(getChapterCourse))];
+  return ids.map(id => ({
+    id,
+    label: courseMeta[id]?.label || id,
+    icon: courseMeta[id]?.icon || "book-open",
+    desc: courseMeta[id]?.desc || "단계별 학습 과정"
+  }));
+}
+
 function getActiveCurriculum() {
   return curriculum.filter(chapter => getChapterCourse(chapter) === state.activeCourse);
+}
+
+function getActiveCourseMeta() {
+  return getCourses().find(course => course.id === state.activeCourse) || getCourses()[0];
 }
 
 function loadProgress() {
@@ -96,6 +124,11 @@ function initSidebar() {
   document.querySelectorAll(".course-tab").forEach(tab => {
     tab.classList.toggle("active", tab.dataset.course === state.activeCourse);
   });
+
+  const activeCourse = getActiveCourseMeta();
+  if (sidebarCourseDesc && activeCourse) {
+    sidebarCourseDesc.textContent = activeCourse.desc;
+  }
 
   const chapters = getActiveCurriculum();
   const parts = [...new Set(chapters.map(chapter => chapter.part))];
@@ -154,6 +187,17 @@ function initSidebar() {
   });
 
   lucide.createIcons();
+}
+
+function initCourseSwitcher() {
+  if (!courseSwitcher) return;
+
+  courseSwitcher.innerHTML = getCourses().map(course => `
+    <button class="course-tab" type="button" data-course="${course.id}" title="${course.desc}">
+      <i data-lucide="${course.icon}"></i>
+      <span>${course.label}</span>
+    </button>
+  `).join("");
 }
 
 function loadChapter(chapterId) {
@@ -473,6 +517,7 @@ async function initApp() {
   loadProgress();
   if (!getActiveCurriculum().length) state.activeCourse = "sql";
   state.currentChapterId = getActiveCurriculum()[0]?.id;
+  initCourseSwitcher();
   initSidebar();
   initEditor();
   bindEvents();

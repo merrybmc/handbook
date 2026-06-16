@@ -235,20 +235,25 @@ body {
 }
 
 .course-switcher {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 14px 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(42vw, 520px);
+  overflow-x: auto;
+  padding: 2px;
 }
 
 .course-tab {
-  min-height: 38px;
+  min-height: 36px;
   border: 1px solid var(--border-color);
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   color: var(--text-secondary);
-  border-radius: var(--border-radius-sm);
+  border-radius: 999px;
   font-size: 0.86rem;
   font-weight: 700;
+  padding: 0 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .course-tab svg {
@@ -265,7 +270,7 @@ body {
   color: #fff;
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan));
   border-color: transparent;
-  box-shadow: 0 8px 20px rgba(74, 168, 161, 0.18);
+  box-shadow: 0 6px 18px rgba(74, 168, 161, 0.2);
 }
 
 .curriculum-list {
@@ -1515,6 +1520,22 @@ body:not(.dark-mode) .moon-icon {
   .header-controls {
     gap: 8px;
     flex-shrink: 0;
+    min-width: 0;
+  }
+
+  .course-switcher {
+    max-width: 38vw;
+  }
+
+  .course-tab {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 0.8rem;
+  }
+
+  .course-tab svg {
+    width: 14px;
+    height: 14px;
   }
 
   .progress-container {
