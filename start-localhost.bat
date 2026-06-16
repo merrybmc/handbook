@@ -40,10 +40,10 @@ if not exist "node_modules" (
 )
 
 echo Opening browser when the local server is ready...
-start "" powershell -NoProfile -ExecutionPolicy Bypass -Command "$port=5173; for ($i=0; $i -lt 90; $i++) { try { $client = [Net.Sockets.TcpClient]::new('127.0.0.1', $port); $client.Close(); Start-Process 'http://127.0.0.1:5173/'; exit 0 } catch { Start-Sleep -Seconds 1 } }; Start-Process 'http://127.0.0.1:5173/'"
+start "" powershell -NoProfile -ExecutionPolicy Bypass -Command "$port=3000; for ($i=0; $i -lt 90; $i++) { try { $client = [Net.Sockets.TcpClient]::new('127.0.0.1', $port); $client.Close(); Start-Process 'http://127.0.0.1:3000/'; exit 0 } catch { Start-Sleep -Seconds 1 } }; Start-Process 'http://127.0.0.1:3000/'"
 
 echo.
-echo Local URL: http://127.0.0.1:5173/
+echo Local URL: http://127.0.0.1:3000/
 echo Stop server: press Ctrl + C in this window.
 echo.
 

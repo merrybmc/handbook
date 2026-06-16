@@ -10,7 +10,15 @@ const tagLabels = {
   redis: "Redis",
   search: "검색",
   elasticsearch: "Elasticsearch",
-  practice: "실습"
+  practice: "실습",
+  vue: "Vue.js",
+  react: "React 비교",
+  frontend: "프런트엔드",
+  todo: "Todo",
+  shop: "쇼핑몰",
+  router: "Router",
+  pinia: "Pinia",
+  typescript: "TypeScript"
 };
 
 const esc = value => String(value)
@@ -113,6 +121,17 @@ function renderLesson(chapter) {
       </div>
     </div>
   ` : "";
+  const practiceGuide = chapter.practiceGuide ? `
+    <div class="practice-container">
+      <div class="practice-card">
+        <div class="practice-header">
+          <i data-lucide="square-pen" style="color: var(--accent-cyan);"></i>
+          <h4>직접 만들어보기</h4>
+        </div>
+        <p class="practice-desc">${chapter.practiceGuide}</p>
+      </div>
+    </div>
+  ` : "";
 
   return `
     <div class="lesson-header">
@@ -128,6 +147,7 @@ function renderLesson(chapter) {
       ${renderDrills(chapter.drills)}
     </div>
     ${practice}
+    ${practiceGuide}
   `;
 }
 
@@ -3433,6 +3453,1202 @@ curl http://localhost:9200
   }
 ];
 
+const vueChapters = [
+  {
+    id: "vue1_overview",
+    course: "vue",
+    part: "Vue Part 1. 시작 전 큰 그림",
+    title: "1. Vue.js를 처음 배우는 사람을 위한 큰 그림",
+    tags: ["vue", "frontend", "react"],
+    type: "info",
+    summary: "Vue가 어떤 문제를 해결하는 도구인지, React와 무엇이 비슷하고 다른지 먼저 잡습니다.",
+    goal: "Vue를 'HTML을 더 똑똑하게 만드는 컴포넌트 도구'로 이해하고, Todo와 쇼핑몰 프로젝트 흐름을 그립니다.",
+    analogy: "Vue는 레고 조립 설명서와 비슷합니다. 화면을 Header, TodoInput, TodoList 같은 작은 블록으로 나누고, 각 블록이 자기 역할을 하게 만든 뒤 조립합니다.",
+    studyHint: "프런트엔드를 처음 배우면 문법보다 '상태가 바뀌면 화면도 바뀐다'는 감각이 먼저입니다. Vue는 이 감각을 비교적 부드럽게 익히게 해 줍니다.",
+    sections: [
+      {
+        title: "Vue는 무엇을 쉽게 해 주나요?",
+        body: [
+          p("브라우저 화면은 HTML, CSS, JavaScript로 만들어집니다. 그런데 Todo 앱처럼 할 일을 추가하고 삭제하고 완료 표시까지 하려면, JavaScript로 DOM을 계속 직접 찾아 고쳐야 합니다. Vue는 이 과정을 <strong>데이터 중심</strong>으로 바꿔 줍니다."),
+          p("Vue에서는 'todos 배열이 바뀌면 목록 화면도 바뀐다'고 생각합니다. 즉, 화면을 직접 만지는 대신 데이터 상태를 바꾸면 Vue가 화면 갱신을 맡아 줍니다."),
+          table(["개념", "쉬운 뜻", "Todo 예시"], [
+            ["상태(state)", "화면이 기억해야 하는 데이터", "할 일 목록, 입력창 글자"],
+            ["템플릿(template)", "상태를 화면에 보여주는 HTML 모양", "<code>v-for</code>로 todo 목록 출력"],
+            ["이벤트(event)", "사용자 행동", "추가 버튼 클릭, 체크박스 변경"],
+            ["컴포넌트(component)", "화면 조각", "TodoInput, TodoList, TodoItem"]
+          ])
+        ]
+      },
+      {
+        title: "React와 비교하면?",
+        body: [
+          table(["하고 싶은 일", "Vue", "React"], [
+            ["상태 만들기", "<code>ref</code>, <code>reactive</code>", "<code>useState</code>"],
+            ["목록 출력", "<code>v-for</code>", "<code>array.map()</code>"],
+            ["조건 출력", "<code>v-if</code>, <code>v-show</code>", "<code>{condition && ...}</code>, 삼항 연산자"],
+            ["입력 양방향 연결", "<code>v-model</code>", "<code>value</code>와 <code>onChange</code> 직접 연결"],
+            ["재사용 로직", "Composable 함수", "Custom Hook"],
+            ["전역 상태", "Pinia", "Redux, Zustand, Context"]
+          ]),
+          callout("tip", "React를 몰라도 됩니다", "이 학습서의 React 비교는 '아, 다른 프레임워크에서는 이렇게 부르는구나' 정도로 보면 됩니다. Vue를 배우는 데 React 선행 지식은 필요하지 않습니다.")
+        ]
+      },
+      {
+        title: "이 학습서에서 최소화하는 내용",
+        body: [
+          ul([
+            "<strong>Vue CLI</strong>: 예전 강의에 자주 나오지만 지금은 Vite로 시작하는 편이 더 간단합니다.",
+            "<strong>class 문법 기반 Vue</strong>: 이론적으로 가능하지만 Vue 3 실무에서는 Composition API와 <code>script setup</code>이 중심입니다.",
+            "<strong>Bootstrap 설치</strong>: UI 라이브러리는 나중 문제입니다. 먼저 컴포넌트와 데이터 흐름을 잡습니다.",
+            "<strong>Vuex 중심 학습</strong>: 기존 프로젝트 유지보수에서는 볼 수 있지만 새 Vue 3 프로젝트는 Pinia를 우선으로 봅니다."
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "Vue의 첫 느낌",
+        desc: "message가 바뀌면 화면의 문장도 바뀐다고 생각하면 됩니다.",
+        sql: `
+<script setup>
+import { ref } from "vue";
+
+const message = ref("Vue 공부 시작");
+</script>
+
+<template>
+  <h1>{{ message }}</h1>
+  <button @click="message = 'Todo 앱 만들자'">바꾸기</button>
+</template>
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "Vue에서 상태가 바뀌면 화면도 바뀐다는 말은 무슨 뜻인가요?",
+        answer: "DOM을 직접 찾아 고치지 않아도, ref나 reactive 같은 상태를 바꾸면 Vue가 그 상태를 쓰는 화면을 다시 그려 준다는 뜻입니다."
+      },
+      {
+        prompt: "React의 useState와 가장 비슷하게 볼 수 있는 Vue 기능은 무엇인가요?",
+        answer: "ref입니다. 단, Vue의 ref는 스크립트 안에서 값을 읽거나 바꿀 때 .value를 사용합니다."
+      }
+    ],
+    practiceGuide: "빈 Vue 프로젝트를 만들기 전에, 종이에 Todo 앱을 Header, Input, List, Item, Footer 컴포넌트로 나누어 그려 보세요."
+  },
+  {
+    id: "vue2_environment",
+    course: "vue",
+    part: "Vue Part 1. 시작 전 큰 그림",
+    title: "2. 개발 환경과 프로젝트 구조: Vite로 시작하기",
+    tags: ["vue", "frontend"],
+    type: "info",
+    summary: "Vue CLI 대신 Vite로 시작하고, 프로젝트 폴더가 어떤 역할을 하는지 초보자 눈높이로 봅니다.",
+    goal: "Vue 프로젝트를 생성하고, App.vue와 main.js가 어떤 관계인지 이해합니다.",
+    analogy: "Vite 프로젝트는 작은 작업실입니다. main.js는 전원 스위치, App.vue는 첫 번째 작업대, components 폴더는 부품 보관함입니다.",
+    studyHint: "처음에는 설정 파일을 다 이해하지 않아도 됩니다. 어떤 파일을 자주 만지는지부터 익히면 충분합니다.",
+    sections: [
+      {
+        title: "프로젝트 생성",
+        body: [
+          p("지금 Vue 3를 새로 배울 때는 Vite로 시작하는 흐름이 가장 가볍습니다. Vue CLI는 오래된 강의에서 자주 나오지만, 이 학습서에서는 참고 정도로만 봅니다."),
+          code(`
+npm create vue@latest todo-vue
+cd todo-vue
+npm install
+npm run dev
+          `),
+          p("질문이 나오면 처음에는 TypeScript는 No로 시작해도 됩니다. Todo 앱을 완성한 뒤 TypeScript 장에서 점진적으로 붙이는 방식이 더 덜 부담스럽습니다.")
+        ]
+      },
+      {
+        title: "폴더 구조를 집 구조처럼 보기",
+        body: [
+          table(["파일/폴더", "역할", "비유"], [
+            ["<code>main.js</code>", "Vue 앱을 브라우저에 붙이는 시작점", "전원 스위치"],
+            ["<code>App.vue</code>", "가장 바깥쪽 루트 컴포넌트", "집 전체의 거실"],
+            ["<code>components/</code>", "재사용 컴포넌트 폴더", "레고 부품 상자"],
+            ["<code>assets/</code>", "이미지, CSS 같은 정적 자원", "꾸미기 재료"],
+            ["<code>package.json</code>", "실행 명령과 설치 목록", "프로젝트 설명서"]
+          ])
+        ]
+      },
+      {
+        title: "React 프로젝트와 비교",
+        body: [
+          table(["역할", "Vue", "React"], [
+            ["시작 파일", "<code>main.js</code>에서 <code>createApp(App)</code>", "<code>main.jsx</code>에서 <code>createRoot(...).render()</code>"],
+            ["컴포넌트 파일", "<code>.vue</code> Single File Component", "<code>.jsx</code> 또는 <code>.tsx</code>"],
+            ["개발 서버", "Vite", "Vite 또는 Next.js 개발 서버"],
+            ["템플릿", "<code>&lt;template&gt;</code>", "JSX 반환값"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "main.js와 App.vue 관계",
+        desc: "main.js가 App.vue를 가져와서 실제 HTML의 #app 위치에 꽂습니다.",
+        sql: `
+// main.js
+import { createApp } from "vue";
+import App from "./App.vue";
+
+createApp(App).mount("#app");
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "Vite 프로젝트에서 가장 바깥 루트 컴포넌트는 보통 어떤 파일인가요?",
+        answer: "App.vue입니다."
+      },
+      {
+        prompt: "Vue CLI 내용을 완전히 깊게 다루지 않는 이유는 무엇인가요?",
+        answer: "새 Vue 3 프로젝트에서는 Vite가 더 가볍고 일반적이기 때문입니다. 기존 프로젝트 유지보수 때 Vue CLI를 만나면 그때 추가로 보면 됩니다."
+      }
+    ],
+    practiceGuide: "Vite로 새 Vue 프로젝트를 하나 만들고, App.vue의 기본 화면 문구를 'Todo 학습 시작'으로 바꿔 보세요."
+  },
+  {
+    id: "vue3_template_reactivity",
+    course: "vue",
+    part: "Vue Part 2. Todo 앱으로 배우는 초중급",
+    title: "3. 템플릿 문법과 반응형 상태",
+    tags: ["vue", "todo", "react"],
+    type: "info",
+    summary: "Todo 앱의 입력값과 목록을 만들기 전에, Vue 템플릿과 ref/reactive를 익힙니다.",
+    goal: "ref, reactive, v-bind, v-if, v-for를 Todo 예시로 이해합니다.",
+    analogy: "상태는 주방의 재료 상자이고 템플릿은 접시입니다. 재료가 바뀌면 Vue가 접시 위 모양을 다시 차려 줍니다.",
+    studyHint: "Vue 초반의 핵심은 'HTML처럼 보이는 템플릿 안에서 상태를 표시한다'는 점입니다.",
+    sections: [
+      {
+        title: "ref와 reactive",
+        body: [
+          p("<code>ref</code>는 숫자, 문자열, 배열, 객체 모두 담을 수 있는 반응형 상자입니다. 스크립트에서는 <code>.value</code>로 꺼내고, 템플릿에서는 자동으로 풀려서 그냥 이름으로 씁니다."),
+          p("<code>reactive</code>는 객체를 통째로 반응형으로 만들 때 씁니다. 초보 단계에서는 <code>ref</code>만으로도 대부분의 Todo 앱을 만들 수 있습니다."),
+          table(["상황", "추천", "예시"], [
+            ["입력창 글자", "<code>ref</code>", "<code>const newTodo = ref('')</code>"],
+            ["할 일 배열", "<code>ref</code>", "<code>const todos = ref([])</code>"],
+            ["여러 설정을 담은 객체", "<code>reactive</code>", "<code>reactive({ filter: 'all' })</code>"]
+          ])
+        ]
+      },
+      {
+        title: "v-if, v-for, v-bind",
+        body: [
+          table(["Vue 문법", "뜻", "React에서는"], [
+            ["<code>v-if</code>", "조건이 참일 때만 보여줌", "<code>{condition && &lt;div /&gt;}</code>"],
+            ["<code>v-for</code>", "배열을 반복 출력", "<code>todos.map(todo =&gt; ...)</code>"],
+            ["<code>:class</code>", "class를 상태에 따라 바꿈", "<code>className={...}</code>"],
+            ["<code>:disabled</code>", "속성을 상태에 따라 바꿈", "<code>disabled={...}</code>"]
+          ]),
+          callout("tip", "class 바인딩은 최소한만", "class와 style 바인딩은 실무에서 쓰지만 문법 자체가 목적은 아닙니다. 이 학습서에서는 완료된 Todo에 줄 긋기 정도로만 익힙니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "Todo 목록 첫 화면",
+        desc: "todos 배열을 v-for로 출력하고, done 값에 따라 class를 바꿉니다.",
+        sql: `
+<script setup>
+import { ref } from "vue";
+
+const todos = ref([
+  { id: 1, title: "Vue 템플릿 읽기", done: true },
+  { id: 2, title: "Todo 앱 만들기", done: false }
+]);
+</script>
+
+<template>
+  <p v-if="todos.length === 0">아직 할 일이 없습니다.</p>
+
+  <ul>
+    <li v-for="todo in todos" :key="todo.id" :class="{ done: todo.done }">
+      {{ todo.title }}
+    </li>
+  </ul>
+</template>
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "Vue에서 배열을 화면에 반복해서 보여줄 때 쓰는 문법은 무엇인가요?",
+        answer: "v-for입니다."
+      },
+      {
+        prompt: "React의 todos.map(...)과 비슷한 Vue 문법은 무엇인가요?",
+        answer: "v-for입니다."
+      }
+    ],
+    practiceGuide: "App.vue에 todos 배열을 만들고, 완료된 항목에는 줄이 그어지는 class를 붙여 보세요."
+  },
+  {
+    id: "vue4_events_vmodel",
+    course: "vue",
+    part: "Vue Part 2. Todo 앱으로 배우는 초중급",
+    title: "4. 이벤트와 v-model: Todo 추가하기",
+    tags: ["vue", "todo", "react"],
+    type: "info",
+    summary: "입력창 값을 상태와 연결하고, 버튼 또는 Enter 키로 Todo를 추가합니다.",
+    goal: "v-model, @click, @submit.prevent를 Todo 추가 기능으로 익힙니다.",
+    analogy: "v-model은 입력창과 상태 사이에 양방향 전화선을 꽂는 것입니다. 입력창에 쓰면 상태가 바뀌고, 상태를 비우면 입력창도 비워집니다.",
+    studyHint: "Vue에서는 입력 폼이 React보다 짧게 작성됩니다. 대신 v-model이 내부적으로 어떤 일을 대신하는지 이해해야 합니다.",
+    sections: [
+      {
+        title: "v-model은 무엇을 대신하나요?",
+        body: [
+          p("입력창은 사용자가 글자를 치는 곳이고, 상태는 앱이 기억하는 값입니다. React에서는 <code>value</code>와 <code>onChange</code>를 직접 연결하는 경우가 많습니다. Vue는 <code>v-model</code> 하나로 이 연결을 만들어 줍니다."),
+          table(["역할", "Vue", "React"], [
+            ["입력값 상태", "<code>const newTodo = ref('')</code>", "<code>const [newTodo, setNewTodo] = useState('')</code>"],
+            ["입력 연결", "<code>v-model=\"newTodo\"</code>", "<code>value={newTodo} onChange={...}</code>"],
+            ["제출 이벤트", "<code>@submit.prevent</code>", "<code>onSubmit</code>에서 <code>event.preventDefault()</code>"]
+          ])
+        ]
+      },
+      {
+        title: "Todo 추가 흐름",
+        body: [
+          ol([
+            "입력창 글자를 <code>newTodo</code> 상태에 저장합니다.",
+            "폼을 제출하면 앞뒤 공백을 제거합니다.",
+            "빈 문자열이면 추가하지 않습니다.",
+            "새 Todo 객체를 만들어 <code>todos</code> 배열에 넣습니다.",
+            "입력창을 비웁니다."
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "Todo 추가 기능",
+        desc: "v-model과 submit 이벤트만으로 기본 추가 흐름을 만들 수 있습니다.",
+        sql: `
+<script setup>
+import { ref } from "vue";
+
+const newTodo = ref("");
+const todos = ref([]);
+let nextId = 1;
+
+function addTodo() {
+  const title = newTodo.value.trim();
+  if (!title) return;
+
+  todos.value.push({
+    id: nextId++,
+    title,
+    done: false
+  });
+
+  newTodo.value = "";
+}
+</script>
+
+<template>
+  <form @submit.prevent="addTodo">
+    <input v-model="newTodo" placeholder="할 일을 입력하세요" />
+    <button type="submit">추가</button>
+  </form>
+</template>
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "@submit.prevent의 prevent는 어떤 일을 하나요?",
+        answer: "브라우저가 폼 제출 시 페이지를 새로고침하는 기본 동작을 막습니다."
+      },
+      {
+        prompt: "React에서 v-model과 비슷한 입력 제어 방식은 무엇인가요?",
+        answer: "value와 onChange를 함께 사용하는 controlled input입니다."
+      }
+    ],
+    practiceGuide: "빈 값은 추가되지 않게 만들고, 추가 후 입력창이 자동으로 비워지는지 확인하세요."
+  },
+  {
+    id: "vue5_components_props_emit",
+    course: "vue",
+    part: "Vue Part 2. Todo 앱으로 배우는 초중급",
+    title: "5. 컴포넌트, Props, Emit: Todo 앱 나누기",
+    tags: ["vue", "todo", "react"],
+    type: "info",
+    summary: "Todo 앱을 TodoInput, TodoList, TodoItem으로 나누며 부모-자식 데이터 흐름을 익힙니다.",
+    goal: "props는 내려주기, emit은 올려보내기라는 감각을 잡습니다.",
+    analogy: "부모 컴포넌트는 가게 사장이고 자식 컴포넌트는 직원입니다. 사장은 필요한 정보를 내려주고(props), 직원은 일이 생기면 보고합니다(emit).",
+    studyHint: "컴포넌트 통신은 Vue 초중급의 가장 중요한 고비입니다. 데이터가 어디에 있고, 누가 바꾸는지 꼭 말로 설명해 보세요.",
+    sections: [
+      {
+        title: "컴포넌트로 나누는 기준",
+        body: [
+          table(["컴포넌트", "역할", "받는 데이터", "올리는 이벤트"], [
+            ["TodoInput", "새 할 일 입력", "없음 또는 초기값", "add"],
+            ["TodoList", "목록 전체 출력", "todos", "toggle, remove"],
+            ["TodoItem", "할 일 한 줄 출력", "todo", "toggle, remove"],
+            ["TodoFooter", "전체 삭제, 남은 개수", "count", "clear"]
+          ]),
+          p("처음에는 컴포넌트를 너무 잘게 나누려고 하지 않아도 됩니다. 한 파일이 길어지고 역할이 섞인다고 느껴질 때 나누면 됩니다.")
+        ]
+      },
+      {
+        title: "React와 비교",
+        body: [
+          table(["데이터 흐름", "Vue", "React"], [
+            ["부모 -> 자식", "<code>defineProps</code>", "props 함수 파라미터"],
+            ["자식 -> 부모", "<code>defineEmits</code> 후 <code>emit('add')</code>", "부모가 내려준 콜백 함수 호출"],
+            ["컴포넌트 파일", "<code>TodoInput.vue</code>", "<code>TodoInput.jsx</code>"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "TodoInput.vue",
+        desc: "자식 컴포넌트는 직접 부모의 todos를 수정하지 않고 add 이벤트만 올립니다.",
+        sql: `
+<script setup>
+import { ref } from "vue";
+
+const emit = defineEmits(["add"]);
+const title = ref("");
+
+function submit() {
+  const value = title.value.trim();
+  if (!value) return;
+  emit("add", value);
+  title.value = "";
+}
+</script>
+
+<template>
+  <form @submit.prevent="submit">
+    <input v-model="title" placeholder="할 일" />
+    <button>추가</button>
+  </form>
+</template>
+        `
+      },
+      {
+        title: "부모 App.vue에서 이벤트 받기",
+        desc: "부모가 실제 todos 배열을 소유하고 변경합니다.",
+        sql: `
+<TodoInput @add="addTodo" />
+<TodoList :todos="todos" @toggle="toggleTodo" @remove="removeTodo" />
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "Vue에서 자식이 부모에게 사건을 알릴 때 사용하는 기능은 무엇인가요?",
+        answer: "emit입니다. script setup에서는 defineEmits를 사용합니다."
+      },
+      {
+        prompt: "React에서 emit과 비슷한 방식은 무엇인가요?",
+        answer: "부모가 자식에게 onAdd 같은 콜백 함수를 props로 내려주고, 자식이 그 함수를 호출하는 방식입니다."
+      }
+    ],
+    practiceGuide: "TodoInput.vue와 TodoList.vue를 만들고, App.vue가 todos 상태를 소유하도록 리팩토링해 보세요."
+  },
+  {
+    id: "vue6_computed_watch_lifecycle",
+    course: "vue",
+    part: "Vue Part 2. Todo 앱으로 배우는 초중급",
+    title: "6. computed, watch, Lifecycle: Todo 앱 똑똑하게 만들기",
+    tags: ["vue", "todo", "react"],
+    type: "info",
+    summary: "남은 할 일 개수, 필터링, localStorage 저장을 통해 computed/watch/lifecycle을 익힙니다.",
+    goal: "계산된 값은 computed, 변화 감지는 watch, 최초 실행은 lifecycle로 구분합니다.",
+    analogy: "computed는 자동 계산기, watch는 경보 장치, lifecycle은 앱의 출근/퇴근 기록입니다.",
+    studyHint: "computed와 watch를 헷갈리기 쉽습니다. 화면에 보여줄 계산 결과면 computed, 어떤 변화에 반응해 별도 일을 해야 하면 watch입니다.",
+    sections: [
+      {
+        title: "computed와 watch 구분",
+        body: [
+          table(["상황", "Vue 선택", "React에서는"], [
+            ["남은 할 일 개수 표시", "<code>computed</code>", "렌더 중 계산 또는 <code>useMemo</code>"],
+            ["완료/미완료 필터링", "<code>computed</code>", "배열 filter 결과"],
+            ["todos가 바뀔 때 localStorage 저장", "<code>watch</code>", "<code>useEffect</code>"],
+            ["처음 화면이 뜰 때 저장된 데이터 불러오기", "<code>onMounted</code>", "<code>useEffect(..., [])</code>"]
+          ])
+        ]
+      },
+      {
+        title: "Todo에 붙일 기능",
+        body: [
+          ol([
+            "남은 할 일 개수를 computed로 만듭니다.",
+            "필터 상태 all/active/done을 둡니다.",
+            "필터링된 목록을 computed로 만듭니다.",
+            "todos가 바뀔 때 watch로 localStorage에 저장합니다.",
+            "onMounted에서 저장된 todos를 불러옵니다."
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "computed와 watch 예시",
+        desc: "Todo 앱이 새로고침 후에도 목록을 기억하게 만드는 기본 흐름입니다.",
+        sql: `
+<script setup>
+import { computed, onMounted, ref, watch } from "vue";
+
+const todos = ref([]);
+const filter = ref("all");
+
+const remainingCount = computed(() =>
+  todos.value.filter(todo => !todo.done).length
+);
+
+const filteredTodos = computed(() => {
+  if (filter.value === "active") return todos.value.filter(todo => !todo.done);
+  if (filter.value === "done") return todos.value.filter(todo => todo.done);
+  return todos.value;
+});
+
+watch(todos, value => {
+  localStorage.setItem("todos", JSON.stringify(value));
+}, { deep: true });
+
+onMounted(() => {
+  const saved = localStorage.getItem("todos");
+  if (saved) todos.value = JSON.parse(saved);
+});
+</script>
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "남은 할 일 개수처럼 상태에서 계산해 보여주는 값은 computed와 watch 중 무엇이 어울리나요?",
+        answer: "computed가 어울립니다."
+      },
+      {
+        prompt: "React의 useEffect와 가장 비슷한 Vue 개념 두 가지를 말해 보세요.",
+        answer: "watch와 lifecycle hook(onMounted 등)입니다. 목적에 따라 나누어 씁니다."
+      }
+    ],
+    practiceGuide: "Todo 앱에 all/active/done 필터 버튼과 남은 할 일 개수를 추가해 보세요."
+  },
+  {
+    id: "vue7_composables",
+    course: "vue",
+    part: "Vue Part 2. Todo 앱으로 배우는 초중급",
+    title: "7. Composables: Todo 로직을 재사용 함수로 빼기",
+    tags: ["vue", "todo", "react"],
+    type: "info",
+    summary: "컴포넌트가 길어질 때 상태와 함수를 useTodos 같은 재사용 함수로 분리합니다.",
+    goal: "Composable이 React Custom Hook과 비슷한 역할이라는 점을 이해합니다.",
+    analogy: "Composable은 자주 쓰는 요리법을 레시피 카드로 빼 두는 것입니다. 컴포넌트마다 같은 로직을 다시 쓰지 않고 레시피를 가져다 씁니다.",
+    studyHint: "초보 단계에서는 무조건 분리하지 마세요. 먼저 한 컴포넌트에서 완성하고, 반복되거나 길어진 로직을 나중에 빼면 됩니다.",
+    sections: [
+      {
+        title: "언제 Composable로 빼나요?",
+        body: [
+          ul([
+            "상태와 함수가 많아져 컴포넌트가 읽기 어려울 때",
+            "여러 컴포넌트에서 같은 로딩/에러/API 호출 로직을 쓸 때",
+            "Todo 관련 로직을 UI와 분리해 테스트하거나 재사용하고 싶을 때"
+          ]),
+          table(["Vue", "React"], [
+            ["<code>useTodos()</code> Composable", "<code>useTodos()</code> Custom Hook"],
+            ["<code>ref</code>, <code>computed</code> 반환", "<code>useState</code> 값과 함수 반환"],
+            ["파일 예: <code>composables/useTodos.js</code>", "파일 예: <code>hooks/useTodos.js</code>"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "useTodos.js",
+        desc: "Todo 상태와 변경 함수를 한 파일로 모읍니다.",
+        sql: `
+// src/composables/useTodos.js
+import { computed, ref } from "vue";
+
+export function useTodos() {
+  const todos = ref([]);
+  let nextId = 1;
+
+  const remainingCount = computed(() =>
+    todos.value.filter(todo => !todo.done).length
+  );
+
+  function addTodo(title) {
+    todos.value.push({ id: nextId++, title, done: false });
+  }
+
+  function toggleTodo(id) {
+    const todo = todos.value.find(item => item.id === id);
+    if (todo) todo.done = !todo.done;
+  }
+
+  function removeTodo(id) {
+    todos.value = todos.value.filter(todo => todo.id !== id);
+  }
+
+  return { todos, remainingCount, addTodo, toggleTodo, removeTodo };
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "Composable 이름이 보통 use로 시작하는 이유는 무엇인가요?",
+        answer: "상태와 로직을 사용하는 재사용 함수라는 관례를 드러내기 위해서입니다. React의 Custom Hook 이름과도 비슷합니다."
+      },
+      {
+        prompt: "UI 마크업과 상태 변경 로직을 분리하면 어떤 장점이 있나요?",
+        answer: "컴포넌트가 짧아지고, 같은 로직을 다른 화면에서 재사용하기 쉬워집니다."
+      }
+    ],
+    practiceGuide: "App.vue에 있던 addTodo, toggleTodo, removeTodo, remainingCount를 useTodos.js로 옮겨 보세요."
+  },
+  {
+    id: "vue8_router_shopping_intro",
+    course: "vue",
+    part: "Vue Part 3. 쇼핑몰로 배우는 중고급",
+    title: "8. Vue Router: 쇼핑몰 페이지 나누기",
+    tags: ["vue", "router", "shop", "react"],
+    type: "info",
+    summary: "쇼핑몰 예제로 홈, 상품 목록, 상품 상세, 장바구니 페이지를 라우터로 연결합니다.",
+    goal: "SPA 라우팅, router-view, router-link, 동적 라우트를 이해합니다.",
+    analogy: "라우터는 백화점 안내도입니다. /products는 상품 매장, /products/101은 101번 상품 진열대, /cart는 계산대입니다.",
+    studyHint: "라우터는 페이지를 여러 HTML 파일로 나누는 것이 아니라, 주소에 따라 보여줄 컴포넌트를 바꾸는 장치입니다.",
+    sections: [
+      {
+        title: "쇼핑몰 라우트 설계",
+        body: [
+          table(["주소", "컴포넌트", "역할"], [
+            ["/", "HomeView", "메인 페이지"],
+            ["/products", "ProductListView", "상품 목록"],
+            ["/products/:id", "ProductDetailView", "상품 상세"],
+            ["/cart", "CartView", "장바구니"],
+            ["/checkout", "CheckoutView", "주문 페이지"]
+          ])
+        ]
+      },
+      {
+        title: "React와 비교",
+        body: [
+          table(["라우팅 역할", "Vue Router", "React Router"], [
+            ["링크", "<code>&lt;RouterLink to=\"/products\" /&gt;</code>", "<code>&lt;Link to=\"/products\" /&gt;</code>"],
+            ["페이지 표시 위치", "<code>&lt;RouterView /&gt;</code>", "<code>&lt;Outlet /&gt;</code>"],
+            ["URL 파라미터", "<code>useRoute().params.id</code>", "<code>useParams().id</code>"],
+            ["이동", "<code>useRouter().push('/cart')</code>", "<code>useNavigate()('/cart')</code>"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "router/index.js",
+        desc: "쇼핑몰의 주소와 페이지 컴포넌트를 연결합니다.",
+        sql: `
+import { createRouter, createWebHistory } from "vue-router";
+import HomeView from "@/views/HomeView.vue";
+import ProductListView from "@/views/ProductListView.vue";
+import ProductDetailView from "@/views/ProductDetailView.vue";
+import CartView from "@/views/CartView.vue";
+
+export const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: "/", component: HomeView },
+    { path: "/products", component: ProductListView },
+    { path: "/products/:id", component: ProductDetailView, props: true },
+    { path: "/cart", component: CartView }
+  ]
+});
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "/products/101에서 101 같은 값을 무엇이라고 부르나요?",
+        answer: "동적 라우트 파라미터(params)라고 부릅니다."
+      },
+      {
+        prompt: "Vue Router의 RouterView는 React Router의 어떤 기능과 비슷한가요?",
+        answer: "Outlet과 비슷합니다. 현재 주소에 맞는 페이지 컴포넌트를 표시하는 자리입니다."
+      }
+    ],
+    practiceGuide: "쇼핑몰 프로젝트에 Home, Products, ProductDetail, Cart 네 페이지를 만들고 라우터로 이동해 보세요."
+  },
+  {
+    id: "vue9_api_async",
+    course: "vue",
+    part: "Vue Part 3. 쇼핑몰로 배우는 중고급",
+    title: "9. API 통신: 상품 목록 불러오기",
+    tags: ["vue", "shop", "react"],
+    type: "info",
+    summary: "fetch/axios, async/await, 로딩/에러 상태를 쇼핑몰 상품 목록으로 배웁니다.",
+    goal: "서버 데이터를 가져와 화면에 보여주는 기본 흐름을 익힙니다.",
+    analogy: "API 호출은 창고에 상품 목록을 요청하는 전화입니다. 전화 중에는 로딩 표시를 하고, 실패하면 안내 문구를 보여 줘야 합니다.",
+    studyHint: "비동기는 처음엔 어렵습니다. '요청 전, 성공, 실패, 완료' 네 칸으로 나누면 훨씬 덜 복잡합니다.",
+    sections: [
+      {
+        title: "API 상태 네 가지",
+        body: [
+          table(["상태", "의미", "화면"], [
+            ["idle", "아직 요청 전", "빈 화면 또는 기본 안내"],
+            ["loading", "요청 중", "스피너 또는 로딩 문구"],
+            ["success", "성공", "상품 목록"],
+            ["error", "실패", "다시 시도 버튼과 에러 메시지"]
+          ])
+        ]
+      },
+      {
+        title: "React와 비교",
+        body: [
+          table(["역할", "Vue", "React"], [
+            ["첫 로딩 시 API 호출", "<code>onMounted</code>", "<code>useEffect(..., [])</code>"],
+            ["상태 저장", "<code>ref([])</code>, <code>ref(false)</code>", "<code>useState</code>"],
+            ["재사용 API 로직", "Composable", "Custom Hook"],
+            ["HTTP 도구", "fetch 또는 axios", "fetch 또는 axios"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "상품 목록 불러오기",
+        desc: "로딩과 에러까지 함께 관리하는 기본 예시입니다.",
+        sql: `
+<script setup>
+import { onMounted, ref } from "vue";
+
+const products = ref([]);
+const loading = ref(false);
+const error = ref("");
+
+async function fetchProducts() {
+  loading.value = true;
+  error.value = "";
+
+  try {
+    const response = await fetch("/api/products");
+    if (!response.ok) throw new Error("상품을 불러오지 못했습니다.");
+    products.value = await response.json();
+  } catch (err) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(fetchProducts);
+</script>
+
+<template>
+  <p v-if="loading">상품을 불러오는 중입니다.</p>
+  <p v-else-if="error">{{ error }}</p>
+  <ProductGrid v-else :products="products" />
+</template>
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "API 호출 중인지 화면에 표시하려면 어떤 상태가 필요할까요?",
+        answer: "loading 같은 boolean 상태가 필요합니다."
+      },
+      {
+        prompt: "React의 useEffect(..., [])와 비슷하게 첫 화면 표시 후 실행되는 Vue 훅은 무엇인가요?",
+        answer: "onMounted입니다."
+      }
+    ],
+    practiceGuide: "가짜 products 배열을 먼저 화면에 보여준 뒤, fetchProducts 함수 형태로 바꾸어 로딩/에러 상태를 추가해 보세요."
+  },
+  {
+    id: "vue10_pinia_cart",
+    course: "vue",
+    part: "Vue Part 3. 쇼핑몰로 배우는 중고급",
+    title: "10. Pinia: 장바구니 전역 상태 만들기",
+    tags: ["vue", "pinia", "shop", "react"],
+    type: "info",
+    summary: "상품 상세와 장바구니 페이지가 공유하는 cart 상태를 Pinia로 관리합니다.",
+    goal: "Pinia의 state, getters, actions를 장바구니 예제로 이해합니다.",
+    analogy: "Pinia store는 쇼핑몰의 중앙 창고입니다. 여러 페이지가 같은 장바구니를 봐야 하므로 각 페이지에 따로 장바구니를 만들면 안 됩니다.",
+    studyHint: "작은 Todo 앱은 부모 상태만으로 충분합니다. 하지만 쇼핑몰처럼 여러 페이지가 같은 데이터를 공유하면 전역 상태가 편해집니다.",
+    sections: [
+      {
+        title: "Pinia가 필요한 순간",
+        body: [
+          ul([
+            "상품 상세 페이지에서 '장바구니 담기'를 눌렀는데 Cart 페이지에서도 보여야 할 때",
+            "헤더의 장바구니 개수 배지가 모든 페이지에서 보여야 할 때",
+            "로그인 사용자 정보처럼 앱 전체에서 참조하는 데이터가 있을 때"
+          ]),
+          table(["개념", "Pinia", "React 쪽 예시"], [
+            ["전역 상태 저장소", "store", "Redux store, Zustand store, Context"],
+            ["상태", "state", "state"],
+            ["계산 값", "getters", "selector, derived state"],
+            ["변경 함수", "actions", "action, setter function"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "cart store",
+        desc: "장바구니 목록, 총 개수, 총 금액, 추가/삭제 함수를 한곳에 둡니다.",
+        sql: `
+// stores/cart.js
+import { defineStore } from "pinia";
+
+export const useCartStore = defineStore("cart", {
+  state: () => ({
+    items: []
+  }),
+  getters: {
+    totalCount: state => state.items.reduce((sum, item) => sum + item.quantity, 0),
+    totalPrice: state => state.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  },
+  actions: {
+    addToCart(product) {
+      const found = this.items.find(item => item.id === product.id);
+      if (found) {
+        found.quantity += 1;
+      } else {
+        this.items.push({ ...product, quantity: 1 });
+      }
+    },
+    removeFromCart(id) {
+      this.items = this.items.filter(item => item.id !== id);
+    }
+  }
+});
+        `
+      },
+      {
+        title: "컴포넌트에서 사용",
+        desc: "어느 페이지에서든 같은 cart store를 가져다 씁니다.",
+        sql: `
+<script setup>
+import { useCartStore } from "@/stores/cart";
+
+const cart = useCartStore();
+</script>
+
+<template>
+  <button @click="cart.addToCart(product)">
+    장바구니 담기
+  </button>
+  <span>담긴 상품 수: {{ cart.totalCount }}</span>
+</template>
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "새 Vue 3 프로젝트에서 Vuex보다 Pinia를 우선 학습하는 이유는 무엇인가요?",
+        answer: "Pinia가 Vue 3에서 더 간결하고 공식 권장 흐름에 가까우며 Composition API와 잘 맞기 때문입니다."
+      },
+      {
+        prompt: "Pinia getters는 어떤 값을 만들 때 쓰나요?",
+        answer: "state에서 계산해 낼 수 있는 총 개수, 총 금액 같은 파생 값을 만들 때 씁니다."
+      }
+    ],
+    practiceGuide: "장바구니 store를 만들고, ProductDetailView에서 addToCart를 호출한 뒤 CartView에서 items와 totalPrice를 출력해 보세요."
+  },
+  {
+    id: "vue11_slots_teleport_transition",
+    course: "vue",
+    part: "Vue Part 3. 쇼핑몰로 배우는 중고급",
+    title: "11. Slots, Teleport, Transition: 재사용 UI 만들기",
+    tags: ["vue", "shop", "react"],
+    type: "info",
+    summary: "공통 모달, 카드, 알림을 만들며 Vue 내장 컴포넌트와 slot을 익힙니다.",
+    goal: "slot은 내용 주입, Teleport는 위치 이동, Transition은 등장/퇴장 애니메이션으로 이해합니다.",
+    analogy: "slot은 액자입니다. 액자 모양은 같지만 안에 넣는 사진은 매번 다를 수 있습니다. Teleport는 모달을 화면 맨 위 레이어로 옮겨 붙이는 엘리베이터입니다.",
+    studyHint: "고급 UI는 화려한 문법보다 재사용 가능한 컴포넌트 경계가 중요합니다.",
+    sections: [
+      {
+        title: "쇼핑몰에서 어디에 쓰나요?",
+        body: [
+          table(["기능", "쇼핑몰 예시", "React에서는"], [
+            ["slot", "ProductCard의 버튼 영역을 페이지마다 다르게 넣기", "children prop"],
+            ["Teleport", "장바구니 확인 모달을 body 아래로 이동", "Portal"],
+            ["Transition", "모달 열림/닫힘, 장바구니 항목 등장", "CSS Transition, animation library"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "BaseModal.vue",
+        desc: "모달의 틀은 재사용하고 내용은 slot으로 받습니다.",
+        sql: `
+<script setup>
+defineProps({
+  open: Boolean
+});
+
+const emit = defineEmits(["close"]);
+</script>
+
+<template>
+  <Teleport to="body">
+    <Transition name="fade">
+      <div v-if="open" class="modal-backdrop" @click.self="emit('close')">
+        <section class="modal">
+          <header>
+            <slot name="title">알림</slot>
+          </header>
+          <main>
+            <slot />
+          </main>
+        </section>
+      </div>
+    </Transition>
+  </Teleport>
+</template>
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "Vue slot은 React의 어떤 개념과 가장 비슷한가요?",
+        answer: "children prop과 비슷합니다."
+      },
+      {
+        prompt: "Teleport는 어떤 UI에 특히 유용한가요?",
+        answer: "모달, 토스트, 드롭다운처럼 DOM 위치를 body 아래나 특정 영역으로 옮기는 UI에 유용합니다."
+      }
+    ],
+    practiceGuide: "장바구니 담기 완료 모달을 BaseModal로 만들고, 제목과 본문을 slot으로 넣어 보세요."
+  },
+  {
+    id: "vue12_typescript",
+    course: "vue",
+    part: "Vue Part 4. 실무 감각과 확장",
+    title: "12. TypeScript 점진 적용: Todo와 쇼핑몰 타입 잡기",
+    tags: ["vue", "typescript", "todo", "shop", "react"],
+    type: "info",
+    summary: "처음부터 타입으로 막히지 않도록, 완성한 기능에 Todo/Product/CartItem 타입을 점진적으로 붙입니다.",
+    goal: "타입은 코드를 귀찮게 하는 것이 아니라 데이터 모양을 약속하는 계약서라는 점을 이해합니다.",
+    analogy: "TypeScript는 택배 송장입니다. 상자 안에 무엇이 들어 있는지 이름표를 붙이면, 엉뚱한 물건을 넣으려 할 때 바로 알 수 있습니다.",
+    studyHint: "노베이스라면 TypeScript를 처음부터 깊게 파기보다, Vue 기본 기능을 만든 뒤 타입을 얹는 순서가 좋습니다.",
+    sections: [
+      {
+        title: "먼저 잡을 타입",
+        body: [
+          code(`
+export type Todo = {
+  id: number;
+  title: string;
+  done: boolean;
+};
+
+export type Product = {
+  id: number;
+  name: string;
+  price: number;
+  imageUrl: string;
+  category: string;
+};
+
+export type CartItem = Product & {
+  quantity: number;
+};
+          `),
+          p("이렇게 타입을 만들어 두면 Todo에 title 없이 데이터를 넣거나, price에 문자열을 넣는 실수를 개발 중에 잡을 수 있습니다.")
+        ]
+      },
+      {
+        title: "Vue와 React 타입 비교",
+        body: [
+          table(["역할", "Vue + TS", "React + TS"], [
+            ["props 타입", "<code>defineProps&lt;{ product: Product }&gt;()</code>", "<code>function Card({ product }: Props)</code>"],
+            ["emit 타입", "<code>defineEmits&lt;{ add: [product: Product] }&gt;()</code>", "콜백 prop 타입 정의"],
+            ["상태 타입", "<code>ref&lt;Product[]&gt;([])</code>", "<code>useState&lt;Product[]&gt;([])</code>"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "ProductCard props 타입",
+        desc: "상품 카드가 어떤 데이터를 받는지 명확히 합니다.",
+        sql: `
+<script setup lang="ts">
+import type { Product } from "@/types";
+
+defineProps<{
+  product: Product;
+}>();
+
+const emit = defineEmits<{
+  addToCart: [product: Product];
+}>();
+</script>
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "TypeScript를 처음부터 깊게 쓰기 어렵다면 어떤 순서가 좋나요?",
+        answer: "먼저 JavaScript로 기능을 이해하고, Todo/Product/CartItem처럼 핵심 데이터 타입부터 점진적으로 붙이는 순서가 좋습니다."
+      },
+      {
+        prompt: "Vue의 ref<Product[]>([])는 React의 어떤 코드와 비슷한가요?",
+        answer: "useState<Product[]>([])와 비슷합니다."
+      }
+    ],
+    practiceGuide: "Todo 타입을 만들고 todos 상태를 ref<Todo[]>([])로 바꿔 보세요. 그다음 Product와 CartItem 타입도 만들어 보세요."
+  },
+  {
+    id: "vue13_project_architecture",
+    course: "vue",
+    part: "Vue Part 4. 실무 감각과 확장",
+    title: "13. 쇼핑몰 프로젝트 구조와 리팩토링",
+    tags: ["vue", "shop", "advanced"],
+    type: "info",
+    summary: "views, components, composables, stores, api 폴더를 나누고 기능이 커질 때 정리하는 법을 배웁니다.",
+    goal: "파일을 어디에 둘지 판단하는 기준을 세웁니다.",
+    analogy: "프로젝트 구조는 마트 진열대입니다. 채소, 과자, 냉동식품을 한 바구니에 넣으면 찾기 어렵듯, 파일도 역할별로 나누어야 합니다.",
+    studyHint: "처음부터 완벽한 폴더 구조를 만들려고 하면 손이 멈춥니다. 기능이 생긴 뒤 역할이 보이면 분리하세요.",
+    sections: [
+      {
+        title: "추천 구조",
+        body: [
+          code(`
+src/
+  api/
+    products.js
+  components/
+    ProductCard.vue
+    BaseModal.vue
+  composables/
+    useProducts.js
+  stores/
+    cart.js
+  views/
+    ProductListView.vue
+    ProductDetailView.vue
+    CartView.vue
+  router/
+    index.js
+          `),
+          table(["폴더", "넣는 것"], [
+            ["api", "서버와 통신하는 함수"],
+            ["components", "재사용 가능한 UI 조각"],
+            ["composables", "상태와 로직 재사용 함수"],
+            ["stores", "Pinia 전역 상태"],
+            ["views", "라우터에 연결되는 페이지"]
+          ])
+        ]
+      },
+      {
+        title: "리팩토링 기준",
+        body: [
+          ol([
+            "한 컴포넌트가 너무 길어지면 UI 조각을 component로 뺍니다.",
+            "API 호출이 여러 곳에 반복되면 api 함수로 뺍니다.",
+            "상태와 로직이 여러 컴포넌트에서 반복되면 composable로 뺍니다.",
+            "여러 페이지가 공유해야 하는 상태면 Pinia store로 뺍니다."
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "api/products.js",
+        desc: "API 주소와 호출 방식을 화면 컴포넌트에서 분리합니다.",
+        sql: `
+const BASE_URL = import.meta.env.VITE_API_URL || "";
+
+export async function getProducts() {
+  const response = await fetch(BASE_URL + "/products");
+  if (!response.ok) throw new Error("상품 조회 실패");
+  return response.json();
+}
+
+export async function getProduct(id) {
+  const response = await fetch(BASE_URL + "/products/" + id);
+  if (!response.ok) throw new Error("상품 상세 조회 실패");
+  return response.json();
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "라우터에 연결되는 페이지 컴포넌트는 보통 어느 폴더에 두나요?",
+        answer: "views 폴더에 둡니다."
+      },
+      {
+        prompt: "API 호출 코드가 여러 컴포넌트에 흩어져 있으면 어디로 빼는 것이 좋나요?",
+        answer: "api 폴더의 함수로 분리하는 것이 좋습니다."
+      }
+    ],
+    practiceGuide: "쇼핑몰 프로젝트에 views, components, api, composables, stores 폴더를 만들고 현재 파일을 역할별로 옮겨 보세요."
+  },
+  {
+    id: "vue14_forms_validation",
+    course: "vue",
+    part: "Vue Part 4. 실무 감각과 확장",
+    title: "14. 폼과 검증: 주문 정보 입력하기",
+    tags: ["vue", "shop", "react"],
+    type: "info",
+    summary: "주문자 이름, 전화번호, 주소 입력 폼을 만들며 v-model, computed 검증, 제출 흐름을 익힙니다.",
+    goal: "폼 상태와 검증 메시지를 Vue스럽게 관리합니다.",
+    analogy: "폼 검증은 계산대 직원이 주문서 빈칸을 확인하는 과정입니다. 이름, 연락처, 주소가 없으면 결제로 넘기지 않습니다.",
+    studyHint: "폼 라이브러리를 쓰기 전에 작은 폼을 직접 만들어 보면, 나중에 라이브러리가 무엇을 대신해 주는지 이해됩니다.",
+    sections: [
+      {
+        title: "주문 폼 상태",
+        body: [
+          table(["필드", "상태", "검증"], [
+            ["이름", "name", "2글자 이상"],
+            ["전화번호", "phone", "비어 있지 않음"],
+            ["주소", "address", "비어 있지 않음"],
+            ["요청사항", "memo", "선택"]
+          ])
+        ]
+      },
+      {
+        title: "React와 비교",
+        body: [
+          table(["역할", "Vue", "React"], [
+            ["입력 연결", "<code>v-model</code>", "<code>value + onChange</code>"],
+            ["제출", "<code>@submit.prevent</code>", "<code>onSubmit</code>"],
+            ["검증 결과", "<code>computed</code>", "렌더 중 계산 또는 <code>useMemo</code>"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "CheckoutForm.vue",
+        desc: "computed로 제출 가능 여부를 계산합니다.",
+        sql: `
+<script setup>
+import { computed, reactive } from "vue";
+
+const form = reactive({
+  name: "",
+  phone: "",
+  address: "",
+  memo: ""
+});
+
+const canSubmit = computed(() =>
+  form.name.trim().length >= 2 &&
+  form.phone.trim() &&
+  form.address.trim()
+);
+
+function submitOrder() {
+  if (!canSubmit.value) return;
+  console.log("주문 제출", { ...form });
+}
+</script>
+
+<template>
+  <form @submit.prevent="submitOrder">
+    <input v-model="form.name" placeholder="이름" />
+    <input v-model="form.phone" placeholder="전화번호" />
+    <input v-model="form.address" placeholder="주소" />
+    <textarea v-model="form.memo" placeholder="요청사항" />
+    <button :disabled="!canSubmit">주문하기</button>
+  </form>
+</template>
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "주문하기 버튼의 disabled 상태처럼 다른 상태에서 계산되는 값은 무엇으로 만들면 좋나요?",
+        answer: "computed로 만들면 좋습니다."
+      },
+      {
+        prompt: "React에서 v-model이 없을 때 입력값은 보통 어떻게 관리하나요?",
+        answer: "value와 onChange를 직접 연결해서 관리합니다."
+      }
+    ],
+    practiceGuide: "CheckoutView에 주문 폼을 만들고, 이름/전화번호/주소가 모두 입력되어야 주문 버튼이 활성화되게 해 보세요."
+  },
+  {
+    id: "vue15_deploy_next_steps",
+    course: "vue",
+    part: "Vue Part 4. 실무 감각과 확장",
+    title: "15. 배포와 다음 학습 순서",
+    tags: ["vue", "frontend", "shop", "practice"],
+    type: "info",
+    summary: "Vite 앱을 빌드하고 배포할 때 필요한 최소 지식과 이후 학습 순서를 정리합니다.",
+    goal: "Todo와 쇼핑몰 학습 후 무엇을 더 공부해야 하는지 길을 잡습니다.",
+    analogy: "배포는 만든 가게를 내 컴퓨터 밖 쇼핑몰 거리에 오픈하는 일입니다. 빌드는 가게를 손님이 볼 수 있는 형태로 포장하는 과정입니다.",
+    studyHint: "초중급 단계에서는 배포 플랫폼의 모든 기능보다, 빌드 결과물과 SPA 라우팅 설정을 이해하는 것이 더 중요합니다.",
+    sections: [
+      {
+        title: "빌드와 배포",
+        body: [
+          code(`
+npm run build
+npm run preview
+          `),
+          p("<code>npm run build</code>를 실행하면 <code>dist</code> 폴더가 생깁니다. 이 폴더가 실제 배포되는 결과물입니다. Vercel, Netlify 같은 서비스는 이 과정을 자동으로 실행해 줍니다."),
+          callout("warning", "SPA 라우팅 주의", "Vue Router의 history 모드를 쓰면 /products/101 같은 주소로 바로 접속했을 때 서버가 index.html을 돌려주도록 설정해야 합니다. Vercel은 Vite SPA에서 보통 자동으로 잘 처리되지만, 다른 호스팅에서는 rewrite 설정이 필요할 수 있습니다.")
+        ]
+      },
+      {
+        title: "다음 학습 순서",
+        body: [
+          ol([
+            "Todo 앱을 Composition API로 끝까지 완성합니다.",
+            "쇼핑몰에서 Router, API, Pinia, 폼을 연결합니다.",
+            "TypeScript를 Todo와 Product 타입부터 점진 적용합니다.",
+            "테스트는 컴포넌트 단위부터 시작합니다.",
+            "성능은 목록 렌더링, 이미지 최적화, 코드 스플리팅 순서로 봅니다.",
+            "Nuxt는 Vue 기본기와 Router/API 흐름이 잡힌 뒤 학습합니다."
+          ])
+        ]
+      },
+      {
+        title: "이번 Vue 학습서에서 의도적으로 줄인 내용",
+        body: [
+          table(["내용", "왜 줄였나"], [
+            ["Bootstrap", "Vue 핵심이 아니라 UI 라이브러리 사용법에 가깝습니다."],
+            ["class 문법", "Vue 3 실무 중심 흐름과 거리가 있어 깊게 다루지 않습니다."],
+            ["Vuex", "기존 프로젝트에서 볼 수 있지만 새 프로젝트는 Pinia가 더 자연스럽습니다."],
+            ["Mixin/HOC", "개념은 알아두되 Composition API와 Composable이 더 실용적입니다."]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "작은 포트폴리오 과제",
+        desc: "학습 내용을 한 번에 확인하는 미션입니다.",
+        sql: `
+1. Todo 앱
+   - 추가, 삭제, 완료, 필터, localStorage
+   - TodoInput, TodoList, TodoItem 컴포넌트 분리
+
+2. 쇼핑몰 앱
+   - 상품 목록, 상품 상세, 장바구니, 주문 폼
+   - Router, API 함수, Pinia store 사용
+   - ProductCard, BaseModal 재사용
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "Vite 앱을 배포하기 전 만드는 결과물 폴더는 무엇인가요?",
+        answer: "dist 폴더입니다."
+      },
+      {
+        prompt: "Vue 기본기를 익힌 뒤 Nuxt를 배우는 것이 좋은 이유는 무엇인가요?",
+        answer: "Nuxt는 Vue 위에 라우팅, 서버 렌더링, 파일 기반 구조 등을 얹은 프레임워크라 Vue 기본기가 있어야 이해가 쉽습니다."
+      }
+    ],
+    practiceGuide: "Todo 앱과 쇼핑몰 앱을 각각 GitHub에 올리고, README에 기능 목록과 실행 방법을 정리해 보세요."
+  }
+];
+
 const learningGuides = {
   ch1_intro: {
     analogy: "데이터베이스는 책상 위에 흩어진 종이를 주제별 서랍에 넣고, 각 서랍에 라벨과 열쇠를 붙여 둔 정리함입니다. SQL은 그 정리함에서 원하는 종이를 찾고, 새 종이를 넣고, 잘못된 종이를 고치는 말입니다.",
@@ -3580,7 +4796,10 @@ const learningGuides = {
   }
 };
 
-export const curriculum = chapters.map(chapter => ({
+const allChapters = [...chapters, ...vueChapters];
+
+export const curriculum = allChapters.map(chapter => ({
+  course: chapter.course || "sql",
   ...chapter,
   ...learningGuides[chapter.id],
   content: renderLesson({ ...chapter, ...learningGuides[chapter.id] })

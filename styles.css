@@ -234,6 +234,40 @@ body {
   line-height: 1.45;
 }
 
+.course-switcher {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 14px 16px 0;
+}
+
+.course-tab {
+  min-height: 38px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.course-tab svg {
+  width: 16px;
+  height: 16px;
+}
+
+.course-tab:hover {
+  color: var(--text-primary);
+  border-color: rgba(74, 168, 161, 0.42);
+}
+
+.course-tab.active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan));
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(74, 168, 161, 0.18);
+}
+
 .curriculum-list {
   flex: 1;
   overflow-y: auto;
@@ -491,6 +525,44 @@ body {
   background-color: rgba(191, 150, 80, 0.16);
   color: #dfc075;
   border: 1px solid rgba(191, 150, 80, 0.3);
+}
+
+.lesson-tag.vue {
+  background-color: rgba(66, 184, 131, 0.15);
+  color: #69d6a2;
+  border: 1px solid rgba(66, 184, 131, 0.34);
+}
+
+.lesson-tag.react {
+  background-color: rgba(97, 218, 251, 0.14);
+  color: #8be7ff;
+  border: 1px solid rgba(97, 218, 251, 0.32);
+}
+
+.lesson-tag.frontend {
+  background-color: rgba(168, 127, 255, 0.14);
+  color: #bda1ff;
+  border: 1px solid rgba(168, 127, 255, 0.28);
+}
+
+.lesson-tag.todo {
+  background-color: rgba(16, 185, 129, 0.13);
+  color: #7ddfbe;
+  border: 1px solid rgba(16, 185, 129, 0.28);
+}
+
+.lesson-tag.shop {
+  background-color: rgba(245, 158, 11, 0.14);
+  color: #f6c36a;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.lesson-tag.typescript,
+.lesson-tag.router,
+.lesson-tag.pinia {
+  background-color: rgba(59, 130, 246, 0.14);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .lesson-header h2 {

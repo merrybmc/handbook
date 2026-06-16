@@ -3,7 +3,8 @@ import { initDatabase, runQuery, getDatabaseSchema } from "./db-playground.js";
 import { curriculum } from "./content.js";
 
 const state = {
-  currentChapterId: curriculum[0]?.id,
+  activeCourse: localStorage.getItem("learning_book_course") || "sql",
+  currentChapterId: null,
   completedChapters: {},
   editorInstance: null
 };
@@ -11,10 +12,12 @@ const state = {
 const sidebar = document.getElementById("sidebar");
 const sidebarToggle = document.getElementById("sidebar-toggle");
 const curriculumList = document.getElementById("curriculum-list");
+const courseSwitcher = document.getElementById("course-switcher");
 const lessonBody = document.getElementById("lesson-body");
 const progressPercentage = document.getElementById("progress-percentage");
 const progressFill = document.getElementById("progress-fill");
 const themeToggle = document.getElementById("theme-toggle");
+const playgroundPanel = document.getElementById("playground-panel");
 
 const prevChapterBtn = document.getElementById("prev-chapter-btn");
 const nextChapterBtn = document.getElementById("next-chapter-btn");
@@ -33,6 +36,14 @@ const verificationFeedback = document.getElementById("verification-feedback");
 const tabTitles = document.querySelectorAll(".tab-title");
 const tabPanes = document.querySelectorAll(".tab-pane");
 
+function getChapterCourse(chapter) {
+  return chapter.course || "sql";
+}
+
+function getActiveCurriculum() {
+  return curriculum.filter(chapter => getChapterCourse(chapter) === state.activeCourse);
+}
+
 function loadProgress() {
   const saved = localStorage.getItem("sql_handbook_progress");
   if (!saved) return;
@@ -50,14 +61,15 @@ function saveProgress() {
 }
 
 function updateProgressUI() {
-  const total = curriculum.length;
-  const completed = Object.values(state.completedChapters).filter(Boolean).length;
+  const chapters = getActiveCurriculum();
+  const total = chapters.length;
+  const completed = chapters.filter(chapter => state.completedChapters[chapter.id]).length;
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   progressPercentage.textContent = `${pct}%`;
   progressFill.style.width = `${pct}%`;
 
-  curriculum.forEach(chapter => {
+  chapters.forEach(chapter => {
     const dot = document.getElementById(`dot-${chapter.id}`);
     if (dot) dot.classList.toggle("completed", Boolean(state.completedChapters[chapter.id]));
   });
@@ -81,7 +93,12 @@ function initEditor() {
 
 function initSidebar() {
   curriculumList.innerHTML = "";
-  const parts = [...new Set(curriculum.map(chapter => chapter.part))];
+  document.querySelectorAll(".course-tab").forEach(tab => {
+    tab.classList.toggle("active", tab.dataset.course === state.activeCourse);
+  });
+
+  const chapters = getActiveCurriculum();
+  const parts = [...new Set(chapters.map(chapter => chapter.part))];
 
   parts.forEach(part => {
     const section = document.createElement("div");
@@ -92,7 +109,7 @@ function initSidebar() {
     title.textContent = part;
     section.appendChild(title);
 
-    curriculum
+    chapters
       .filter(chapter => chapter.part === part)
       .forEach(chapter => {
         const button = document.createElement("button");
@@ -143,11 +160,14 @@ function loadChapter(chapterId) {
   state.currentChapterId = chapterId;
   const chapter = curriculum.find(item => item.id === chapterId);
   if (!chapter) return;
+  state.activeCourse = getChapterCourse(chapter);
+  localStorage.setItem("learning_book_course", state.activeCourse);
 
   document.querySelectorAll(".chapter-btn").forEach(btn => btn.classList.remove("active"));
   document.getElementById(`btn-${chapterId}`)?.classList.add("active");
 
   lessonBody.innerHTML = chapter.content;
+  playgroundPanel.style.display = state.activeCourse === "sql" ? "flex" : "none";
 
   if (chapter.exercise?.starterSql && state.editorInstance) {
     state.editorInstance.setValue(chapter.exercise.starterSql);
@@ -160,9 +180,10 @@ function loadChapter(chapterId) {
 }
 
 function updateNavigationButtons(chapterId) {
-  const idx = curriculum.findIndex(chapter => chapter.id === chapterId);
+  const chapters = getActiveCurriculum();
+  const idx = chapters.findIndex(chapter => chapter.id === chapterId);
   prevChapterBtn.disabled = idx <= 0;
-  nextChapterBtn.disabled = idx === curriculum.length - 1;
+  nextChapterBtn.disabled = idx === chapters.length - 1;
 }
 
 function updateCompleteButton(chapterId) {
@@ -401,16 +422,28 @@ function bindEvents() {
     title.onclick = () => switchTab(title.dataset.tab);
   });
 
-  document.getElementById("start-learning-btn")?.addEventListener("click", () => loadChapter(curriculum[0].id));
+  courseSwitcher?.addEventListener("click", event => {
+    const button = event.target.closest(".course-tab");
+    if (!button) return;
+    state.activeCourse = button.dataset.course;
+    localStorage.setItem("learning_book_course", state.activeCourse);
+    initSidebar();
+    loadChapter(getActiveCurriculum()[0]?.id);
+    updateProgressUI();
+  });
+
+  document.getElementById("start-learning-btn")?.addEventListener("click", () => loadChapter(getActiveCurriculum()[0]?.id));
 
   prevChapterBtn.onclick = () => {
-    const idx = curriculum.findIndex(chapter => chapter.id === state.currentChapterId);
-    if (idx > 0) loadChapter(curriculum[idx - 1].id);
+    const chapters = getActiveCurriculum();
+    const idx = chapters.findIndex(chapter => chapter.id === state.currentChapterId);
+    if (idx > 0) loadChapter(chapters[idx - 1].id);
   };
 
   nextChapterBtn.onclick = () => {
-    const idx = curriculum.findIndex(chapter => chapter.id === state.currentChapterId);
-    if (idx < curriculum.length - 1) loadChapter(curriculum[idx + 1].id);
+    const chapters = getActiveCurriculum();
+    const idx = chapters.findIndex(chapter => chapter.id === state.currentChapterId);
+    if (idx < chapters.length - 1) loadChapter(chapters[idx + 1].id);
   };
 
   markCompleteBtn.onclick = () => {
@@ -438,6 +471,8 @@ function emptyResult(icon, message) {
 
 async function initApp() {
   loadProgress();
+  if (!getActiveCurriculum().length) state.activeCourse = "sql";
+  state.currentChapterId = getActiveCurriculum()[0]?.id;
   initSidebar();
   initEditor();
   bindEvents();
