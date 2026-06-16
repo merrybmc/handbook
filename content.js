@@ -87,6 +87,24 @@ function renderDrills(drills = []) {
   `;
 }
 
+function renderPracticeSteps(steps = []) {
+  if (!steps.length) return "";
+
+  return `
+    <section class="lesson-section">
+      <h3>처음 하는 사람용 실습 순서</h3>
+      <div class="practice-steps">
+        ${steps.map((step, index) => `
+          <div class="practice-step">
+            <span class="practice-step-number">${index + 1}</span>
+            <div class="practice-step-body">${step}</div>
+          </div>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderLesson(chapter) {
   const tags = chapter.tags.map(tag => `<span class="lesson-tag ${tag}">${tagLabels[tag] || tag}</span>`).join("");
   const learningAid = chapter.analogy || chapter.studyHint ? `
@@ -145,6 +163,7 @@ function renderLesson(chapter) {
       ${sections}
       ${examples}
       ${renderDrills(chapter.drills)}
+      ${renderPracticeSteps(chapter.practiceSteps)}
     </div>
     ${practice}
     ${practiceGuide}
@@ -4649,6 +4668,127 @@ npm run preview
   }
 ];
 
+const vuePracticeSteps = {
+  vue1_overview: [
+    "<strong>먼저 목표를 종이에 적습니다.</strong> Todo 앱은 '입력한다, 목록에 보인다, 완료한다, 삭제한다' 네 가지 기능을 만들고, 쇼핑몰은 '상품을 본다, 상세를 본다, 장바구니에 담는다, 주문 정보를 입력한다' 네 가지 흐름을 만든다고 적어 보세요.",
+    "<strong>화면을 조각으로 나눕니다.</strong> Todo 앱은 <code>TodoHeader</code>, <code>TodoInput</code>, <code>TodoList</code>, <code>TodoItem</code>, <code>TodoFooter</code>로 나눕니다. 아직 코드를 쓰지 말고 각 조각이 맡을 일을 한 줄씩 적습니다.",
+    "<strong>상태를 찾아 표시합니다.</strong> Todo 앱이 기억해야 하는 데이터는 <code>newTodo</code>와 <code>todos</code>입니다. 쇼핑몰은 <code>products</code>, <code>selectedProduct</code>, <code>cartItems</code>가 필요합니다.",
+    "<strong>React 비교는 참고만 합니다.</strong> Vue의 <code>ref</code>를 React의 <code>useState</code>처럼 생각해도 되지만, 지금은 Vue 코드가 실제로 어떻게 움직이는지에 집중하세요.",
+    "<strong>확인 기준:</strong> 이 장을 끝낸 뒤 '상태가 바뀌면 화면이 바뀐다', '컴포넌트는 화면 조각이다', 'props는 내려가고 emit은 올라간다'를 말로 설명할 수 있으면 됩니다."
+  ],
+  vue2_environment: [
+    "<strong>터미널을 열 위치를 정합니다.</strong> 바탕화면이나 작업 폴더에서 터미널을 열고 <code>npm create vue@latest todo-vue</code>를 실행합니다. 처음이라면 TypeScript, Router, Pinia는 일단 No로 두고 시작해도 됩니다.",
+    "<strong>프로젝트 폴더로 이동합니다.</strong> <code>cd todo-vue</code>를 입력한 뒤 <code>npm install</code>을 실행합니다. 이 단계는 프로젝트가 필요한 부품을 다운로드하는 과정입니다.",
+    "<strong>개발 서버를 켭니다.</strong> <code>npm run dev</code>를 실행하고 터미널에 나온 주소를 브라우저에서 엽니다. 보통 <code>http://localhost:5173</code> 또는 비슷한 주소가 보입니다.",
+    "<strong>가장 먼저 만질 파일을 확인합니다.</strong> <code>src/App.vue</code>를 열고 기본 문구를 <code>Todo 학습 시작</code>으로 바꿉니다. 저장하면 브라우저가 바로 바뀌는지 확인하세요.",
+    "<strong>흔한 실수:</strong> 터미널에서 프로젝트 폴더 안으로 들어가지 않고 <code>npm run dev</code>를 실행하면 명령이 실패합니다. 현재 위치가 <code>todo-vue</code>인지 확인하세요."
+  ],
+  vue3_template_reactivity: [
+    "<strong>App.vue를 비웁니다.</strong> 처음에는 기존 예제 코드를 모두 지우고 <code>&lt;script setup&gt;</code>과 <code>&lt;template&gt;</code> 두 영역만 남깁니다.",
+    "<strong>상태를 하나 만듭니다.</strong> <code>const todos = ref([])</code>를 작성합니다. <code>ref</code>를 쓰려면 맨 위에서 <code>import { ref } from 'vue'</code>를 해야 합니다.",
+    "<strong>임시 데이터를 넣습니다.</strong> 빈 배열로 시작하면 화면 확인이 어려우니 <code>{ id: 1, title: 'Vue 시작', done: false }</code> 같은 Todo 두 개를 먼저 넣으세요.",
+    "<strong>목록을 출력합니다.</strong> <code>&lt;li v-for=\"todo in todos\" :key=\"todo.id\"&gt;{{ todo.title }}&lt;/li&gt;</code>를 작성합니다. 화면에 두 줄이 보이면 성공입니다.",
+    "<strong>조건 문구를 추가합니다.</strong> todos가 비어 있을 때만 <code>아직 할 일이 없습니다</code>가 나오도록 <code>v-if</code>를 써 보세요. 확인하려면 배열을 잠깐 빈 배열로 바꾸면 됩니다.",
+    "<strong>흔한 실수:</strong> <code>v-for</code>에는 <code>:key</code>를 붙이는 습관을 들이세요. key가 없으면 목록 변경 시 Vue가 어떤 항목이 어떤 항목인지 추적하기 어렵습니다."
+  ],
+  vue4_events_vmodel: [
+    "<strong>입력 상태를 만듭니다.</strong> <code>const newTodo = ref('')</code>를 추가합니다. 입력창의 현재 글자를 저장하는 작은 메모지라고 생각하면 됩니다.",
+    "<strong>입력창을 상태와 연결합니다.</strong> template에 <code>&lt;input v-model=\"newTodo\" /&gt;</code>를 만듭니다. 브라우저에서 글자를 치면 <code>newTodo</code>에 들어간다고 생각하세요.",
+    "<strong>form으로 감쌉니다.</strong> input과 button을 <code>&lt;form @submit.prevent=\"addTodo\"&gt;</code>로 감쌉니다. 이렇게 하면 버튼 클릭과 Enter 키가 같은 추가 기능을 실행합니다.",
+    "<strong>addTodo 함수를 작성합니다.</strong> <code>newTodo.value.trim()</code>으로 공백을 제거하고, 값이 없으면 <code>return</code>합니다. 값이 있으면 todos에 새 객체를 push합니다.",
+    "<strong>추가 후 입력창을 비웁니다.</strong> 마지막 줄에 <code>newTodo.value = ''</code>를 넣습니다. 추가 버튼을 누른 뒤 입력창이 비워지면 잘 된 것입니다.",
+    "<strong>확인 기준:</strong> 빈 문자열은 추가되지 않고, 정상 입력은 목록에 추가되고, 추가 후 입력창이 비워져야 합니다."
+  ],
+  vue5_components_props_emit: [
+    "<strong>components 폴더를 만듭니다.</strong> <code>src/components</code> 폴더 안에 <code>TodoInput.vue</code>, <code>TodoList.vue</code>, <code>TodoItem.vue</code> 파일을 만듭니다.",
+    "<strong>TodoInput을 먼저 옮깁니다.</strong> App.vue에 있던 입력 form을 <code>TodoInput.vue</code>로 옮기고, 추가할 제목을 부모에게 알려주기 위해 <code>defineEmits(['add'])</code>를 사용합니다.",
+    "<strong>App.vue에서 TodoInput을 사용합니다.</strong> <code>import TodoInput from './components/TodoInput.vue'</code>를 작성하고 template에 <code>&lt;TodoInput @add=\"addTodo\" /&gt;</code>를 넣습니다.",
+    "<strong>TodoList에 목록을 내려줍니다.</strong> <code>defineProps({ todos: Array })</code> 또는 타입 기반 props를 사용하고, App.vue에서는 <code>&lt;TodoList :todos=\"todos\" /&gt;</code>처럼 내려줍니다.",
+    "<strong>TodoItem에서 이벤트를 올립니다.</strong> 삭제 버튼을 누르면 <code>emit('remove', todo.id)</code>, 체크하면 <code>emit('toggle', todo.id)</code>를 올리게 만듭니다.",
+    "<strong>흔한 실수:</strong> 자식 컴포넌트가 props로 받은 배열을 직접 바꾸려고 하지 마세요. 실제 데이터 변경은 부모 App.vue에서 하도록 두는 것이 초보 단계에서 가장 안전합니다."
+  ],
+  vue6_computed_watch_lifecycle: [
+    "<strong>남은 개수부터 만듭니다.</strong> <code>const remainingCount = computed(() =&gt; todos.value.filter(todo =&gt; !todo.done).length)</code>를 작성하고 화면에 출력합니다.",
+    "<strong>필터 상태를 추가합니다.</strong> <code>const filter = ref('all')</code>을 만들고, 버튼 세 개 <code>all</code>, <code>active</code>, <code>done</code>을 만듭니다.",
+    "<strong>보여줄 목록을 계산합니다.</strong> 원본 <code>todos</code>를 직접 지우지 말고 <code>filteredTodos</code> computed를 만들어 필터에 맞는 목록만 보여주세요.",
+    "<strong>localStorage 저장을 붙입니다.</strong> <code>watch(todos, ... , { deep: true })</code>로 todos가 바뀔 때마다 문자열로 저장합니다.",
+    "<strong>처음 로딩 때 불러옵니다.</strong> <code>onMounted</code> 안에서 저장된 값을 읽고 <code>todos.value</code>에 넣습니다. 새로고침해도 Todo가 남아 있으면 성공입니다.",
+    "<strong>흔한 실수:</strong> localStorage에는 객체를 그대로 저장할 수 없습니다. 저장할 때는 <code>JSON.stringify</code>, 꺼낼 때는 <code>JSON.parse</code>를 사용해야 합니다."
+  ],
+  vue7_composables: [
+    "<strong>먼저 App.vue가 길어진 지점을 확인합니다.</strong> todos 상태, addTodo, removeTodo, toggleTodo, remainingCount가 한 파일에 몰려 있으면 분리할 준비가 된 것입니다.",
+    "<strong>composables 폴더를 만듭니다.</strong> <code>src/composables/useTodos.js</code> 파일을 만들고 Todo 관련 상태와 함수를 이 파일로 옮깁니다.",
+    "<strong>함수로 감쌉니다.</strong> <code>export function useTodos() { ... }</code> 안에 상태와 함수를 넣고 마지막에 <code>return { todos, addTodo, ... }</code>를 작성합니다.",
+    "<strong>App.vue에서 가져다 씁니다.</strong> <code>const { todos, addTodo, removeTodo } = useTodos()</code>처럼 꺼냅니다. 화면 동작이 이전과 같으면 리팩토링 성공입니다.",
+    "<strong>한 번에 다 옮기지 않습니다.</strong> 먼저 add/remove만 옮기고 동작을 확인한 뒤, computed와 localStorage 로직을 옮기세요.",
+    "<strong>확인 기준:</strong> 파일을 분리했는데 기능은 그대로 동작해야 합니다. 리팩토링은 동작을 바꾸는 일이 아니라 구조를 정리하는 일입니다."
+  ],
+  vue8_router_shopping_intro: [
+    "<strong>라우터를 설치합니다.</strong> 기존 프로젝트에 붙인다면 <code>npm install vue-router</code>를 실행합니다. 새 프로젝트 생성 때 Router를 Yes로 골라도 됩니다.",
+    "<strong>views 폴더를 만듭니다.</strong> <code>HomeView.vue</code>, <code>ProductListView.vue</code>, <code>ProductDetailView.vue</code>, <code>CartView.vue</code>를 만듭니다. 각 파일에는 처음엔 제목 하나만 넣어도 됩니다.",
+    "<strong>router/index.js를 만듭니다.</strong> 각 주소와 View 컴포넌트를 연결합니다. 상세 페이지는 <code>/products/:id</code>처럼 동적 라우트를 씁니다.",
+    "<strong>main.js에 라우터를 등록합니다.</strong> <code>createApp(App).use(router).mount('#app')</code> 형태로 라우터를 앱에 연결합니다.",
+    "<strong>App.vue에 표시 자리를 둡니다.</strong> <code>&lt;RouterLink&gt;</code>로 메뉴를 만들고, 아래에 <code>&lt;RouterView /&gt;</code>를 넣습니다.",
+    "<strong>확인 기준:</strong> 메뉴를 눌렀을 때 주소와 화면 제목이 함께 바뀌면 성공입니다."
+  ],
+  vue9_api_async: [
+    "<strong>처음에는 진짜 서버 대신 가짜 데이터로 시작합니다.</strong> <code>src/data/products.js</code>에 상품 배열을 만들고 화면에 출력하세요. UI가 먼저 보여야 API 단계가 덜 어렵습니다.",
+    "<strong>상태 세 가지를 만듭니다.</strong> <code>products</code>, <code>loading</code>, <code>error</code>를 각각 <code>ref</code>로 만듭니다.",
+    "<strong>fetchProducts 함수를 만듭니다.</strong> 함수 시작에서 loading을 true로 바꾸고, try/catch/finally를 작성합니다. 아직 API가 없다면 <code>Promise.resolve(mockProducts)</code>로 연습해도 됩니다.",
+    "<strong>onMounted에서 호출합니다.</strong> 페이지가 처음 열릴 때 <code>fetchProducts()</code>가 실행되게 만듭니다.",
+    "<strong>화면을 세 갈래로 나눕니다.</strong> loading이면 로딩 문구, error가 있으면 에러 문구, 둘 다 아니면 상품 목록을 보여줍니다.",
+    "<strong>흔한 실수:</strong> async 함수 안에서 에러가 났는데 catch가 없으면 화면이 조용히 멈춘 것처럼 보일 수 있습니다. 초보 단계에서는 항상 try/catch를 붙이세요."
+  ],
+  vue10_pinia_cart: [
+    "<strong>Pinia를 설치합니다.</strong> <code>npm install pinia</code>를 실행하고 <code>main.js</code>에 <code>createPinia()</code>를 등록합니다.",
+    "<strong>stores 폴더를 만듭니다.</strong> <code>src/stores/cart.js</code> 파일을 만들고 <code>defineStore('cart', ...)</code>로 장바구니 store를 만듭니다.",
+    "<strong>가장 작은 상태부터 시작합니다.</strong> 처음에는 <code>items: []</code>만 두고, <code>addToCart(product)</code> 액션 하나만 만드세요.",
+    "<strong>상품 상세에서 담아 봅니다.</strong> <code>const cart = useCartStore()</code>를 작성하고 버튼 클릭 시 <code>cart.addToCart(product)</code>를 호출합니다.",
+    "<strong>CartView에서 확인합니다.</strong> 같은 store를 가져와 <code>cart.items</code>를 출력합니다. 상세에서 담은 상품이 CartView에 보이면 전역 상태 연결 성공입니다.",
+    "<strong>그다음 totalCount와 totalPrice를 붙입니다.</strong> getters는 상태에서 계산되는 값입니다. 장바구니 총 개수와 총 금액을 getters로 만드세요."
+  ],
+  vue11_slots_teleport_transition: [
+    "<strong>BaseModal.vue를 만듭니다.</strong> 처음에는 props <code>open</code>과 emit <code>close</code>만 둡니다. open이 true일 때만 모달이 보이게 만드세요.",
+    "<strong>slot을 하나 넣습니다.</strong> 모달 본문에 <code>&lt;slot /&gt;</code>을 넣고, 부모에서 원하는 문장을 넣어 보세요. 내용이 바뀌면 slot 이해가 된 것입니다.",
+    "<strong>title slot을 추가합니다.</strong> <code>&lt;slot name=\"title\"&gt;알림&lt;/slot&gt;</code>처럼 기본 제목을 둡니다. 부모가 제목을 넣으면 그 제목이 나오게 합니다.",
+    "<strong>Teleport를 붙입니다.</strong> 모달 전체를 <code>&lt;Teleport to=\"body\"&gt;</code>로 감싸서 DOM 위치를 body 아래로 옮깁니다.",
+    "<strong>Transition은 마지막에 붙입니다.</strong> 먼저 모달이 열리고 닫히는 기능을 완성한 뒤 <code>&lt;Transition name=\"fade\"&gt;</code>와 CSS를 추가하세요.",
+    "<strong>흔한 실수:</strong> Transition을 먼저 붙이면 안 보이는 이유를 찾기 어려워집니다. 기능이 되는지 확인한 다음 애니메이션을 붙이세요."
+  ],
+  vue12_typescript: [
+    "<strong>타입 파일을 하나 만듭니다.</strong> <code>src/types/index.ts</code>를 만들고 <code>Todo</code>, <code>Product</code>, <code>CartItem</code> 타입을 작성합니다.",
+    "<strong>한 파일만 먼저 바꿉니다.</strong> 모든 파일을 한 번에 TypeScript로 바꾸지 말고 <code>ProductCard.vue</code> 하나만 <code>&lt;script setup lang=\"ts\"&gt;</code>로 바꿉니다.",
+    "<strong>props 타입을 붙입니다.</strong> <code>defineProps&lt;{ product: Product }&gt;()</code>를 작성합니다. product에 없는 속성을 쓰면 에디터가 알려주는지 확인하세요.",
+    "<strong>emit 타입은 나중에 붙입니다.</strong> <code>defineEmits&lt;{ addToCart: [product: Product] }&gt;()</code>처럼 이벤트 이름과 payload 모양을 정합니다.",
+    "<strong>상태 타입을 붙입니다.</strong> 상품 목록은 <code>const products = ref&lt;Product[]&gt;([])</code>처럼 작성합니다.",
+    "<strong>흔한 실수:</strong> TypeScript 에러가 많이 나면 기능을 새로 만들지 말고 타입 적용 범위를 줄이세요. 초보 단계에서는 '한 파일씩'이 가장 안전합니다."
+  ],
+  vue13_project_architecture: [
+    "<strong>현재 파일을 펼쳐 봅니다.</strong> App.vue나 ProductListView.vue가 너무 길어졌다면 어떤 코드가 UI이고 어떤 코드가 데이터 호출인지 표시해 보세요.",
+    "<strong>폴더를 역할별로 만듭니다.</strong> <code>views</code>, <code>components</code>, <code>api</code>, <code>composables</code>, <code>stores</code> 폴더를 만듭니다.",
+    "<strong>페이지는 views로 옮깁니다.</strong> 라우터 주소와 직접 연결되는 파일은 <code>views</code>에 둡니다. 예: ProductListView, CartView.",
+    "<strong>반복 UI는 components로 옮깁니다.</strong> ProductCard, BaseModal, AppHeader처럼 여러 곳에서 쓸 수 있는 조각은 components에 둡니다.",
+    "<strong>API 호출은 api로 옮깁니다.</strong> <code>fetch('/products')</code> 같은 코드는 화면 파일 안에 계속 두지 말고 <code>api/products.js</code>로 빼세요.",
+    "<strong>확인 기준:</strong> 파일을 옮긴 뒤에도 라우터 이동, 상품 목록, 장바구니가 그대로 동작해야 합니다."
+  ],
+  vue14_forms_validation: [
+    "<strong>CheckoutView를 만듭니다.</strong> 이름, 전화번호, 주소, 요청사항 input을 먼저 화면에 배치합니다. 처음에는 검증 없이 입력만 되면 됩니다.",
+    "<strong>form 상태를 reactive로 만듭니다.</strong> <code>reactive({ name: '', phone: '', address: '', memo: '' })</code>를 만들고 각 입력창에 <code>v-model</code>로 연결합니다.",
+    "<strong>제출 가능 여부를 computed로 만듭니다.</strong> 이름은 2글자 이상, 전화번호와 주소는 비어 있지 않아야 한다는 조건을 <code>canSubmit</code>으로 계산합니다.",
+    "<strong>버튼을 disabled 처리합니다.</strong> <code>:disabled=\"!canSubmit\"</code>을 붙이고, 입력을 채우기 전에는 버튼이 눌리지 않는지 확인합니다.",
+    "<strong>제출 함수를 만듭니다.</strong> <code>@submit.prevent=\"submitOrder\"</code>를 붙이고, submitOrder 안에서 canSubmit이 false면 바로 return합니다.",
+    "<strong>확인 기준:</strong> 빈 폼에서는 버튼이 비활성화되고, 필수값을 채우면 활성화되며, 제출 시 콘솔에 주문 정보가 찍히면 됩니다."
+  ],
+  vue15_deploy_next_steps: [
+    "<strong>빌드 전에 로컬에서 확인합니다.</strong> <code>npm run dev</code>로 Todo와 쇼핑몰 주요 화면이 동작하는지 먼저 확인합니다.",
+    "<strong>빌드 명령을 실행합니다.</strong> <code>npm run build</code>를 실행합니다. 에러가 나면 배포 전에 반드시 고쳐야 합니다.",
+    "<strong>결과물을 미리 봅니다.</strong> <code>npm run preview</code>를 실행하고 브라우저에서 빌드된 앱이 정상인지 확인합니다.",
+    "<strong>라우터 주소를 직접 새로고침합니다.</strong> <code>/products</code>, <code>/cart</code> 같은 주소에서 새로고침했을 때 화면이 뜨는지 확인하세요. SPA 배포에서 자주 틀리는 지점입니다.",
+    "<strong>README를 정리합니다.</strong> 프로젝트 설명, 실행 방법, 주요 기능, 배포 주소를 적습니다. 나중에 포트폴리오로 볼 때 README가 첫인상입니다.",
+    "<strong>다음 과제:</strong> Todo 앱과 쇼핑몰 앱을 각각 작은 GitHub repo로 만들고, 화면 캡처와 구현 기능 목록을 README에 붙여 보세요."
+  ]
+};
+
 const learningGuides = {
   ch1_intro: {
     analogy: "데이터베이스는 책상 위에 흩어진 종이를 주제별 서랍에 넣고, 각 서랍에 라벨과 열쇠를 붙여 둔 정리함입니다. SQL은 그 정리함에서 원하는 종이를 찾고, 새 종이를 넣고, 잘못된 종이를 고치는 말입니다.",
@@ -4798,9 +4938,16 @@ const learningGuides = {
 
 const allChapters = [...chapters, ...vueChapters];
 
-export const curriculum = allChapters.map(chapter => ({
-  course: chapter.course || "sql",
-  ...chapter,
-  ...learningGuides[chapter.id],
-  content: renderLesson({ ...chapter, ...learningGuides[chapter.id] })
-}));
+export const curriculum = allChapters.map(chapter => {
+  const lessonExtras = {
+    ...learningGuides[chapter.id],
+    ...(vuePracticeSteps[chapter.id] ? { practiceSteps: vuePracticeSteps[chapter.id] } : {})
+  };
+
+  return {
+    course: chapter.course || "sql",
+    ...chapter,
+    ...lessonExtras,
+    content: renderLesson({ ...chapter, ...lessonExtras })
+  };
+});

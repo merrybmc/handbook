@@ -1022,6 +1022,46 @@ tr:last-child td {
   line-height: 1.5;
 }
 
+.practice-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0 22px;
+}
+
+.practice-step {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+}
+
+.practice-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--accent-primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.practice-step-body {
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.practice-step-body strong {
+  color: var(--text-primary);
+}
+
 /* Lesson Navigation Footer */
 .lesson-navigation {
   margin-top: 40px;
