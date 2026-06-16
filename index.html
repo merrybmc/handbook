@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL 학습서: MySQL 기초부터 PostgreSQL, Redis, Elasticsearch까지</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+  <link rel="stylesheet" href="/styles.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/lucide/dist/umd/lucide.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+</head>
+<body class="dark-mode">
+  <div class="app-container">
+    <header class="main-header">
+      <div class="logo-area">
+        <i data-lucide="database" class="logo-icon"></i>
+        <div>
+          <h1>SQL 학습서</h1>
+          <p>MySQL 기초부터 PostgreSQL, Redis, Elasticsearch까지</p>
+        </div>
+        <span class="badge">v2.0</span>
+      </div>
+
+      <div class="header-controls">
+        <div class="progress-container" aria-label="학습 진도">
+          <span class="progress-text">학습 진도 <strong id="progress-percentage">0%</strong></span>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <button id="theme-toggle" class="icon-btn" type="button" title="테마 변경">
+          <i data-lucide="sun" class="sun-icon"></i>
+          <i data-lucide="moon" class="moon-icon"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="content-layout">
+      <aside class="sidebar" id="sidebar">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle" type="button" title="커리큘럼 접기">
+          <i data-lucide="chevron-left" class="close-icon"></i>
+          <i data-lucide="menu" class="open-icon"></i>
+        </button>
+        <div class="sidebar-inner">
+          <div class="sidebar-header">
+            <h3>학습 목차</h3>
+            <p>처음 배우는 사람을 위한 단계별 학습 과정</p>
+          </div>
+          <nav class="curriculum-list" id="curriculum-list"></nav>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <article class="content-card" id="lesson-card">
+          <div id="lesson-body">
+            <div class="welcome-screen">
+              <div class="welcome-kicker">처음 시작하는 SQL 학습서</div>
+              <h2>데이터베이스를 처음 만나는 사람도 따라오게 만듭니다</h2>
+              <p>용어를 외우기 전에 왜 필요한지 이해하고, 비유와 예제, 실습 문제를 따라가며 MySQL에서 PostgreSQL, Redis, Elasticsearch까지 확장합니다.</p>
+              <button class="primary-btn" id="start-learning-btn" type="button">
+                <i data-lucide="play"></i> 시작하기
+              </button>
+            </div>
+          </div>
+
+          <div class="lesson-navigation">
+            <button id="prev-chapter-btn" class="secondary-btn" type="button" disabled>
+              <i data-lucide="arrow-left"></i> 이전
+            </button>
+            <button id="mark-complete-btn" class="success-btn" type="button">
+              <i data-lucide="check-circle-2"></i> 학습 완료
+            </button>
+            <button id="next-chapter-btn" class="secondary-btn" type="button">
+              다음 <i data-lucide="arrow-right"></i>
+            </button>
+          </div>
+        </article>
+      </main>
+
+      <aside class="playground-panel" id="playground-panel">
+        <div class="playground-header">
+          <div class="playground-title">
+            <i data-lucide="terminal"></i>
+            <h3>SQL 실습창</h3>
+          </div>
+          <button id="reset-db-btn" class="icon-text-btn danger" type="button" title="실습 DB 초기화">
+            <i data-lucide="refresh-cw"></i> 초기화
+          </button>
+        </div>
+
+        <div class="editor-section">
+          <textarea id="sql-editor" placeholder="SQL을 작성하세요."></textarea>
+          <div class="editor-controls">
+            <span class="editor-tip">Ctrl + Enter로 실행</span>
+            <button id="run-sql-btn" class="primary-btn run-btn" type="button">
+              <i data-lucide="play"></i> 실행
+            </button>
+          </div>
+        </div>
+
+        <div class="results-section">
+          <div class="results-tab-header">
+            <button class="tab-title active" data-tab="result-table" type="button">결과</button>
+            <button class="tab-title" data-tab="schema-browser" type="button">스키마</button>
+            <button class="tab-title" data-tab="cheatsheet-ref" type="button">요약</button>
+          </div>
+
+          <div class="results-tab-content">
+            <div id="result-table" class="tab-pane active">
+              <div class="empty-result">
+                <i data-lucide="play-circle"></i>
+                <p>쿼리를 실행하면 결과가 여기에 표시됩니다.</p>
+              </div>
+            </div>
+
+            <div id="schema-browser" class="tab-pane">
+              <div class="schema-list" id="schema-list"></div>
+            </div>
+
+            <div id="cheatsheet-ref" class="tab-pane">
+              <div class="cheatsheet-container">
+                <h4>빠른 요약</h4>
+                <div class="cheat-card">
+                  <h5>SQL 논리 실행 순서</h5>
+                  <p><code>FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</code></p>
+                </div>
+                <div class="cheat-card">
+                  <h5>WHERE와 HAVING</h5>
+                  <ul>
+                    <li><strong>WHERE</strong>: 그룹 전, 행 단위 필터</li>
+                    <li><strong>HAVING</strong>: 그룹 후, 집계 결과 필터</li>
+                  </ul>
+                </div>
+                <div class="cheat-card">
+                  <h5>트랜잭션 ACID</h5>
+                  <ul>
+                    <li>Atomicity, Consistency, Isolation, Durability</li>
+                    <li>COMMIT은 확정, ROLLBACK은 취소</li>
+                  </ul>
+                </div>
+                <div class="cheat-card">
+                  <h5>MySQL vs PostgreSQL</h5>
+                  <ul>
+                    <li>MySQL: <code>AUTO_INCREMENT</code>, <code>ON DUPLICATE KEY</code></li>
+                    <li>PostgreSQL: <code>IDENTITY</code>, <code>ON CONFLICT</code>, <code>JSONB</code></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="verification-panel" id="verification-panel">
+          <div class="verification-header">
+            <span class="status-badge" id="verification-status-badge">실습 대기</span>
+            <h4>실습 검증</h4>
+          </div>
+          <p class="verification-desc" id="verification-desc">현재 챕터의 실습 쿼리를 실행하세요.</p>
+          <div class="verification-feedback hidden" id="verification-feedback">
+            <i data-lucide="alert-circle" class="feedback-icon"></i>
+            <span class="feedback-text">결과를 확인하세요.</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
