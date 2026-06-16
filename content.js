@@ -4936,18 +4936,94 @@ const learningGuides = {
   }
 };
 
+function buildBeginnerPracticeSteps(chapter) {
+  if (chapter.course === "vue") {
+    return vuePracticeSteps[chapter.id] || [];
+  }
+
+  const steps = [];
+  const firstExample = chapter.examples?.[0];
+  const isSqlChapter = chapter.tags?.some(tag => ["basic", "mysql", "sqld", "gisa", "advanced", "postgres"].includes(tag));
+  const isToolChapter = chapter.tags?.some(tag => ["redis", "elasticsearch", "search"].includes(tag));
+
+  steps.push(`
+    <strong>실습 전에 이 장의 목표를 한 문장으로 적습니다.</strong>
+    예를 들어 "JOIN은 흩어진 표를 연결해서 한 번에 보는 기술이다"처럼 적어 보세요.
+    처음 공부할 때는 명령어를 외우는 것보다 "왜 이 기능이 필요한가"를 먼저 잡아야 다음 예제가 덜 낯설게 보입니다.
+  `);
+
+  if (isSqlChapter) {
+    steps.push(`
+      <strong>실습창의 기본 데이터를 먼저 눈으로 확인합니다.</strong>
+      바로 문제를 풀지 말고 <code>SELECT * FROM customers;</code>, <code>SELECT * FROM orders;</code>처럼
+      관련 테이블을 한 번 조회해 보세요. SQL은 지도 없이 주소를 찾는 공부가 아니라, 먼저 테이블 모양을 본 뒤 질문을 만드는 공부입니다.
+    `);
+  }
+
+  if (isToolChapter) {
+    steps.push(`
+      <strong>도구 이름과 역할을 분리해서 적습니다.</strong>
+      MySQL은 원본 장부, Redis는 자주 보는 메모지, Elasticsearch는 빠른 검색 색인처럼 생각하세요.
+      이 장의 명령을 실행하기 전에 "어떤 값을 어디에 넣고, 어떤 방식으로 다시 찾는가"를 먼저 표시해 두면 헷갈림이 줄어듭니다.
+    `);
+  }
+
+  if (firstExample?.sql) {
+    steps.push(`
+      <strong>첫 번째 예제는 수정하지 말고 그대로 실행합니다.</strong>
+      처음부터 응용하려고 하면 오타와 개념 오류가 섞여서 어디가 문제인지 찾기 어렵습니다.
+      아래 예제를 먼저 그대로 실행하고, 결과 행 수와 컬럼 이름을 확인하세요.
+      ${code(firstExample.sql)}
+    `);
+  }
+
+  steps.push(`
+    <strong>그 다음 한 가지만 바꿔 다시 실행합니다.</strong>
+    컬럼 하나를 빼거나, 조건값을 바꾸거나, 정렬 방향을 <code>ASC</code>에서 <code>DESC</code>로 바꾸는 식이면 충분합니다.
+    한 번에 여러 군데를 바꾸면 결과가 왜 바뀌었는지 추적하기 어렵습니다.
+  `);
+
+  steps.push(`
+    <strong>일부러 작은 에러를 내고 에러 문장을 읽습니다.</strong>
+    쉼표 하나를 빼거나 테이블 이름을 틀리게 적어 보세요.
+    에러를 피하는 공부만 하면 실제 개발에서 멈추기 쉽습니다. 에러 메시지는 "어디부터 다시 봐야 하는지 알려주는 안내판"이라고 생각하면 됩니다.
+  `);
+
+  if (chapter.drills?.length) {
+    steps.push(`
+      <strong>연습문제는 바로 정답을 보지 말고 3단계로 풉니다.</strong>
+      먼저 문제에서 원하는 결과를 말로 풀어 쓰고, 그 다음 필요한 테이블과 컬럼을 적고, 마지막에 SQL이나 명령을 작성하세요.
+      5분 이상 막히면 힌트를 보고, 그래도 어렵다면 정답을 따라 친 뒤 한 줄씩 뜻을 설명해 보세요.
+    `);
+  }
+
+  steps.push(`
+    <strong>마지막에는 오늘 배운 것을 "언제 쓰는지"로 정리합니다.</strong>
+    예를 들어 "인덱스는 검색을 빠르게 하지만 쓰기 비용이 생긴다", "정규화는 중복을 줄여 데이터가 꼬이는 일을 막는다"처럼
+    장점과 주의점을 함께 적으면 실무 감각이 훨씬 빨리 붙습니다.
+  `);
+
+  return steps;
+}
+
 const allChapters = [...chapters, ...vueChapters];
 
 export const curriculum = allChapters.map(chapter => {
+  const course = chapter.course || "sql";
+  const baseChapter = {
+    course,
+    ...chapter,
+    ...learningGuides[chapter.id]
+  };
   const lessonExtras = {
     ...learningGuides[chapter.id],
-    ...(vuePracticeSteps[chapter.id] ? { practiceSteps: vuePracticeSteps[chapter.id] } : {})
+    practiceSteps: buildBeginnerPracticeSteps(baseChapter)
   };
 
   return {
-    course: chapter.course || "sql",
+    course,
     ...chapter,
     ...lessonExtras,
-    content: renderLesson({ ...chapter, ...lessonExtras })
+    content: renderLesson({ ...chapter, course, ...lessonExtras })
   };
 });
