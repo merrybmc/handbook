@@ -86,6 +86,12 @@ courseMeta.csharpWeb = {
   desc: "ASP.NET Core MVC, Razor, EF Core 웹 개발"
 };
 
+courseMeta.deployOps = {
+  label: "Nginx/Docker/AWS",
+  icon: "cloud-cog",
+  desc: "Docker 설치부터 Nginx 무중단 배포, GitHub Actions, CloudFront/S3/Route 53까지"
+};
+
 function getChapterCourse(chapter) {
   return chapter.course || "sql";
 }

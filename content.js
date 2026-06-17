@@ -36,7 +36,17 @@ const tagLabels = {
   csharp: "C#",
   dotnet: ".NET",
   razor: "Razor",
-  security: "Security"
+  security: "Security",
+  docker: "Docker",
+  nginx: "Nginx",
+  cicd: "CI/CD",
+  github: "GitHub Actions",
+  aws: "AWS",
+  cloudfront: "CloudFront",
+  s3: "S3",
+  route53: "Route 53",
+  dns: "DNS",
+  deploy: "배포"
 };
 
 const esc = value => String(value)
@@ -9151,6 +9161,295 @@ const expandedPhpWebChapters = buildWebCourse(webCourseConfigs.phpWeb);
 const expandedLaravelWebChapters = buildWebCourse(webCourseConfigs.laravelWeb);
 const expandedCsharpWebChapters = buildWebCourse(webCourseConfigs.csharpWeb);
 
+const deployOfficialDocs = {
+  dockerInstall: "https://docs.docker.com/desktop/setup/install/windows-install/",
+  dockerBuild: "https://docs.docker.com/get-started/docker-concepts/building-images/",
+  nginxReverseProxy: "https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/",
+  nginxLoadBalance: "https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/",
+  githubWorkflow: "https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions",
+  githubSecrets: "https://docs.github.com/actions/security-guides/using-secrets-in-github-actions",
+  s3CustomDomain: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/website-hosting-custom-domain-walkthrough.html",
+  cloudfrontS3: "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html",
+  cloudfrontOac: "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html",
+  route53CloudFront: "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html"
+};
+
+const deployTopics = [
+  ["roadmap", "Part 1. 배포 큰 그림", "배포 로드맵과 전체 구조", ["deploy", "basic"], "개발 PC, GitHub, EC2, Docker, Nginx, CloudFront가 각각 어디에 서 있는지 큰 그림을 잡습니다.", "배포는 택배처럼 포장, 운송, 주소 연결, 교체 작업이 이어지는 과정입니다."],
+  ["server_client", "Part 1. 배포 큰 그림", "서버, 클라이언트, 포트, 프로세스", ["deploy", "http"], "브라우저 요청이 서버 프로세스의 특정 포트로 들어가는 흐름을 이해합니다.", "건물 주소가 IP라면 포트는 건물 안의 창구 번호입니다."],
+  ["domain_dns", "Part 1. 배포 큰 그림", "도메인과 DNS 기초", ["dns", "basic"], "도메인 이름이 IP 주소로 바뀌는 과정을 Route 53 전에 먼저 익힙니다.", "DNS는 연락처 앱입니다. 이름을 누르면 실제 전화번호를 찾아줍니다."],
+  ["linux_basics", "Part 1. 배포 큰 그림", "Ubuntu 서버 기본 명령어", ["deploy", "basic"], "EC2에 접속한 뒤 파일 위치, 로그, 프로세스를 확인하는 기본 명령을 익힙니다.", "서버는 화면 없는 컴퓨터라서 명령어가 마우스와 탐색기 역할을 합니다."],
+  ["ssh_key", "Part 1. 배포 큰 그림", "SSH 키와 서버 접속", ["deploy", "security"], "비밀번호 대신 키 파일로 서버에 안전하게 들어가는 방법을 배웁니다.", "SSH 키는 현관 비밀번호보다 출입증에 가깝습니다. 공개키는 등록하고 개인키는 절대 잃어버리면 안 됩니다."],
+
+  ["docker_install_windows", "Part 2. Docker 처음부터", "Docker Desktop 설치와 확인", ["docker", "basic"], "Windows에서 Docker Desktop을 설치하고 정상 동작을 확인합니다.", "Docker Desktop은 컨테이너를 실행하는 작업장입니다. 먼저 작업장 전원을 켜야 합니다."],
+  ["docker_concept", "Part 2. Docker 처음부터", "이미지와 컨테이너 개념", ["docker", "basic"], "이미지는 설계도, 컨테이너는 실행 중인 제품이라는 차이를 익힙니다.", "붕어빵 틀이 이미지라면 실제로 구워져 나온 붕어빵 하나가 컨테이너입니다."],
+  ["docker_pull_run", "Part 2. Docker 처음부터", "docker pull, run, ps", ["docker", "practice"], "이미지를 내려받고 컨테이너를 실행하고 목록을 확인합니다.", "앱을 설치하고 실행한 뒤 작업 관리자에서 켜져 있는지 확인하는 과정과 비슷합니다."],
+  ["docker_logs_exec", "Part 2. Docker 처음부터", "logs, exec, stop, rm", ["docker", "practice"], "컨테이너 안을 확인하고 멈추고 삭제하는 기본 명령을 익힙니다.", "컨테이너는 작은 컴퓨터라서 로그를 보고 안으로 들어가 상태를 확인할 수 있습니다."],
+  ["docker_ports", "Part 2. Docker 처음부터", "포트 매핑", ["docker", "http"], "내 PC 포트와 컨테이너 내부 포트를 연결하는 -p 옵션을 이해합니다.", "가게 안 주방 문은 8080인데 손님 입구를 80번으로 낼 수 있습니다."],
+  ["docker_volume", "Part 2. Docker 처음부터", "볼륨과 데이터 유지", ["docker", "db"], "컨테이너를 지워도 남아야 하는 파일을 볼륨으로 분리합니다.", "컨테이너는 일회용 컵이고 볼륨은 컵 밖의 공책입니다."],
+  ["docker_network", "Part 2. Docker 처음부터", "Docker 네트워크", ["docker", "backend"], "컨테이너끼리 이름으로 통신하는 네트워크를 구성합니다.", "같은 와이파이에 붙은 기기들이 서로 이름으로 찾는다고 생각하면 됩니다."],
+  ["dockerfile_basic", "Part 2. Docker 처음부터", "Dockerfile 기본 문법", ["docker", "practice"], "FROM, WORKDIR, COPY, RUN, CMD가 어떤 역할인지 배웁니다.", "Dockerfile은 새 컴퓨터를 조립하는 레시피입니다."],
+  ["docker_build_tag", "Part 2. Docker 처음부터", "이미지 빌드와 태그", ["docker", "practice"], "docker build와 태그 규칙을 익힙니다.", "태그는 같은 프로그램의 버전 스티커입니다."],
+  ["docker_compose", "Part 2. Docker 처음부터", "Docker Compose", ["docker", "backend"], "여러 컨테이너를 한 파일로 같이 실행합니다.", "Compose는 오케스트라 악보처럼 여러 악기를 한 번에 시작시킵니다."],
+
+  ["spring_dockerfile", "Part 3. Spring Boot 컨테이너화", "Spring Boot Dockerfile", ["spring", "docker"], "JAR 파일을 Docker 이미지로 만드는 흐름을 익힙니다.", "Spring Boot 앱을 택배 상자에 넣어 어디서든 같은 방식으로 실행하게 만듭니다."],
+  ["gradle_build", "Part 3. Spring Boot 컨테이너화", "Gradle 빌드와 JAR 확인", ["spring", "docker"], "로컬에서 테스트와 빌드를 통과한 산출물을 확인합니다.", "배포 전에 제품 검수와 포장을 끝내는 단계입니다."],
+  ["env_profile", "Part 3. Spring Boot 컨테이너화", "환경 변수와 Spring Profile", ["spring", "security"], "개발/운영 설정을 코드에서 분리하고 환경 변수로 주입합니다.", "집 주소와 회사 주소를 코드에 박지 않고 주소록에서 꺼내 쓰는 방식입니다."],
+  ["health_check", "Part 3. Spring Boot 컨테이너화", "Health Check 엔드포인트", ["spring", "http"], "새 버전으로 트래픽을 넘기기 전에 앱이 살아있는지 확인합니다.", "손님을 받기 전에 가게 불이 켜졌고 계산대가 되는지 확인하는 절차입니다."],
+  ["container_registry", "Part 3. Spring Boot 컨테이너화", "이미지 저장소와 버전 관리", ["docker", "cicd"], "Docker Hub 또는 GHCR 같은 registry에 이미지를 저장하는 이유를 이해합니다.", "이미지 저장소는 배포용 물류창고입니다."],
+  ["docker_security", "Part 3. Spring Boot 컨테이너화", "컨테이너 보안 기본", ["docker", "security"], "root 실행, secret 노출, 불필요한 파일 포함을 피합니다.", "상자 안에 열쇠와 주민등록증을 같이 넣어 보내면 안 됩니다."],
+  ["local_api_test", "Part 3. Spring Boot 컨테이너화", "로컬 컨테이너 API 테스트", ["docker", "spring"], "컨테이너로 띄운 Spring Boot API를 curl과 브라우저로 확인합니다.", "포장한 제품을 실제 콘센트에 꽂아 작동하는지 보는 단계입니다."],
+
+  ["nginx_install", "Part 4. Nginx", "Nginx 설치와 서비스 확인", ["nginx", "basic"], "Ubuntu에서 Nginx를 설치하고 상태를 확인합니다.", "Nginx는 건물 1층 안내 데스크입니다. 요청을 받아 뒤쪽 사무실로 안내합니다."],
+  ["nginx_config_structure", "Part 4. Nginx", "Nginx 설정 파일 구조", ["nginx", "basic"], "nginx.conf, sites-available, sites-enabled의 역할을 구분합니다.", "설정 파일은 안내 데스크의 업무 매뉴얼입니다."],
+  ["reverse_proxy", "Part 4. Nginx", "Reverse Proxy", ["nginx", "http"], "80번 포트 요청을 Spring Boot 컨테이너로 넘기는 방법을 익힙니다.", "손님은 안내 데스크만 보고, 실제 업무 담당자는 뒤에 숨어 있습니다."],
+  ["proxy_headers", "Part 4. Nginx", "프록시 헤더", ["nginx", "http"], "Host, X-Forwarded-For, X-Forwarded-Proto가 왜 필요한지 배웁니다.", "전달 메모에 원래 손님 이름과 들어온 문을 적어주는 것과 같습니다."],
+  ["load_balance", "Part 4. Nginx", "로드 밸런싱", ["nginx", "advanced"], "여러 애플리케이션 인스턴스에 트래픽을 나눠 보내는 upstream을 구성합니다.", "두 계산대에 손님을 번갈아 보내 줄을 줄입니다."],
+  ["nginx_reload", "Part 4. Nginx", "설정 검사와 reload", ["nginx", "deploy"], "nginx -t로 설정을 검사하고 reload로 중단 없이 반영합니다.", "매뉴얼을 바꾸기 전에 오탈자를 검사하고, 기존 손님은 계속 처리하게 합니다."],
+  ["nginx_ssl", "Part 4. Nginx", "HTTPS와 인증서", ["nginx", "security"], "SSL/TLS가 필요한 이유와 인증서 적용 흐름을 배웁니다.", "HTTPS는 손님과 안내 데스크 사이 대화를 봉투에 넣어 전달합니다."],
+  ["nginx_logs", "Part 4. Nginx", "access/error 로그 읽기", ["nginx", "practice"], "요청 실패 원인을 Nginx 로그에서 추적합니다.", "로그는 안내 데스크의 방문 기록과 사고 기록입니다."],
+
+  ["ec2_prepare", "Part 5. AWS EC2 배포 준비", "EC2 인스턴스 준비", ["aws", "deploy"], "Ubuntu EC2 서버를 만들고 보안 그룹을 설정합니다.", "EC2는 인터넷에 빌린 내 서버 컴퓨터입니다."],
+  ["security_group", "Part 5. AWS EC2 배포 준비", "보안 그룹과 포트", ["aws", "security"], "22, 80, 443, 애플리케이션 포트의 접근 범위를 정합니다.", "보안 그룹은 서버 건물의 출입문 규칙입니다."],
+  ["server_package", "Part 5. AWS EC2 배포 준비", "서버 패키지 설치", ["aws", "docker"], "Docker, Nginx, unzip 등 배포에 필요한 도구를 서버에 설치합니다.", "새 사무실에 책상, 공구, 인터넷을 까는 단계입니다."],
+  ["ec2_env", "Part 5. AWS EC2 배포 준비", "운영 환경 변수와 .env", ["aws", "security"], "DB 비밀번호와 토큰을 코드 밖에서 관리합니다.", "비밀값은 GitHub에 올리는 문서가 아니라 금고에 보관해야 합니다."],
+  ["manual_jar_deploy", "Part 5. AWS EC2 배포 준비", "수동 JAR 배포 비교", ["spring", "deploy"], "Docker 전 수동 배포가 어떤 문제가 있는지 경험합니다.", "손으로 매번 파일을 옮기면 실수가 늘고 배포 시간이 길어집니다."],
+  ["container_deploy_ec2", "Part 5. AWS EC2 배포 준비", "EC2에서 컨테이너 실행", ["aws", "docker"], "서버에서 Docker 이미지를 실행하고 포트를 확인합니다.", "로컬에서 돌던 상자를 실제 서버 작업장에 올려 실행합니다."],
+
+  ["blue_green_concept", "Part 6. Blue-Green 무중단 배포", "Blue-Green 배포 개념", ["deploy", "advanced"], "blue와 green 두 버전을 번갈아 띄워 중단 없이 전환합니다.", "기존 가게는 계속 영업하고 옆 가게에 새 인테리어를 끝낸 뒤 간판만 바꿉니다."],
+  ["two_ports", "Part 6. Blue-Green 무중단 배포", "두 포트로 앱 두 개 띄우기", ["docker", "deploy"], "8081, 8082 포트에 서로 다른 버전 컨테이너를 띄웁니다.", "두 계산대를 준비하고 어느 계산대로 손님을 보낼지 Nginx가 정합니다."],
+  ["active_color", "Part 6. Blue-Green 무중단 배포", "현재 활성 버전 찾기", ["deploy", "practice"], "Nginx 설정과 실행 중인 컨테이너를 보고 현재 색상을 판단합니다.", "현재 손님이 어느 가게로 들어가는지 먼저 알아야 새 가게로 바꿀 수 있습니다."],
+  ["deploy_script", "Part 6. Blue-Green 무중단 배포", "배포 스크립트 작성", ["deploy", "docker"], "새 컨테이너 실행, health check, Nginx 전환, 이전 컨테이너 정리를 자동화합니다.", "배포 스크립트는 직원이 따라 하는 체크리스트를 자동 버튼으로 만든 것입니다."],
+  ["health_before_switch", "Part 6. Blue-Green 무중단 배포", "전환 전 Health Check", ["deploy", "http"], "새 버전이 정상일 때만 트래픽을 넘깁니다.", "새 가게 계산대가 작동하기 전에는 간판을 바꾸지 않습니다."],
+  ["rollback", "Part 6. Blue-Green 무중단 배포", "롤백 전략", ["deploy", "advanced"], "새 버전 장애 시 이전 버전으로 되돌리는 기준을 정합니다.", "문제가 생기면 바로 이전 가게 입구로 손님을 돌립니다."],
+  ["db_migration_caution", "Part 6. Blue-Green 무중단 배포", "DB 마이그레이션 주의", ["db", "deploy"], "무중단 배포에서 DB 변경이 가장 위험한 이유를 배웁니다.", "앱은 두 버전이 동시에 살아있는데 DB 장부는 하나라서 양쪽이 읽을 수 있어야 합니다."],
+  ["monitoring_after_deploy", "Part 6. Blue-Green 무중단 배포", "배포 후 모니터링", ["deploy", "practice"], "로그, 응답 코드, CPU, 메모리, health를 확인합니다.", "간판을 바꾼 뒤 손님이 제대로 계산하고 나가는지 지켜봅니다."],
+
+  ["actions_intro", "Part 7. GitHub Actions CI/CD", "GitHub Actions 기본", ["github", "cicd"], "push 이벤트로 자동 빌드/테스트/배포가 실행되는 구조를 이해합니다.", "GitHub Actions는 GitHub 안에 있는 자동 작업자입니다."],
+  ["workflow_yaml", "Part 7. GitHub Actions CI/CD", "workflow YAML 구조", ["github", "cicd"], "on, jobs, steps, uses, run의 역할을 익힙니다.", "YAML은 자동 작업자에게 주는 작업 순서표입니다."],
+  ["actions_secrets", "Part 7. GitHub Actions CI/CD", "Secrets 관리", ["github", "security"], "서버 IP, SSH 키, registry 토큰을 안전하게 저장합니다.", "Secrets는 작업자가 열 수 있는 금고입니다. 로그에 직접 쓰면 안 됩니다."],
+  ["ci_test_build", "Part 7. GitHub Actions CI/CD", "CI: 테스트와 빌드", ["github", "spring"], "배포 전에 테스트와 Gradle build를 자동으로 돌립니다.", "문제가 있는 제품은 물류창고로 보내기 전에 걸러냅니다."],
+  ["docker_build_action", "Part 7. GitHub Actions CI/CD", "이미지 빌드와 푸시 자동화", ["github", "docker"], "Actions에서 Docker 이미지를 만들고 registry에 push합니다.", "GitHub가 새 상자를 만들고 물류창고에 넣습니다."],
+  ["ssh_deploy_action", "Part 7. GitHub Actions CI/CD", "SSH로 EC2 배포 실행", ["github", "aws"], "Actions에서 EC2에 접속해 배포 스크립트를 실행합니다.", "자동 작업자가 서버에 들어가 배포 버튼을 대신 누릅니다."],
+  ["zero_downtime_pipeline", "Part 7. GitHub Actions CI/CD", "무중단 CI/CD 파이프라인", ["github", "deploy"], "빌드, 이미지 push, EC2 pull, Blue-Green 전환을 하나로 연결합니다.", "포장부터 간판 교체까지 자동 컨베이어 벨트로 연결합니다."],
+  ["actions_debug", "Part 7. GitHub Actions CI/CD", "Actions 실패 디버깅", ["github", "practice"], "권한, secret, 경로, SSH, Docker 오류를 단계별로 찾습니다.", "자동화가 실패하면 어느 작업대에서 멈췄는지 로그를 따라가면 됩니다."],
+  ["cicd_security", "Part 7. GitHub Actions CI/CD", "CI/CD 보안 체크", ["github", "security"], "배포 키 권한, secret 출력 금지, 최소 권한 원칙을 적용합니다.", "자동 작업자에게 모든 열쇠를 주지 말고 필요한 열쇠만 줍니다."],
+
+  ["static_vs_server", "Part 8. CloudFront + S3 + Route 53", "정적 배포와 서버 배포 차이", ["aws", "s3"], "Spring Boot 서버 배포와 S3 정적 사이트 배포의 차이를 구분합니다.", "정적 사이트는 이미 구워진 빵을 진열하는 매장이고, 서버는 주문 즉시 조리하는 주방입니다."],
+  ["s3_bucket", "Part 8. CloudFront + S3 + Route 53", "S3 버킷 생성과 업로드", ["aws", "s3"], "빌드된 정적 파일을 S3 버킷에 올립니다.", "S3 버킷은 HTML, CSS, JS 파일을 담는 창고입니다."],
+  ["s3_website_vs_origin", "Part 8. CloudFront + S3 + Route 53", "S3 Website Endpoint와 REST Origin", ["aws", "s3"], "정적 웹 호스팅 endpoint와 CloudFront 보안 origin 방식의 차이를 배웁니다.", "창고 문을 인터넷에 바로 열지, CloudFront 안내 데스크만 통하게 할지의 차이입니다."],
+  ["cloudfront_intro", "Part 8. CloudFront + S3 + Route 53", "CloudFront 배포 기본", ["aws", "cloudfront"], "전 세계 엣지 서버가 정적 파일을 캐시하는 흐름을 이해합니다.", "CloudFront는 가까운 지점에 복사본을 두는 빠른 배송 센터입니다."],
+  ["cloudfront_oac", "Part 8. CloudFront + S3 + Route 53", "Origin Access Control(OAC)", ["aws", "cloudfront", "security"], "S3를 비공개로 두고 CloudFront만 읽게 하는 구성을 배웁니다.", "창고 문은 잠그고 안내 데스크 직원만 출입증으로 들어가게 합니다."],
+  ["cache_invalidation", "Part 8. CloudFront + S3 + Route 53", "캐시와 Invalidations", ["aws", "cloudfront"], "배포 후 이전 파일이 보이는 이유와 캐시 무효화를 배웁니다.", "배송 센터에 예전 상품이 남아있으면 새 상품으로 교체하라고 알려야 합니다."],
+  ["acm_https", "Part 8. CloudFront + S3 + Route 53", "ACM 인증서와 HTTPS", ["aws", "cloudfront", "security"], "CloudFront에 사용할 인증서를 발급하고 연결합니다.", "도메인 이름으로 안전한 자물쇠를 달아주는 단계입니다."],
+  ["route53_alias", "Part 8. CloudFront + S3 + Route 53", "Route 53 Alias 레코드", ["aws", "route53", "dns"], "도메인을 CloudFront 배포로 연결합니다.", "연락처 앱에서 내도메인.com을 CloudFront 주소로 연결합니다."],
+  ["dns_troubleshooting", "Part 8. CloudFront + S3 + Route 53", "DNS 문제 해결", ["dns", "aws"], "전파 시간, NS, A/AAAA alias, CNAME, 루트 도메인 문제를 점검합니다.", "주소록이 바뀌어도 모든 사람 휴대폰에 바로 반영되지는 않습니다."],
+  ["spa_routing", "Part 8. CloudFront + S3 + Route 53", "SPA 라우팅과 403/404 처리", ["cloudfront", "frontend"], "Vue/React SPA에서 새로고침 시 404가 나는 문제를 해결합니다.", "어떤 내부 길로 들어와도 일단 안내문 index.html을 보여줘야 합니다."],
+  ["s3_cloudfront_actions", "Part 8. CloudFront + S3 + Route 53", "GitHub Actions로 S3/CloudFront 배포", ["github", "aws", "cicd"], "정적 사이트를 S3에 sync하고 CloudFront 캐시를 무효화합니다.", "프런트 빌드 파일을 창고에 올리고 배송 센터 캐시를 새로 고칩니다."],
+  ["final_project", "Part 9. 종합 프로젝트", "최종 프로젝트: API 무중단 + 정적 프런트 배포", ["deploy", "aws", "practice"], "백엔드 Blue-Green 배포와 프런트 CloudFront 배포를 하나의 운영 흐름으로 묶습니다.", "주방 서버와 매장 진열대를 각각 안전하게 배포하는 전체 운영 연습입니다."]
+];
+
+function deployDocsFor(tags = []) {
+  const docs = [];
+  if (tags.includes("docker")) docs.push(["Docker 설치", deployOfficialDocs.dockerInstall], ["Docker 이미지 빌드", deployOfficialDocs.dockerBuild]);
+  if (tags.includes("nginx")) docs.push(["Nginx Reverse Proxy", deployOfficialDocs.nginxReverseProxy], ["Nginx Load Balancing", deployOfficialDocs.nginxLoadBalance]);
+  if (tags.includes("github")) docs.push(["GitHub Actions Workflow", deployOfficialDocs.githubWorkflow], ["GitHub Actions Secrets", deployOfficialDocs.githubSecrets]);
+  if (tags.includes("aws") || tags.includes("cloudfront") || tags.includes("s3") || tags.includes("route53")) {
+    docs.push(["S3 정적 웹 사이트", deployOfficialDocs.s3CustomDomain], ["CloudFront S3 Origin", deployOfficialDocs.cloudfrontS3], ["CloudFront OAC", deployOfficialDocs.cloudfrontOac], ["Route 53 CloudFront Alias", deployOfficialDocs.route53CloudFront]);
+  }
+  return docs.length ? docs : [["Inflearn 강의 페이지", "https://www.inflearn.com/course/%EB%88%84%EA%B5%AC%EB%B3%B4%EB%8B%A4-%EB%B9%A0%EB%A5%B4%EA%B2%8C-%EB%B0%B0%EC%9A%B0%EB%8A%94-nginx-d?cid=338581"]];
+}
+
+function deployCoreCode(topic) {
+  const key = topic.key;
+  if (key.includes("docker_install")) return "docker --version\ndocker compose version\ndocker run hello-world";
+  if (key.includes("docker_pull") || key.includes("docker_logs")) return "docker pull nginx:latest\ndocker run -d --name web -p 8080:80 nginx:latest\ndocker ps\ndocker logs web\ndocker exec -it web sh\ndocker stop web\ndocker rm web";
+  if (key.includes("docker_ports")) return "docker run -d --name app -p 8080:8080 my-spring-app:local\ncurl http://localhost:8080/actuator/health";
+  if (key.includes("docker_volume")) return "docker volume create app-data\ndocker run -d --name mysql -v app-data:/var/lib/mysql mysql:8";
+  if (key.includes("docker_network") || key.includes("docker_compose")) return "docker network create app-net\ndocker run -d --name api --network app-net my-spring-app:local\ndocker run -d --name nginx --network app-net -p 80:80 nginx:latest";
+  if (key.includes("dockerfile") || key.includes("spring_dockerfile")) return "FROM eclipse-temurin:21-jre\nWORKDIR /app\nCOPY build/libs/app.jar app.jar\nEXPOSE 8080\nENTRYPOINT [\"java\", \"-jar\", \"app.jar\"]";
+  if (key.includes("gradle")) return "./gradlew clean test bootJar\nls build/libs\njava -jar build/libs/app.jar";
+  if (key.includes("env_profile") || key.includes("ec2_env")) return "SPRING_PROFILES_ACTIVE=prod\nDB_URL=jdbc:mysql://db.example.com:3306/app\nDB_USERNAME=app\nDB_PASSWORD=never-commit-this";
+  if (key.includes("health")) return "management.endpoints.web.exposure.include=health,info\nmanagement.endpoint.health.probes.enabled=true\ncurl -f http://localhost:8080/actuator/health";
+  if (key.includes("nginx") || key.includes("reverse") || key.includes("load_balance") || key.includes("proxy")) return "upstream spring_app {\n  server 127.0.0.1:8081;\n}\n\nserver {\n  listen 80;\n  server_name example.com;\n\n  location / {\n    proxy_pass http://spring_app;\n    proxy_set_header Host $host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $scheme;\n  }\n}";
+  if (key.includes("ec2") || key.includes("security_group") || key.includes("server_package")) return "ssh -i app-key.pem ubuntu@EC2_PUBLIC_IP\nsudo apt update\nsudo apt install -y nginx docker.io\nsudo usermod -aG docker ubuntu\nsudo systemctl enable --now nginx docker";
+  if (key.includes("blue") || key.includes("two_ports") || key.includes("active_color") || key.includes("deploy_script") || key.includes("rollback")) return "BLUE_PORT=8081\nGREEN_PORT=8082\nNEXT_PORT=8082\n\ndocker run -d --name app-green -p ${NEXT_PORT}:8080 my-app:${GITHUB_SHA}\ncurl -f http://127.0.0.1:${NEXT_PORT}/actuator/health\nsudo ln -sfn /etc/nginx/conf.d/green.conf /etc/nginx/conf.d/app.conf\nsudo nginx -t && sudo nginx -s reload\ndocker stop app-blue && docker rm app-blue";
+  if (key.includes("s3_cloudfront_actions")) return "name: frontend-deploy\non:\n  push:\n    branches: [main]\n\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    permissions:\n      id-token: write\n      contents: read\n    steps:\n      - uses: actions/checkout@v4\n      - run: npm ci && npm run build\n      - run: aws s3 sync dist/ s3://my-site-bucket --delete\n      - run: aws cloudfront create-invalidation --distribution-id E123456789 --paths '/*'";
+  if (key.includes("actions") || key.includes("workflow") || key.includes("ci_") || key.includes("ssh_deploy") || key.includes("zero_downtime")) return "name: deploy\non:\n  push:\n    branches: [main]\n\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-java@v4\n        with:\n          distribution: temurin\n          java-version: '21'\n      - run: ./gradlew clean test bootJar\n      - run: docker build -t ghcr.io/OWNER/app:${{ github.sha }} .";
+  if (key.includes("s3") || key.includes("cloudfront") || key.includes("route53") || key.includes("dns") || key.includes("acm") || key.includes("spa")) return "aws s3 sync dist/ s3://my-site-bucket --delete\naws cloudfront create-invalidation --distribution-id E123456789 --paths '/*'\n# Route 53: A/AAAA Alias -> CloudFront distribution\n# CloudFront: S3 origin + OAC + HTTPS certificate";
+  return "배포 흐름:\n1. 로컬에서 빌드한다.\n2. Docker 이미지로 포장한다.\n3. 서버에 새 버전을 띄운다.\n4. health check를 통과하면 Nginx를 전환한다.\n5. 문제가 있으면 이전 버전으로 되돌린다.";
+}
+
+const deployEx = (title, desc, sql) => ({ title, desc, sql });
+
+function deployExamples(topic) {
+  const base = deployCoreCode(topic);
+  const key = topic.key;
+  const tags = topic.tags || [];
+  if (key.includes("docker") || tags.includes("docker")) {
+    return [
+      deployEx(`${topic.title} 핵심 실습`, "Docker는 설치 확인, 이미지, 컨테이너, 포트, 볼륨, 네트워크를 작은 단위로 손에 익혀야 합니다.", base),
+      deployEx("Docker 명령어 읽는 법", "docker 명령은 보통 대상과 동작이 함께 나옵니다. 무엇을 만들고, 무엇을 실행하고, 무엇을 지우는지 분리해 읽습니다.", `docker pull nginx:latest     # 이미지 내려받기\ndocker run -d -p 8080:80 nginx # 컨테이너 실행\ndocker ps                     # 실행 중 컨테이너 확인\ndocker logs nginx             # 로그 확인\ndocker stop nginx             # 중지\ndocker rm nginx               # 삭제`),
+      deployEx("Docker에서 자주 나는 오류", "초보자가 가장 많이 만나는 포트 충돌, 이름 중복, 권한 문제를 먼저 연습합니다.", `포트 충돌:\n- Error: port is already allocated\n- 해결: docker ps로 기존 컨테이너 확인 후 중지하거나 다른 포트를 사용합니다.\n\n이름 중복:\n- Conflict. The container name is already in use\n- 해결: docker rm 기존이름 또는 --name을 바꿉니다.\n\n권한 문제:\n- Linux 서버에서는 sudo 없이 docker가 안 될 수 있습니다.`),
+      deployEx("배포에 필요한 Docker 기준", "운영 배포에서는 '내 컴퓨터에서 됨'이 아니라 어느 서버에서도 같은 방식으로 뜨는 이미지가 필요합니다.", `운영 체크:\n1. Dockerfile이 repository에 포함되어 있는가?\n2. 빌드 산출물이 이미지에 들어가는가?\n3. 환경 변수는 이미지에 박지 않았는가?\n4. 컨테이너 health check 경로가 있는가?\n5. 같은 태그를 덮어쓰지 않고 commit sha 태그를 남기는가?`)
+    ];
+  }
+
+  if (key.includes("nginx") || key.includes("reverse") || key.includes("proxy") || key.includes("load_balance") || tags.includes("nginx")) {
+    return [
+      deployEx(`${topic.title} 핵심 설정`, "Nginx는 80/443 요청을 받아 뒤쪽 애플리케이션으로 넘기는 입구입니다.", base),
+      deployEx("Reverse Proxy 최소 설정", "브라우저는 Nginx만 바라보고, Spring Boot는 내부 포트에서만 동작하게 만듭니다.", `server {\n  listen 80;\n  server_name api.example.com;\n\n  location / {\n    proxy_pass http://127.0.0.1:8081;\n    proxy_set_header Host $host;\n    proxy_set_header X-Forwarded-Proto $scheme;\n  }\n}`),
+      deployEx("설정 검사와 reload", "Nginx는 설정 오타 하나로 요청 전체가 막힐 수 있으므로 반드시 검사 후 반영합니다.", `sudo nginx -t\nsudo nginx -s reload\nsudo systemctl status nginx\nsudo tail -f /var/log/nginx/error.log`),
+      deployEx("Nginx 장애 추적 순서", "502, 404, timeout은 원인이 다릅니다. 상태 코드별로 추적 순서를 다르게 잡습니다.", `502 Bad Gateway:\n- upstream 앱 컨테이너가 켜져 있는가?\n- proxy_pass 포트가 맞는가?\n\n404 Not Found:\n- Nginx server_name/location이 맞는가?\n- 앱 라우트가 실제로 있는가?\n\nTimeout:\n- 보안 그룹, 방화벽, 앱 응답 지연을 확인합니다.`)
+    ];
+  }
+
+  if (key.includes("blue") || key.includes("two_ports") || key.includes("active_color") || key.includes("deploy_script") || key.includes("rollback") || key.includes("migration") || key.includes("monitoring")) {
+    return [
+      deployEx(`${topic.title} 무중단 배포 실습`, "Blue-Green은 새 버전을 따로 띄운 뒤 정상일 때만 Nginx 연결을 바꾸는 방식입니다.", base),
+      deployEx("Blue와 Green 포트 설계", "두 버전이 동시에 떠 있어야 하므로 포트와 컨테이너 이름이 겹치면 안 됩니다.", `blue:  app-blue  -> host 8081 -> container 8080\ngreen: app-green -> host 8082 -> container 8080\nnginx: 현재 활성 색상의 host port로 proxy_pass\n\n전환 전:\nproxy_pass http://127.0.0.1:8081;\n전환 후:\nproxy_pass http://127.0.0.1:8082;`),
+      deployEx("전환 조건", "새 컨테이너가 켜졌다는 것만으로는 부족합니다. health check가 성공해야 전환합니다.", `docker run -d --name app-green -p 8082:8080 my-app:new\n\nfor i in {1..30}; do\n  if curl -f http://127.0.0.1:8082/actuator/health; then\n    echo \"green is healthy\"\n    break\n  fi\n  sleep 2\ndone`),
+      deployEx("롤백 기준", "전환 후 오류가 늘면 이전 색상으로 Nginx만 되돌리는 것이 가장 빠릅니다.", `롤백 절차:\n1. 이전 색상 컨테이너가 아직 살아있는지 확인합니다.\n2. Nginx upstream을 이전 포트로 되돌립니다.\n3. nginx -t && nginx -s reload를 실행합니다.\n4. 새 버전 컨테이너 로그를 보존합니다.\n5. 장애 원인을 기록하고 재배포합니다.`)
+    ];
+  }
+
+  if (key.includes("ec2") || key.includes("security_group") || key.includes("server_package") || key.includes("ssh")) {
+    return [
+      deployEx(`${topic.title} 서버 준비 실습`, "EC2 서버는 Docker와 Nginx가 돌아갈 실제 운영 컴퓨터입니다.", base),
+      deployEx("보안 그룹 기본값", "개발 편의를 위해 모든 포트를 열면 안 됩니다. 필요한 입구만 엽니다.", `Inbound 예시:\n22/tcp  내 IP만 허용\n80/tcp  0.0.0.0/0\n443/tcp 0.0.0.0/0\n8081/8082 외부 공개 금지, 서버 내부에서만 사용 권장`),
+      deployEx("서버 접속 후 확인", "서버에 들어가면 OS, 디스크, 메모리, 포트, 서비스 상태를 먼저 확인합니다.", `uname -a\nfree -h\ndf -h\nsudo ss -lntp\nsudo systemctl status nginx\nsudo systemctl status docker`),
+      deployEx("EC2에서 자주 막히는 지점", "접속이 안 되면 앱보다 네트워크와 키 권한부터 확인합니다.", `SSH 접속 실패:\n- pem 파일 권한이 너무 열려 있지 않은가?\n- EC2 public IP가 바뀌지 않았는가?\n- 보안 그룹 22번이 내 IP를 허용하는가?\n\n웹 접속 실패:\n- 80/443 보안 그룹이 열려 있는가?\n- Nginx가 실행 중인가?\n- 앱 컨테이너 포트가 맞는가?`)
+    ];
+  }
+
+  if (key.includes("s3") || key.includes("cloudfront") || key.includes("route53") || key.includes("dns") || key.includes("acm") || key.includes("spa") || key.includes("static") || tags.includes("s3") || tags.includes("cloudfront") || tags.includes("route53") || tags.includes("dns")) {
+    return [
+      deployEx(`${topic.title} AWS 배포 실습`, "S3는 파일 저장소, CloudFront는 CDN, Route 53은 DNS, ACM은 HTTPS 인증서 역할을 맡습니다.", base),
+      deployEx("CloudFront + S3 보안 구조", "S3 버킷을 공개하지 않고 CloudFront OAC만 S3를 읽게 하는 구성이 안전합니다.", `사용자 브라우저\n  -> Route 53 도메인\n  -> CloudFront 배포\n  -> OAC 서명 요청\n  -> private S3 bucket\n\nS3 public access block: ON\nCloudFront origin: S3 REST endpoint\nOrigin Access Control: enabled`),
+      deployEx("Route 53 연결 체크", "루트 도메인은 CNAME이 아니라 Alias A/AAAA로 CloudFront에 연결하는 것이 일반적입니다.", `example.com      A/AAAA Alias -> CloudFront distribution\nwww.example.com  A/AAAA Alias -> CloudFront distribution\n\n확인:\nnslookup example.com\ndig example.com\n브라우저에서 https://example.com 접속`),
+      deployEx("CloudFront 캐시 문제 해결", "배포 후 예전 화면이 보이면 파일 업로드와 CDN 캐시를 나눠 확인합니다.", `1. S3에 새 index.html이 올라갔는지 확인합니다.\n2. CloudFront invalidation을 생성합니다.\n3. 파일명 hash가 바뀌는 빌드인지 확인합니다.\n4. SPA는 403/404를 index.html로 돌리는 error response를 설정합니다.\n5. 인증서는 us-east-1 ACM 인증서를 사용하는지 확인합니다.`)
+    ];
+  }
+
+  if (key.includes("actions") || key.includes("workflow") || key.includes("ci_") || key.includes("ssh_deploy") || key.includes("zero_downtime") || key.includes("cicd")) {
+    return [
+      deployEx(`${topic.title} workflow 예제`, "GitHub Actions는 push를 감지해 테스트, 이미지 빌드, 서버 배포를 자동으로 실행합니다.", base),
+      deployEx("Secrets 설계", "서버 접속 정보와 토큰은 코드가 아니라 GitHub Secrets에 저장합니다.", `필수 Secrets 예시:\nEC2_HOST=1.2.3.4\nEC2_USER=ubuntu\nEC2_SSH_KEY=-----BEGIN OPENSSH PRIVATE KEY-----\nREGISTRY_USERNAME=merrybmc\nREGISTRY_TOKEN=ghp_xxx\n\n주의:\n- echo로 secret을 출력하지 않습니다.\n- 환경별로 dev/prod secret을 분리합니다.`),
+      deployEx("CI와 CD 분리", "테스트가 실패하면 배포는 실행되면 안 됩니다.", `jobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: ./gradlew test\n\n  deploy:\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \"deploy only after test success\"`),
+      deployEx("Actions 실패 디버깅", "실패한 step 이름, 로그 마지막 30줄, secret 이름 오타를 먼저 확인합니다.", `확인 순서:\n1. 어느 job/step에서 실패했는가?\n2. 로컬에서도 같은 명령이 실패하는가?\n3. secret 이름이 workflow와 완전히 같은가?\n4. EC2 보안 그룹에서 22번 포트가 허용되어 있는가?\n5. 서버에서 docker pull 권한이 있는가?`)
+    ];
+  }
+
+  if (key.includes("s3") || key.includes("cloudfront") || key.includes("route53") || key.includes("dns") || key.includes("acm") || key.includes("spa") || key.includes("static")) {
+    return [
+      deployEx(`${topic.title} AWS 배포 실습`, "S3는 파일 저장소, CloudFront는 CDN, Route 53은 DNS, ACM은 HTTPS 인증서 역할을 맡습니다.", base),
+      deployEx("CloudFront + S3 보안 구조", "S3 버킷을 공개하지 않고 CloudFront OAC만 S3를 읽게 하는 구성이 안전합니다.", `사용자 브라우저\n  -> Route 53 도메인\n  -> CloudFront 배포\n  -> OAC 서명 요청\n  -> private S3 bucket\n\nS3 public access block: ON\nCloudFront origin: S3 REST endpoint\nOrigin Access Control: enabled`),
+      deployEx("Route 53 연결 체크", "루트 도메인은 CNAME이 아니라 Alias A/AAAA로 CloudFront에 연결하는 것이 일반적입니다.", `example.com      A/AAAA Alias -> CloudFront distribution\nwww.example.com  A/AAAA Alias -> CloudFront distribution\n\n확인:\nnslookup example.com\ndig example.com\n브라우저에서 https://example.com 접속`),
+      deployEx("CloudFront 캐시 문제 해결", "배포 후 예전 화면이 보이면 파일 업로드와 CDN 캐시를 나눠 확인합니다.", `1. S3에 새 index.html이 올라갔는지 확인합니다.\n2. CloudFront invalidation을 생성합니다.\n3. 파일명 hash가 바뀌는 빌드인지 확인합니다.\n4. SPA는 403/404를 index.html로 돌리는 error response를 설정합니다.\n5. 인증서는 us-east-1 ACM 인증서를 사용하는지 확인합니다.`)
+    ];
+  }
+
+  if (key.includes("ec2") || key.includes("security_group") || key.includes("server_package") || key.includes("ssh")) {
+    return [
+      deployEx(`${topic.title} 서버 준비 실습`, "EC2 서버는 Docker와 Nginx가 돌아갈 실제 운영 컴퓨터입니다.", base),
+      deployEx("보안 그룹 기본값", "개발 편의를 위해 모든 포트를 열면 안 됩니다. 필요한 입구만 엽니다.", `Inbound 예시:\n22/tcp  내 IP만 허용\n80/tcp  0.0.0.0/0\n443/tcp 0.0.0.0/0\n8081/8082 외부 공개 금지, 서버 내부에서만 사용 권장`),
+      deployEx("서버 접속 후 확인", "서버에 들어가면 OS, 디스크, 메모리, 포트, 서비스 상태를 먼저 확인합니다.", `uname -a\nfree -h\ndf -h\nsudo ss -lntp\nsudo systemctl status nginx\nsudo systemctl status docker`),
+      deployEx("EC2에서 자주 막히는 지점", "접속이 안 되면 앱보다 네트워크와 키 권한부터 확인합니다.", `SSH 접속 실패:\n- pem 파일 권한이 너무 열려 있지 않은가?\n- EC2 public IP가 바뀌지 않았는가?\n- 보안 그룹 22번이 내 IP를 허용하는가?\n\n웹 접속 실패:\n- 80/443 보안 그룹이 열려 있는가?\n- Nginx가 실행 중인가?\n- 앱 컨테이너 포트가 맞는가?`)
+    ];
+  }
+
+  return [
+    deployEx(`${topic.title} 핵심 실습`, "이번 장에서 반드시 손으로 실행하거나 읽어야 하는 핵심 예제입니다.", base),
+    deployEx("초보자 체크리스트", "따라 하다가 막히면 아래 순서대로 확인합니다.", `1. 지금 내 위치가 로컬 PC인지 EC2 서버인지 확인합니다.\n2. 명령을 실행할 사용자와 권한을 확인합니다.\n3. 포트가 열려 있는지 확인합니다.\n4. 로그를 먼저 보고 추측은 나중에 합니다.\n5. 한 번에 여러 파일을 고치지 말고 하나씩 검증합니다.\n\n이번 장 체크: ${topic.focus}`),
+    deployEx("실패 상황 연습", "일부러 하나를 틀리게 만들어 오류 메시지를 읽는 훈련입니다.", `실패 예시:\n- 포트를 잘못 열기\n- 컨테이너 이름 중복 만들기\n- Nginx 설정에 세미콜론 빼기\n- GitHub Secret 이름 틀리기\n- CloudFront 캐시 무효화 빼먹기\n\n복구 기준:\n- 로그에서 정확한 에러 한 줄을 찾습니다.\n- 마지막으로 성공했던 상태로 되돌립니다.`),
+    deployEx("운영 관점 메모", "실무에서는 기능 구현보다 재현 가능하고 되돌릴 수 있는 배포가 더 중요합니다.", `운영 메모:\n- 수동 명령은 문서화하고 반복되면 스크립트로 바꿉니다.\n- 비밀값은 코드와 로그에 남기지 않습니다.\n- 새 버전 전환 전 health check를 통과해야 합니다.\n- DNS와 CDN은 반영 시간이 있을 수 있습니다.\n- 배포 후 로그와 지표를 확인합니다.`)
+  ];
+}
+
+function makeDeployChapter(raw, index) {
+  const [key, part, title, tags, focus, analogy] = raw;
+  const no = index + 1;
+  const topic = {
+    key,
+    part,
+    title,
+    tags,
+    focus,
+    analogy,
+    why: `${title}은 배포 흐름에서 ${focus} 초보자는 명령어를 외우기보다 "무엇을 확인하고 다음 단계로 넘어가는가"를 먼저 잡아야 합니다.`
+  };
+  const docs = deployDocsFor(tags);
+
+  return {
+    id: `deployOps_${String(no).padStart(2, "0")}_${key}`,
+    course: "deployOps",
+    part,
+    title: `${no}. ${title}`,
+    tags,
+    type: "info",
+    summary: `${title}을 처음 하는 사람도 따라갈 수 있게 개념, 명령어, 검증 기준을 함께 정리합니다.`,
+    goal: `${focus} 마지막에는 "실행했다"가 아니라 "정상인지 확인했다"까지 할 수 있어야 합니다.`,
+    analogy,
+    studyHint: "처음 배포를 배울 때는 명령어를 한 번에 외우려고 하지 마세요. 로컬 PC, GitHub, EC2, Docker, Nginx, AWS 콘솔 중 지금 어느 위치에서 작업하는지 먼저 말로 설명하면 실수가 크게 줄어듭니다.",
+    sections: [
+      {
+        title: "왜 배우나요?",
+        body: [
+          p(topic.why),
+          callout("tip", "비유로 먼저 이해하기", analogy)
+        ]
+      },
+      {
+        title: "처음 하는 사람을 위한 핵심 개념",
+        body: [
+          ul([
+            `<strong>입력</strong>: 이번 단계에서 준비해야 하는 파일, 계정, 포트, secret, 도메인을 확인합니다.`,
+            `<strong>처리</strong>: Docker, Nginx, GitHub Actions, AWS 중 어떤 도구가 실제 작업을 맡는지 구분합니다.`,
+            `<strong>검증</strong>: 브라우저, curl, 로그, AWS 콘솔, GitHub Actions 로그 중 하나로 성공 여부를 확인합니다.`,
+            `<strong>복구</strong>: 실패했을 때 이전 컨테이너, 이전 Nginx 설정, 이전 CloudFront 캐시 상태로 돌아갈 방법을 남깁니다.`
+          ]),
+          p(`이번 장의 초점은 <strong>${focus}</strong> 입니다. 배포는 "대충 되네"에서 끝내면 다음 장애 때 원인을 찾기 어렵습니다.`)
+        ]
+      },
+      {
+        title: "공식 문서 기준",
+        body: [
+          ul(docs.map(([label, url]) => `<a href="${url}" target="_blank" rel="noreferrer">${label}</a>`)),
+          callout("note", "문서 읽는 법", "공식 문서는 처음부터 끝까지 외우는 책이 아니라 막혔을 때 기준을 확인하는 지도입니다. 설치 요구사항, 명령 옵션, 보안 권장사항, 제한사항을 먼저 확인하세요.")
+        ]
+      },
+      {
+        title: "실습 순서",
+        body: [
+          ol([
+            "이번 장의 핵심 실습 코드를 그대로 읽고, 어떤 위치에서 실행하는 명령인지 표시합니다.",
+            "명령을 실행하기 전에 예상 결과를 한 줄로 적습니다.",
+            "실행 후 성공 여부를 확인하는 명령이나 화면을 봅니다.",
+            "실패하면 에러 메시지 첫 줄과 마지막 줄을 기록합니다.",
+            "같은 작업을 다시 할 수 있도록 명령을 메모나 스크립트로 남깁니다."
+          ])
+        ]
+      }
+    ],
+    examples: deployExamples(topic),
+    drills: [
+      { prompt: `${title}을 왜 배워야 하는지 비개발자에게 설명하듯 한 문장으로 써보세요.`, answer: topic.why },
+      { prompt: "이번 장에서 로컬 PC, GitHub, EC2, AWS 콘솔 중 어디에서 작업하는지 구분해보세요.", answer: "배포 실수의 상당수는 작업 위치를 헷갈려서 생깁니다. 명령어 앞에 [로컬], [EC2], [GitHub Actions], [AWS 콘솔]을 붙여보세요." },
+      { prompt: "성공 여부를 확인할 수 있는 명령이나 화면은 무엇인가요?", answer: "curl, docker ps, docker logs, nginx -t, GitHub Actions 로그, CloudFront 배포 상태, Route 53 레코드, 브라우저 접속 등이 검증 도구입니다." }
+    ],
+    practiceSteps: [
+      `<strong>작업 위치를 표시합니다.</strong> ${title}은 어디에서 실행하는 단계인지 먼저 구분하세요.`,
+      "<strong>공식 문서 링크를 열어 제한사항을 확인합니다.</strong> 설치 요구사항, 권한, region, 포트, 인증서 조건을 놓치지 않습니다.",
+      "<strong>핵심 실습 코드를 읽습니다.</strong> 모르는 옵션은 바로 복사하지 말고 한 줄씩 뜻을 적습니다.",
+      "<strong>실행 후 검증합니다.</strong> 명령이 끝났다는 것과 서비스가 정상이라는 것은 다릅니다.",
+      "<strong>실패 케이스를 하나 만들어봅니다.</strong> 일부러 포트나 secret 이름을 틀리고 에러를 읽어보면 실전 대응력이 빨라집니다.",
+      "<strong>마지막 상태를 문서화합니다.</strong> URL, 포트, 컨테이너 이름, 배포 색상, CloudFront ID, Route 53 레코드를 남깁니다."
+    ]
+  };
+}
+
+const expandedDeployOpsChapters = deployTopics.map(makeDeployChapter);
+
 const allChapters = [
   ...expandedSqlChapters,
   ...expandedVueChapters,
@@ -9159,7 +9458,8 @@ const allChapters = [
   ...expandedSpringMvcChapters,
   ...expandedPhpWebChapters,
   ...expandedLaravelWebChapters,
-  ...expandedCsharpWebChapters
+  ...expandedCsharpWebChapters,
+  ...expandedDeployOpsChapters
 ];
 
 const cleanTitle = chapter => String(chapter.title || "").replace(/^\d+\.\s*/, "");
