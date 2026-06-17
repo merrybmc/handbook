@@ -6137,6 +6137,1184 @@ public Long order(Long memberId, Long productId, int quantity) {
   }
 ];
 
+function makeJavaSpringChapter(item) {
+  const isSpring = item.kind === "spring";
+  const title = `${item.no}. ${item.title}`;
+  const defaultJavaCode = `
+public class Practice${String(item.no).padStart(2, "0")} {
+    public static void main(String[] args) {
+        System.out.println("${item.title}");
+    }
+}
+  `;
+  const defaultSpringCode = `
+@RestController
+@RequestMapping("/practice")
+public class PracticeController {
+
+    @GetMapping("/${item.id.replaceAll("_", "-")}")
+    public String practice() {
+        return "${item.title}";
+    }
+}
+  `;
+
+  return {
+    id: item.id,
+    course: "javaSpring",
+    part: item.part,
+    title,
+    tags: item.tags,
+    type: "info",
+    summary: item.summary,
+    goal: item.goal,
+    analogy: item.analogy,
+    studyHint: item.studyHint || "처음에는 모든 용어를 외우려 하지 말고, 예제를 실행한 뒤 왜 그런 결과가 나오는지 말로 설명해보세요. 설명할 수 있는 만큼이 진짜 이해한 범위입니다.",
+    sections: [
+      {
+        title: "왜 배우나요?",
+        body: [
+          p(item.why),
+          callout("tip", "처음 보는 사람용 비유", item.analogy)
+        ]
+      },
+      {
+        title: "핵심 개념을 천천히 풀어보기",
+        body: [
+          ul(item.concepts.map(concept => `<strong>${concept[0]}</strong>: ${concept[1]}`)),
+          p(item.detail || "이 장은 단어를 암기하는 장이 아니라, 코드가 실행될 때 어떤 값이 어디서 만들어지고 어디로 이동하는지 추적하는 장입니다. 예제를 실행한 뒤 각 줄 옆에 '이 줄은 무엇을 준비하는가', '이 줄은 무엇을 바꾸는가'를 적어보세요.")
+        ]
+      },
+      {
+        title: "처음 하는 사람용 실습 흐름",
+        body: [
+          ol(item.steps),
+          p(isSpring
+            ? "Spring 장에서는 항상 요청이 들어오는 입구인 Controller부터 보고, 그 다음 Service, Repository, DB로 내려가는 흐름을 그려보세요. 파일이 많아도 흐름을 그리면 길을 잃지 않습니다."
+            : "Java 장에서는 실행 시작점인 main 메서드부터 한 줄씩 따라가세요. 값이 바뀌는 순간마다 종이에 변수 이름과 현재 값을 적으면 디버깅 감각이 빨리 붙습니다.")
+        ]
+      },
+      {
+        title: "흔한 실수와 점검 기준",
+        body: [
+          ul(item.pitfalls),
+          callout("warning", "막혔을 때 보는 순서", "코드 전체를 다시 쓰기 전에 1. 파일 위치, 2. 클래스 이름, 3. 괄호와 세미콜론, 4. import, 5. 실행한 URL 또는 main 메서드를 차례대로 확인하세요.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: item.exampleTitle || `${item.title} 최소 예제`,
+        desc: item.exampleDesc || "개념을 가장 작은 코드로 확인합니다. 먼저 그대로 실행하고, 그 다음 값 하나만 바꿔보세요.",
+        sql: item.exampleCode || (isSpring ? defaultSpringCode : defaultJavaCode)
+      }
+    ],
+    drills: item.drills || [
+      {
+        prompt: `${item.title}을 왜 배우는지 한 문장으로 설명해보세요.`,
+        answer: item.goal
+      },
+      {
+        prompt: "예제에서 가장 중요한 한 줄을 고르고 그 이유를 적어보세요.",
+        answer: "정답은 하나가 아닙니다. 중요한 것은 해당 줄이 입력, 처리, 출력 중 어느 역할인지 설명하는 것입니다."
+      }
+    ]
+  };
+}
+
+const expandedJavaTopics = [
+  {
+    no: 1,
+    id: "java01_roadmap",
+    kind: "java",
+    part: "Java Part 1. 학습 준비와 큰 그림",
+    title: "Java 백엔드 로드맵 큰 그림",
+    tags: ["java", "backend"],
+    summary: "Java 입문부터 Spring Boot 백엔드까지 어떤 순서로 공부해야 하는지 전체 지도를 잡습니다.",
+    goal: "Java 문법, 객체지향, 컬렉션, 예외, 동시성, Spring Boot가 서로 어떻게 이어지는지 설명할 수 있습니다.",
+    why: "처음부터 Spring Boot를 켜면 어노테이션, 객체, HTTP, DB가 한꺼번에 나와서 쉽게 지칩니다. 먼저 지도를 보면 지금 배우는 개념이 어디에 쓰이는지 알 수 있습니다.",
+    analogy: "로드맵은 여행 지도입니다. 지금 당장 모든 길을 외우는 것이 아니라, 내가 어느 도시에서 출발해 어느 도시로 가는지 아는 것이 먼저입니다.",
+    concepts: [["Java", "서버 로직을 작성하는 언어입니다."], ["객체지향", "큰 프로그램을 역할별 객체로 나누는 사고방식입니다."], ["Spring Boot", "Java 객체들을 웹 서버, DB, API와 연결해주는 프레임워크입니다."]],
+    steps: ["Java로 작은 콘솔 프로그램을 실행합니다.", "클래스와 객체로 데이터를 묶어봅니다.", "컬렉션으로 여러 데이터를 다룹니다.", "Spring Boot로 HTTP 요청을 받는 API를 만듭니다."],
+    pitfalls: ["처음부터 모든 로드맵을 암기하려고 하지 마세요.", "Spring 오류를 Java 문법 오류와 섞어서 보지 마세요."]
+  },
+  {
+    no: 2,
+    id: "java02_environment",
+    kind: "java",
+    part: "Java Part 1. 학습 준비와 큰 그림",
+    title: "JDK, IntelliJ, Gradle 환경 세팅",
+    tags: ["java", "backend"],
+    summary: "Java 개발을 위한 JDK, IntelliJ, Gradle의 역할과 설치 후 확인 방법을 배웁니다.",
+    goal: "java -version을 확인하고 IntelliJ에서 Gradle 프로젝트를 열 수 있습니다.",
+    why: "환경 세팅이 흔들리면 코드가 맞아도 실행되지 않습니다. 초보자에게 환경 확인 루틴은 코딩만큼 중요합니다.",
+    analogy: "JDK는 공구함, IntelliJ는 작업대, Gradle은 조립 설명서와 자동 포장 기계입니다.",
+    concepts: [["JDK", "Java 코드를 컴파일하고 실행합니다."], ["IntelliJ", "코드를 작성하고 실행하는 개발 도구입니다."], ["Gradle", "라이브러리 설치, 빌드, 테스트 실행을 관리합니다."]],
+    steps: ["JDK 21 또는 17을 설치합니다.", "터미널에서 java -version을 확인합니다.", "IntelliJ에서 새 Gradle 프로젝트를 만듭니다.", "main 메서드를 실행해 콘솔 출력을 확인합니다."],
+    pitfalls: ["JRE와 JDK를 헷갈리지 마세요.", "프로젝트 폴더 밖에서 Gradle 명령을 실행하면 실패할 수 있습니다."],
+    exampleCode: `
+public class HelloEnvironment {
+    public static void main(String[] args) {
+        System.out.println(System.getProperty("java.version"));
+    }
+}
+    `
+  },
+  {
+    no: 3,
+    id: "java03_execution",
+    kind: "java",
+    part: "Java Part 1. 학습 준비와 큰 그림",
+    title: "Java 프로그램 실행 원리와 main 메서드",
+    tags: ["java", "basic"],
+    summary: "소스 코드가 컴파일되어 JVM에서 실행되는 흐름과 main 메서드의 의미를 배웁니다.",
+    goal: "컴파일, 바이트코드, JVM, main 메서드의 역할을 구분합니다.",
+    why: "실행 원리를 모르면 오류가 났을 때 어디가 문제인지 알기 어렵습니다. 최소한의 실행 흐름은 초반에 잡아야 합니다.",
+    analogy: "소스 코드는 한국어 원고, 바이트코드는 공통 악보, JVM은 각 운영체제에서 악보를 연주하는 연주자입니다.",
+    concepts: [["컴파일", ".java 파일을 .class 바이트코드로 바꾸는 과정입니다."], ["JVM", "바이트코드를 실제 컴퓨터에서 실행합니다."], ["main", "Java 프로그램이 시작되는 입구입니다."]],
+    steps: ["Hello 클래스를 작성합니다.", "main 메서드 안에 출력문을 넣습니다.", "클래스 이름과 파일 이름이 같은지 확인합니다.", "출력 순서를 바꿔 실행 흐름을 확인합니다."],
+    pitfalls: ["main 오타가 나면 실행 시작점을 찾지 못합니다.", "파일 이름과 public class 이름이 다르면 컴파일 오류가 납니다."]
+  },
+  {
+    no: 4,
+    id: "java04_variables_types",
+    kind: "java",
+    part: "Java Part 2. 기본 문법",
+    title: "변수와 기본 타입",
+    tags: ["java", "basic"],
+    summary: "int, long, double, boolean, char, String을 쓰는 이유와 값 저장 방식을 익힙니다.",
+    goal: "상황에 맞는 타입을 고르고 변수에 값을 저장할 수 있습니다.",
+    why: "변수는 모든 프로그램의 출발점입니다. 서버에서도 회원 id, 주문 금액, 로그인 여부 같은 값이 변수로 이동합니다.",
+    analogy: "변수는 이름표가 붙은 상자이고 타입은 상자 모양입니다. 숫자 상자에 문장을 넣을 수 없듯 타입이 맞아야 합니다.",
+    concepts: [["int/long", "정수를 저장합니다."], ["double", "소수 계산에 사용합니다."], ["boolean", "참과 거짓을 표현합니다."], ["String", "문자열을 표현합니다."]],
+    steps: ["회원 이름, 나이, 가입 여부 변수를 만듭니다.", "각 값을 출력합니다.", "나이를 1 증가시켜 다시 출력합니다.", "타입을 일부러 틀려 오류 메시지를 읽습니다."],
+    pitfalls: ["long 값에는 큰 숫자 뒤에 L을 붙이는 습관을 들이세요.", "문자열 비교는 나중에 == 대신 equals를 사용한다는 점을 기억해두세요."],
+    exampleCode: `
+public class VariablePractice {
+    public static void main(String[] args) {
+        String name = "kim";
+        int age = 20;
+        boolean active = true;
+
+        System.out.println(name + " / " + age + " / " + active);
+    }
+}
+    `
+  },
+  {
+    no: 5,
+    id: "java05_operators_string",
+    kind: "java",
+    part: "Java Part 2. 기본 문법",
+    title: "연산자와 문자열 다루기",
+    tags: ["java", "basic"],
+    summary: "산술, 비교, 논리 연산자와 문자열 연결, equals 비교를 배웁니다.",
+    goal: "계산식과 조건식을 만들고 문자열 값을 안전하게 비교합니다.",
+    why: "조건문과 반복문은 결국 연산자로 만든 조건 위에서 움직입니다. 연산자를 알아야 프로그램에게 판단 기준을 줄 수 있습니다.",
+    analogy: "연산자는 계산기 버튼이고 비교 연산자는 판정 심판입니다.",
+    concepts: [["산술 연산", "+, -, *, /, %로 계산합니다."], ["비교 연산", ">, >=, == 같은 식으로 참/거짓을 만듭니다."], ["논리 연산", "&&, ||로 여러 조건을 합칩니다."]],
+    steps: ["상품 가격과 수량으로 총액을 계산합니다.", "총액이 5만원 이상인지 비교합니다.", "회원 등급 문자열을 equals로 비교합니다.", "&&와 || 조건을 각각 만들어봅니다."],
+    pitfalls: ["문자열 비교에 ==를 습관적으로 쓰지 마세요.", "정수 나눗셈은 소수점이 사라질 수 있습니다."]
+  },
+  {
+    no: 6,
+    id: "java06_conditions",
+    kind: "java",
+    part: "Java Part 2. 기본 문법",
+    title: "조건문 if, else, switch",
+    tags: ["java", "basic"],
+    summary: "상황에 따라 다른 코드를 실행하는 if/else와 switch를 익힙니다.",
+    goal: "점수, 권한, 주문 상태에 따라 다른 결과를 만들 수 있습니다.",
+    why: "백엔드 로직은 조건 판단의 연속입니다. 로그인했는지, 재고가 있는지, 결제가 가능한지 모두 조건문으로 표현합니다.",
+    analogy: "조건문은 갈림길입니다. 표지판을 보고 어느 길로 갈지 정합니다.",
+    concepts: [["if", "조건이 참이면 실행합니다."], ["else if", "앞 조건이 아니면 다음 조건을 검사합니다."], ["switch", "하나의 값이 여러 경우 중 어디에 해당하는지 나눕니다."]],
+    steps: ["score 변수로 A/B/C 등급을 나눕니다.", "role 값으로 ADMIN/USER/GUEST 처리를 나눕니다.", "조건 순서를 바꿔 결과가 어떻게 달라지는지 확인합니다.", "조건식을 말로 풀어 씁니다."],
+    pitfalls: ["넓은 조건을 먼저 쓰면 뒤 조건이 실행되지 않을 수 있습니다.", "중괄호를 생략하는 습관은 초반에 피하세요."],
+    exampleCode: `
+int score = 85;
+
+if (score >= 90) {
+    System.out.println("A");
+} else if (score >= 80) {
+    System.out.println("B");
+} else {
+    System.out.println("C");
+}
+    `
+  },
+  {
+    no: 7,
+    id: "java07_loops",
+    kind: "java",
+    part: "Java Part 2. 기본 문법",
+    title: "반복문 for, while",
+    tags: ["java", "basic"],
+    summary: "같은 작업을 여러 번 실행하는 for, while, break, continue를 배웁니다.",
+    goal: "목록을 순회하고 조건이 만족될 때 반복을 멈출 수 있습니다.",
+    why: "상품 목록, 주문 목록, 댓글 목록처럼 서버는 많은 데이터를 반복해서 처리합니다.",
+    analogy: "반복문은 컨베이어 벨트입니다. 벨트 위 물건을 하나씩 검사하고 필요한 작업을 합니다.",
+    concepts: [["for", "반복 횟수나 범위가 분명할 때 씁니다."], ["while", "조건이 참인 동안 반복합니다."], ["break/continue", "반복을 멈추거나 이번 차례를 건너뜁니다."]],
+    steps: ["1부터 10까지 출력합니다.", "배열의 모든 값을 더합니다.", "특정 값이 나오면 break로 멈춥니다.", "짝수만 출력하도록 continue를 써봅니다."],
+    pitfalls: ["while 조건을 잘못 쓰면 무한 반복이 됩니다.", "반복 변수 시작값과 종료 조건을 함께 확인하세요."]
+  },
+  {
+    no: 8,
+    id: "java08_arrays",
+    kind: "java",
+    part: "Java Part 2. 기본 문법",
+    title: "배열과 다차원 배열",
+    tags: ["java", "basic"],
+    summary: "같은 타입의 값을 순서대로 저장하는 배열과 인덱스를 이해합니다.",
+    goal: "배열을 만들고 반복문으로 값을 읽고 수정할 수 있습니다.",
+    why: "컬렉션을 배우기 전 배열로 여러 값을 다루는 기본 감각을 잡아야 합니다.",
+    analogy: "배열은 번호가 붙은 사물함입니다. 첫 번째 칸 번호가 0이라는 점이 중요합니다.",
+    concepts: [["인덱스", "배열 위치 번호이며 0부터 시작합니다."], ["length", "배열 길이를 알려줍니다."], ["다차원 배열", "표처럼 행과 열을 가진 배열입니다."]],
+    steps: ["int 배열을 만들고 값을 넣습니다.", "for문으로 모든 값을 출력합니다.", "가장 큰 값을 찾습니다.", "2차원 배열로 좌석표를 표현합니다."],
+    pitfalls: ["마지막 인덱스는 length가 아니라 length - 1입니다.", "배열 크기는 만든 뒤 쉽게 늘릴 수 없습니다."]
+  },
+  {
+    no: 9,
+    id: "java09_methods",
+    kind: "java",
+    part: "Java Part 2. 기본 문법",
+    title: "메서드, 매개변수, 반환값",
+    tags: ["java", "basic"],
+    summary: "반복되는 코드를 이름 있는 기능으로 묶는 메서드를 배웁니다.",
+    goal: "입력값을 받아 처리하고 결과를 반환하는 메서드를 작성합니다.",
+    why: "메서드는 코드를 작게 나누는 첫 단계입니다. Spring Service 메서드도 결국 이 기본 위에서 만들어집니다.",
+    analogy: "메서드는 자주 쓰는 작업을 버튼 하나로 묶어둔 리모컨 버튼입니다.",
+    concepts: [["매개변수", "메서드가 받는 입력입니다."], ["반환값", "메서드가 돌려주는 결과입니다."], ["void", "반환값이 없다는 뜻입니다."]],
+    steps: ["두 수를 더하는 add 메서드를 만듭니다.", "가격과 할인율을 받아 최종 가격을 반환합니다.", "반환값을 변수에 담아 출력합니다.", "void 메서드와 반환 메서드의 차이를 비교합니다."],
+    pitfalls: ["return 뒤 코드는 실행되지 않습니다.", "메서드 이름은 행동이 드러나게 짓는 습관을 들이세요."]
+  },
+  {
+    no: 10,
+    id: "java10_scope_static",
+    kind: "java",
+    part: "Java Part 2. 기본 문법",
+    title: "스코프, static, 메모리 감각",
+    tags: ["java", "basic", "advanced"],
+    summary: "변수의 생존 범위와 static의 의미를 초보자 관점에서 정리합니다.",
+    goal: "지역 변수, 인스턴스 변수, static 변수의 차이를 구분합니다.",
+    why: "값이 어디에 살아 있는지 모르면 예상과 다른 값이 출력될 때 원인을 찾기 어렵습니다.",
+    analogy: "지역 변수는 회의 중 쓰는 포스트잇, 인스턴스 변수는 개인 사물함, static 변수는 모두가 보는 공용 게시판입니다.",
+    concepts: [["스코프", "변수를 사용할 수 있는 범위입니다."], ["static", "객체마다가 아니라 클래스 차원에 속합니다."], ["인스턴스", "new로 만들어진 실제 객체입니다."]],
+    steps: ["메서드 안 지역 변수를 출력합니다.", "클래스 필드와 지역 변수 이름을 비교합니다.", "static count를 증가시켜 공유되는지 확인합니다.", "static 남용이 왜 위험한지 적어봅니다."],
+    pitfalls: ["모든 것을 static으로 만들면 객체지향 감각이 흐려집니다.", "지역 변수는 메서드가 끝나면 사라집니다."]
+  },
+  {
+    no: 11,
+    id: "java11_class_object",
+    kind: "java",
+    part: "Java Part 3. 객체지향 기본",
+    title: "클래스와 객체",
+    tags: ["java", "oop"],
+    summary: "클래스, 객체, 필드, 메서드의 관계를 회원과 상품 예제로 배웁니다.",
+    goal: "데이터와 기능을 하나의 객체로 묶어 표현할 수 있습니다.",
+    why: "큰 프로그램을 변수와 함수만으로 만들면 금방 흩어집니다. 객체는 관련된 데이터와 행동을 한곳에 모아줍니다.",
+    analogy: "클래스는 설계도, 객체는 설계도로 만든 실제 물건입니다.",
+    concepts: [["클래스", "객체를 만들기 위한 설계도입니다."], ["필드", "객체가 기억하는 값입니다."], ["메서드", "객체가 수행하는 행동입니다."]],
+    steps: ["Product 클래스를 만듭니다.", "name과 price 필드를 넣습니다.", "printInfo 메서드를 만듭니다.", "두 개의 Product 객체를 만들어 값이 서로 다른지 확인합니다."],
+    pitfalls: ["클래스와 객체를 같은 것으로 생각하지 마세요.", "필드만 있고 행동이 없는 객체는 나중에 절차지향 코드로 흐르기 쉽습니다."]
+  },
+  {
+    no: 12,
+    id: "java12_constructor_this",
+    kind: "java",
+    part: "Java Part 3. 객체지향 기본",
+    title: "생성자와 this",
+    tags: ["java", "oop"],
+    summary: "객체가 만들어질 때 필요한 값을 안전하게 넣는 생성자와 this를 배웁니다.",
+    goal: "생성자로 필수값을 받고 객체를 올바른 상태로 시작하게 만듭니다.",
+    why: "객체가 만들어진 뒤 필수값이 비어 있으면 나중에 오류가 납니다. 생성자는 처음부터 필요한 값을 강제합니다.",
+    analogy: "생성자는 입주 계약서입니다. 집에 들어오기 전에 이름과 보증금처럼 필수 정보를 먼저 적습니다.",
+    concepts: [["생성자", "new 할 때 실행되는 초기화 코드입니다."], ["this", "현재 객체 자신을 가리킵니다."], ["오버로딩", "이름은 같지만 매개변수가 다른 생성자나 메서드입니다."]],
+    steps: ["Member 생성자에 name을 받습니다.", "this.name = name을 작성합니다.", "기본 생성자와 필수값 생성자의 차이를 확인합니다.", "생성자에서 검증을 추가합니다."],
+    pitfalls: ["필수값을 setter로 나중에 넣게 만들면 객체가 불완전한 상태로 존재할 수 있습니다.", "매개변수와 필드 이름이 같을 때 this를 빼면 헷갈릴 수 있습니다."]
+  },
+  {
+    no: 13,
+    id: "java13_encapsulation",
+    kind: "java",
+    part: "Java Part 3. 객체지향 기본",
+    title: "접근 제어자와 캡슐화",
+    tags: ["java", "oop"],
+    summary: "private, public, protected, default와 안전한 객체 설계를 배웁니다.",
+    goal: "필드를 숨기고 필요한 기능만 메서드로 공개합니다.",
+    why: "아무 곳에서나 객체 내부 값을 바꿀 수 있으면 데이터가 쉽게 망가집니다. 캡슐화는 변경 가능 지점을 통제합니다.",
+    analogy: "캡슐화는 리모컨입니다. 내부 회로를 직접 만지지 않고 버튼으로만 조작하게 합니다.",
+    concepts: [["private", "클래스 내부에서만 접근합니다."], ["public", "어디서든 접근할 수 있습니다."], ["캡슐화", "데이터를 숨기고 의미 있는 기능만 공개합니다."]],
+    steps: ["필드를 private으로 바꿉니다.", "getter로 읽기 기능을 제공합니다.", "setter 대신 changeName 같은 의미 있는 메서드를 만듭니다.", "잘못된 값은 메서드에서 거부합니다."],
+    pitfalls: ["무조건 getter/setter를 모두 만드는 습관은 피하세요.", "public 필드는 객체 내부를 너무 쉽게 망가뜨립니다."]
+  },
+  {
+    no: 14,
+    id: "java14_package_import",
+    kind: "java",
+    part: "Java Part 3. 객체지향 기본",
+    title: "패키지와 import",
+    tags: ["java", "oop"],
+    summary: "클래스를 폴더와 이름공간으로 정리하는 패키지와 import를 배웁니다.",
+    goal: "도메인, 서비스, 저장소 클래스를 패키지로 나누는 기본 감각을 익힙니다.",
+    why: "프로젝트가 커지면 파일이 많아집니다. 패키지는 파일을 역할별 서랍에 정리하는 도구입니다.",
+    analogy: "패키지는 도서관의 분류 번호입니다. 책이 많아도 분류가 있으면 찾을 수 있습니다.",
+    concepts: [["package", "클래스가 속한 이름공간입니다."], ["import", "다른 패키지의 클래스를 짧은 이름으로 쓰게 합니다."], ["도메인 패키지", "비즈니스 개념 객체를 모아둡니다."]],
+    steps: ["member 패키지를 만듭니다.", "Member 클래스를 이동합니다.", "다른 클래스에서 import로 사용합니다.", "패키지 이름과 폴더 구조가 맞는지 확인합니다."],
+    pitfalls: ["패키지 선언과 실제 폴더 위치가 다르면 IDE에서 오류가 납니다.", "처음부터 너무 세세하게 패키지를 나누면 오히려 복잡해집니다."]
+  },
+  {
+    no: 15,
+    id: "java15_inheritance",
+    kind: "java",
+    part: "Java Part 3. 객체지향 기본",
+    title: "상속과 메서드 오버라이딩",
+    tags: ["java", "oop"],
+    summary: "공통 기능을 부모 클래스로 올리고 자식 클래스에서 재정의하는 방법을 배웁니다.",
+    goal: "상속의 장점과 남용 위험을 함께 이해합니다.",
+    why: "상속은 중복을 줄일 수 있지만 잘못 쓰면 클래스 관계가 딱딱하게 굳습니다. 그래서 언제 쓰고 언제 피할지 아는 것이 중요합니다.",
+    analogy: "상속은 기본 자동차 설계도를 바탕으로 택시와 트럭을 만드는 것과 비슷합니다.",
+    concepts: [["extends", "부모 클래스를 상속합니다."], ["override", "부모 메서드를 자식 방식으로 다시 정의합니다."], ["super", "부모의 생성자나 메서드를 호출합니다."]],
+    steps: ["Animal 부모 클래스를 만듭니다.", "Dog와 Cat이 상속하게 합니다.", "sound 메서드를 오버라이딩합니다.", "상속 대신 조합이 나은 상황을 적어봅니다."],
+    pitfalls: ["상속은 is-a 관계가 아닐 때 쓰면 어색해집니다.", "부모 변경이 자식에게 영향을 줄 수 있습니다."]
+  },
+  {
+    no: 16,
+    id: "java16_polymorphism_interface",
+    kind: "java",
+    part: "Java Part 3. 객체지향 기본",
+    title: "다형성과 인터페이스",
+    tags: ["java", "oop"],
+    summary: "역할과 구현을 분리하는 다형성과 인터페이스를 결제 예제로 익힙니다.",
+    goal: "인터페이스 타입으로 여러 구현체를 갈아끼울 수 있습니다.",
+    why: "Spring DI를 이해하려면 다형성이 필수입니다. 서비스는 역할에 의존하고 실제 구현은 바꿀 수 있어야 합니다.",
+    analogy: "콘센트 규격은 인터페이스이고, 충전기 제조사는 구현체입니다. 규격만 맞으면 다른 충전기를 꽂을 수 있습니다.",
+    concepts: [["interface", "구현체가 지켜야 할 역할 계약입니다."], ["다형성", "같은 타입으로 여러 구현체를 다룹니다."], ["역할/구현 분리", "변경에 강한 구조를 만듭니다."]],
+    steps: ["Payment 인터페이스를 만듭니다.", "CardPayment와 PointPayment를 구현합니다.", "Payment 타입 변수에 구현체를 넣습니다.", "구현체를 바꿔도 호출 코드는 그대로인지 확인합니다."],
+    pitfalls: ["인터페이스가 너무 많으면 초반에는 복잡도만 늘 수 있습니다.", "구현체에 직접 의존하면 다형성 장점이 줄어듭니다."]
+  },
+  {
+    no: 17,
+    id: "java17_object_equals_hashcode",
+    kind: "java",
+    part: "Java Part 4. 중급 문법",
+    title: "Object, equals, hashCode",
+    tags: ["java", "advanced"],
+    summary: "모든 클래스의 부모인 Object와 동등성 비교를 배웁니다.",
+    goal: "==와 equals의 차이를 알고 컬렉션에서 hashCode가 필요한 이유를 이해합니다.",
+    why: "회원 id가 같은 두 객체를 같은 회원으로 볼지, 서로 다른 객체로 볼지 결정하는 일은 실무에서 매우 중요합니다.",
+    analogy: "==는 두 사람이 같은 의자에 앉아 있는지 보는 것이고, equals는 주민등록번호가 같은 사람인지 확인하는 것입니다.",
+    concepts: [["==", "참조가 같은지 비교합니다."], ["equals", "내용상 같은지 비교하도록 재정의할 수 있습니다."], ["hashCode", "HashSet, HashMap에서 빠르게 찾기 위한 값입니다."]],
+    steps: ["같은 값을 가진 객체 두 개를 만듭니다.", "== 결과를 확인합니다.", "equals를 재정의합니다.", "HashSet에 넣어 중복 제거를 확인합니다."],
+    pitfalls: ["equals만 재정의하고 hashCode를 빼먹지 마세요.", "엔티티 동등성은 나중에 JPA에서 더 신중하게 다뤄야 합니다."]
+  },
+  {
+    no: 18,
+    id: "java18_string_immutable",
+    kind: "java",
+    part: "Java Part 4. 중급 문법",
+    title: "String과 불변 객체",
+    tags: ["java", "advanced"],
+    summary: "String이 불변인 이유와 불변 객체의 장점을 배웁니다.",
+    goal: "불변 객체가 안전한 공유와 예측 가능한 코드를 만드는 이유를 이해합니다.",
+    why: "서버에서는 여러 코드가 같은 값을 공유합니다. 불변 객체는 값이 몰래 바뀌지 않아 안전합니다.",
+    analogy: "불변 객체는 인쇄된 영수증입니다. 누군가 마음대로 금액을 고칠 수 없습니다.",
+    concepts: [["불변", "객체가 만들어진 뒤 내부 상태가 바뀌지 않습니다."], ["String pool", "같은 문자열을 효율적으로 재사용합니다."], ["StringBuilder", "문자열을 많이 이어붙일 때 사용합니다."]],
+    steps: ["String을 이어붙여 새 객체가 생기는 감각을 봅니다.", "StringBuilder로 반복 연결을 해봅니다.", "불변 Money 클래스를 만듭니다.", "setter가 없는 객체의 장점을 적습니다."],
+    pitfalls: ["반복문에서 String + 를 과도하게 쓰면 비효율적일 수 있습니다.", "불변 객체는 값을 바꾸는 대신 새 객체를 반환합니다."]
+  },
+  {
+    no: 19,
+    id: "java19_wrapper_enum",
+    kind: "java",
+    part: "Java Part 4. 중급 문법",
+    title: "래퍼 클래스와 enum",
+    tags: ["java", "advanced"],
+    summary: "int와 Integer의 차이, enum으로 정해진 값을 안전하게 표현하는 법을 배웁니다.",
+    goal: "null 가능성과 정해진 상태값을 안전하게 다룹니다.",
+    why: "주문 상태, 회원 등급처럼 정해진 값은 문자열보다 enum으로 표현하는 것이 안전합니다.",
+    analogy: "enum은 정해진 메뉴판입니다. 손님이 메뉴판에 없는 이름을 마음대로 주문하지 못하게 합니다.",
+    concepts: [["Wrapper", "기본 타입을 객체처럼 다룹니다."], ["Boxing", "기본 타입과 래퍼 타입 사이 변환입니다."], ["enum", "허용된 상수 목록을 타입으로 만듭니다."]],
+    steps: ["Integer와 int를 비교합니다.", "null을 다룰 때 주의점을 확인합니다.", "OrderStatus enum을 만듭니다.", "문자열 상태값과 enum 상태값을 비교합니다."],
+    pitfalls: ["Integer는 null일 수 있어 언박싱 때 NullPointerException이 날 수 있습니다.", "상태값을 문자열로 흩뿌리면 오타를 컴파일러가 잡지 못합니다."]
+  },
+  {
+    no: 20,
+    id: "java20_exception",
+    kind: "java",
+    part: "Java Part 4. 중급 문법",
+    title: "예외 처리와 사용자 정의 예외",
+    tags: ["java", "backend"],
+    summary: "try-catch, checked/unchecked exception, 직접 예외 만들기를 배웁니다.",
+    goal: "실패 상황을 숨기지 않고 의미 있는 예외로 표현합니다.",
+    why: "실무 프로그램은 늘 실패할 수 있습니다. 없는 회원, 부족한 재고, 잘못된 입력을 정상 흐름과 분리해야 합니다.",
+    analogy: "예외는 화재 경보기입니다. 경보를 꺼버리는 것이 아니라 어디서 문제가 났는지 알려주는 장치입니다.",
+    concepts: [["try-catch", "예외가 발생할 수 있는 코드를 감싸고 처리합니다."], ["unchecked", "런타임 예외이며 실무 비즈니스 예외에 자주 씁니다."], ["custom exception", "도메인에 맞는 실패를 이름 붙입니다."]],
+    steps: ["숫자 변환 예외를 처리합니다.", "재고 부족 예외 클래스를 만듭니다.", "조건이 맞지 않으면 예외를 던집니다.", "catch에서 메시지를 출력합니다."],
+    pitfalls: ["catch를 비워두면 문제가 숨어버립니다.", "모든 예외를 Exception 하나로 뭉뚱그리면 원인 파악이 어렵습니다."]
+  },
+  {
+    no: 21,
+    id: "java21_collections",
+    kind: "java",
+    part: "Java Part 4. 중급 문법",
+    title: "컬렉션 프레임워크: List, Set, Map",
+    tags: ["java", "advanced"],
+    summary: "여러 데이터를 다루는 대표 컬렉션 List, Set, Map을 상황별로 선택합니다.",
+    goal: "순서, 중복, key 조회 기준으로 적절한 컬렉션을 고릅니다.",
+    why: "서버는 대부분 목록과 집합을 다룹니다. 회원 목록, 상품 목록, id별 캐시 같은 구조를 모르면 로직이 복잡해집니다.",
+    analogy: "List는 줄, Set은 출입 명단, Map은 사전입니다.",
+    concepts: [["List", "순서가 있고 중복을 허용합니다."], ["Set", "중복을 허용하지 않습니다."], ["Map", "key로 value를 찾습니다."]],
+    steps: ["ArrayList에 상품을 넣습니다.", "HashSet으로 중복 회원 id를 제거합니다.", "HashMap에 상품 id와 가격을 저장합니다.", "각 컬렉션을 언제 쓸지 표로 정리합니다."],
+    pitfalls: ["순서가 필요하면 Set보다 List가 자연스럽습니다.", "Map key의 equals/hashCode가 중요합니다."]
+  },
+  {
+    no: 22,
+    id: "java22_generics",
+    kind: "java",
+    part: "Java Part 4. 중급 문법",
+    title: "제네릭과 타입 안정성",
+    tags: ["java", "advanced"],
+    summary: "List<String>처럼 타입을 미리 정해 안전한 코드를 만드는 제네릭을 배웁니다.",
+    goal: "제네릭 클래스와 메서드의 기본 모양을 이해합니다.",
+    why: "제네릭은 잘못된 타입이 들어오는 실수를 컴파일 단계에서 막아줍니다.",
+    analogy: "제네릭은 상자에 붙이는 전용 라벨입니다. '문자열 전용 상자'에 숫자를 넣지 못하게 합니다.",
+    concepts: [["타입 파라미터", "T 같은 이름으로 나중에 정해질 타입을 표시합니다."], ["제네릭 클래스", "타입을 외부에서 받아 사용하는 클래스입니다."], ["제네릭 메서드", "메서드 단위로 타입을 받습니다."]],
+    steps: ["Box<T> 클래스를 만듭니다.", "String Box와 Integer Box를 만듭니다.", "잘못된 타입을 넣어 컴파일 오류를 확인합니다.", "컬렉션과 제네릭이 함께 쓰이는 이유를 적습니다."],
+    pitfalls: ["처음부터 와일드카드까지 깊게 파면 어렵습니다.", "raw type은 가능하면 사용하지 마세요."]
+  },
+  {
+    no: 23,
+    id: "java23_nested_anonymous",
+    kind: "java",
+    part: "Java Part 5. 고급 기본기",
+    title: "중첩 클래스와 익명 클래스",
+    tags: ["java", "advanced"],
+    summary: "클래스 안에 클래스를 두는 경우와 한 번만 쓸 구현체를 익명 클래스로 만드는 방법을 배웁니다.",
+    goal: "중첩 클래스가 필요한 상황과 람다로 이어지는 흐름을 이해합니다.",
+    why: "람다를 이해하려면 익명 클래스가 어떤 불편함을 줄였는지 알면 좋습니다.",
+    analogy: "익명 클래스는 이름 없는 임시 직원입니다. 한 번만 필요한 일을 그 자리에서 맡깁니다.",
+    concepts: [["static nested", "바깥 객체 없이 사용할 수 있는 중첩 클래스입니다."], ["inner class", "바깥 객체와 연결된 내부 클래스입니다."], ["anonymous class", "이름 없이 즉석에서 구현합니다."]],
+    steps: ["간단한 인터페이스를 만듭니다.", "익명 클래스로 구현합니다.", "코드가 길어지는 불편함을 확인합니다.", "다음 장의 람다와 비교합니다."],
+    pitfalls: ["중첩 클래스를 남용하면 구조가 읽기 어려워집니다.", "익명 클래스의 this는 람다와 다르게 동작할 수 있습니다."]
+  },
+  {
+    no: 24,
+    id: "java24_lambda",
+    kind: "java",
+    part: "Java Part 5. 고급 기본기",
+    title: "람다와 함수형 인터페이스",
+    tags: ["java", "advanced"],
+    summary: "함수를 값처럼 전달하는 람다와 함수형 인터페이스를 배웁니다.",
+    goal: "람다식을 읽고 간단한 Predicate, Function, Consumer를 사용할 수 있습니다.",
+    why: "스트림, 이벤트 처리, 콜백 스타일 코드에서 람다는 매우 자주 등장합니다.",
+    analogy: "람다는 작은 작업 지시서를 변수처럼 전달하는 것입니다.",
+    concepts: [["람다", "익명 함수를 짧게 표현합니다."], ["함수형 인터페이스", "추상 메서드가 하나인 인터페이스입니다."], ["Predicate", "조건 판단 함수를 표현합니다."]],
+    steps: ["익명 클래스를 람다로 바꿉니다.", "숫자가 짝수인지 판단하는 Predicate를 만듭니다.", "문자열을 길이로 바꾸는 Function을 만듭니다.", "람다의 입력과 출력을 표시합니다."],
+    pitfalls: ["람다는 마법 문법이 아니라 인터페이스 구현입니다.", "람다 안에서 너무 많은 일을 하면 읽기 어려워집니다."]
+  },
+  {
+    no: 25,
+    id: "java25_stream",
+    kind: "java",
+    part: "Java Part 5. 고급 기본기",
+    title: "Stream API",
+    tags: ["java", "advanced"],
+    summary: "컬렉션 데이터를 filter, map, collect로 가공하는 스트림을 배웁니다.",
+    goal: "목록에서 조건 필터링, 변환, 집계를 스트림으로 표현할 수 있습니다.",
+    why: "실무 코드에서는 회원 목록에서 활성 회원만 고르거나 주문 금액 합계를 구하는 일이 많습니다.",
+    analogy: "스트림은 컨베이어 벨트입니다. 물건이 지나가며 필터를 통과하고 모양이 바뀌고 마지막에 상자에 담깁니다.",
+    concepts: [["filter", "조건에 맞는 값만 남깁니다."], ["map", "값을 다른 모양으로 바꿉니다."], ["terminal operation", "toList, count처럼 스트림을 끝냅니다."]],
+    steps: ["숫자 목록에서 5만원 이상만 고릅니다.", "상품 목록을 상품명 목록으로 바꿉니다.", "총합을 구합니다.", "반복문 코드와 스트림 코드를 비교합니다."],
+    pitfalls: ["스트림은 한 번 사용하면 다시 사용할 수 없습니다.", "너무 복잡한 스트림은 반복문보다 읽기 어려울 수 있습니다."]
+  },
+  {
+    no: 26,
+    id: "java26_optional_time",
+    kind: "java",
+    part: "Java Part 5. 고급 기본기",
+    title: "Optional과 날짜/시간 API",
+    tags: ["java", "advanced"],
+    summary: "null 가능성을 표현하는 Optional과 LocalDateTime 등 시간 API를 배웁니다.",
+    goal: "값이 없을 수 있음을 명확히 표현하고 날짜 계산을 안전하게 합니다.",
+    why: "백엔드에서는 가입일, 주문일, 만료일을 자주 다룹니다. null과 시간 처리를 대충 하면 장애가 생기기 쉽습니다.",
+    analogy: "Optional은 내용물이 있을 수도 없을 수도 있는 택배 상자입니다. 열기 전에 비었는지 확인하게 만듭니다.",
+    concepts: [["Optional", "값이 없을 가능성을 표현합니다."], ["LocalDate", "날짜만 표현합니다."], ["LocalDateTime", "날짜와 시간을 표현합니다."]],
+    steps: ["Optional.ofNullable을 만들어봅니다.", "orElse와 orElseThrow를 비교합니다.", "현재 시간을 출력합니다.", "주문일에 7일을 더해 배송 예정일을 계산합니다."],
+    pitfalls: ["Optional을 필드에 무분별하게 넣는 것은 권장되지 않습니다.", "시간대가 필요한 경우 ZonedDateTime을 고려해야 합니다."]
+  },
+  {
+    no: 27,
+    id: "java27_io_file",
+    kind: "java",
+    part: "Java Part 5. 고급 기본기",
+    title: "I/O와 파일 처리",
+    tags: ["java", "advanced"],
+    summary: "파일을 읽고 쓰는 기본 입출력 흐름과 자원 정리를 배웁니다.",
+    goal: "텍스트 파일을 읽고 쓰며 try-with-resources의 필요성을 이해합니다.",
+    why: "로그, 업로드 파일, 설정 파일처럼 서버는 외부 데이터와 자주 입출력합니다.",
+    analogy: "I/O는 창구입니다. 프로그램 안과 밖이 데이터를 주고받는 통로입니다.",
+    concepts: [["InputStream", "바깥에서 안으로 읽습니다."], ["OutputStream", "안에서 밖으로 씁니다."], ["try-with-resources", "자원을 자동으로 닫습니다."]],
+    steps: ["작은 텍스트 파일을 만듭니다.", "파일 내용을 읽어 출력합니다.", "새 파일에 문자열을 씁니다.", "자원을 닫지 않으면 어떤 문제가 생길지 적습니다."],
+    pitfalls: ["파일 경로는 실행 위치에 따라 달라질 수 있습니다.", "입출력은 실패할 수 있으므로 예외 처리가 필요합니다."]
+  },
+  {
+    no: 28,
+    id: "java28_network_http_client",
+    kind: "java",
+    part: "Java Part 5. 고급 기본기",
+    title: "네트워크와 HTTP Client 기초",
+    tags: ["java", "http", "backend"],
+    summary: "Java에서 외부 서버와 통신하는 기본 개념과 HTTP 요청 흐름을 배웁니다.",
+    goal: "클라이언트와 서버, 요청과 응답의 기본 구조를 Java 관점에서 이해합니다.",
+    why: "Spring Boot 서버도 결국 HTTP 요청을 받고 응답합니다. Java 네트워크 감각이 있으면 웹 동작이 덜 추상적으로 보입니다.",
+    analogy: "HTTP 통신은 편지를 보내고 답장을 받는 과정입니다. 주소, 본문, 상태가 모두 중요합니다.",
+    concepts: [["Client", "요청을 보내는 쪽입니다."], ["Server", "요청을 받아 응답하는 쪽입니다."], ["HTTP", "웹에서 요청과 응답을 주고받는 규칙입니다."]],
+    steps: ["브라우저에서 URL을 열어 요청/응답을 봅니다.", "HTTP 메서드와 상태코드를 적습니다.", "Java HTTP Client 예제를 읽습니다.", "Spring Controller와 연결해 생각합니다."],
+    pitfalls: ["네트워크 요청은 항상 실패 가능성이 있습니다.", "외부 API 호출은 시간 초과와 예외 처리를 고려해야 합니다."]
+  },
+  {
+    no: 29,
+    id: "java29_thread_basic",
+    kind: "java",
+    part: "Java Part 6. 동시성",
+    title: "스레드 기본과 실행 흐름",
+    tags: ["java", "advanced"],
+    summary: "하나의 프로그램 안에서 여러 실행 흐름을 만드는 스레드를 배웁니다.",
+    goal: "Thread와 Runnable의 기본 사용법과 동시 실행의 의미를 이해합니다.",
+    why: "웹 서버는 여러 사용자의 요청을 동시에 처리합니다. 동시성 감각은 백엔드 개발에서 중요합니다.",
+    analogy: "스레드는 한 식당 안에서 동시에 일하는 직원들입니다.",
+    concepts: [["Thread", "실행 흐름 하나를 의미합니다."], ["Runnable", "스레드가 실행할 작업입니다."], ["sleep", "현재 스레드를 잠시 멈춥니다."]],
+    steps: ["main 스레드 이름을 출력합니다.", "새 Thread를 만들어 실행합니다.", "출력 순서가 매번 달라질 수 있음을 확인합니다.", "동시 실행의 장점과 위험을 적습니다."],
+    pitfalls: ["start가 아니라 run을 직접 호출하면 새 스레드가 시작되지 않습니다.", "출력 순서에 의존하는 코드는 위험합니다."]
+  },
+  {
+    no: 30,
+    id: "java30_concurrency_safety",
+    kind: "java",
+    part: "Java Part 6. 동시성",
+    title: "동시성 문제와 synchronized",
+    tags: ["java", "advanced", "backend"],
+    summary: "여러 스레드가 같은 데이터를 바꿀 때 생기는 문제와 기본 해결책을 배웁니다.",
+    goal: "공유 자원, race condition, synchronized의 의미를 설명할 수 있습니다.",
+    why: "동시에 재고를 차감하거나 포인트를 변경하는 서버 로직에서는 잘못된 동시성 처리가 실제 장애로 이어질 수 있습니다.",
+    analogy: "공유 자원은 하나뿐인 계산대입니다. 여러 직원이 동시에 계산대를 만지면 장부가 꼬일 수 있습니다.",
+    concepts: [["공유 자원", "여러 스레드가 함께 접근하는 데이터입니다."], ["race condition", "실행 순서에 따라 결과가 달라지는 문제입니다."], ["synchronized", "한 번에 하나의 스레드만 접근하게 막습니다."]],
+    steps: ["여러 스레드가 count를 증가시키게 합니다.", "예상값과 실제값이 다른지 확인합니다.", "synchronized를 붙여봅니다.", "성능과 안전성의 균형을 적어봅니다."],
+    pitfalls: ["동시성 문제는 항상 재현되지 않아 더 어렵습니다.", "무조건 synchronized를 붙이면 병목이 생길 수 있습니다."]
+  },
+  {
+    no: 31,
+    id: "java31_reflection_annotation",
+    kind: "java",
+    part: "Java Part 7. Spring으로 이어지는 Java",
+    title: "애노테이션과 리플렉션 큰 그림",
+    tags: ["java", "advanced", "spring"],
+    summary: "@Override, @Deprecated 같은 애노테이션과 Spring이 객체 정보를 읽는 리플렉션 감각을 잡습니다.",
+    goal: "Spring의 @Controller, @Service가 단순 주석이 아니라 메타데이터라는 점을 이해합니다.",
+    why: "Spring은 애노테이션을 읽어 어떤 클래스를 Bean으로 만들지 판단합니다. 이 원리를 알면 Spring이 덜 마법처럼 보입니다.",
+    analogy: "애노테이션은 택배 상자에 붙은 스티커입니다. 상자 내용물은 그대로지만 처리 방식이 달라집니다.",
+    concepts: [["Annotation", "코드에 붙이는 메타데이터입니다."], ["Reflection", "실행 중 클래스 정보를 읽는 기능입니다."], ["Metadata", "코드를 설명하는 데이터입니다."]],
+    steps: ["@Override가 붙은 메서드를 봅니다.", "커스텀 애노테이션 모양을 읽습니다.", "Spring 애노테이션과 연결해 생각합니다.", "@Service가 붙으면 어떤 일이 생길지 예상합니다."],
+    pitfalls: ["애노테이션은 주석과 다릅니다.", "리플렉션은 강력하지만 남용하면 복잡하고 느려질 수 있습니다."]
+  },
+  {
+    no: 32,
+    id: "java32_junit_testing",
+    kind: "java",
+    part: "Java Part 7. Spring으로 이어지는 Java",
+    title: "JUnit 테스트 기초",
+    tags: ["java", "practice", "backend"],
+    summary: "기능이 원하는 대로 동작하는지 자동으로 확인하는 JUnit 테스트를 배웁니다.",
+    goal: "given-when-then 구조로 작은 단위 테스트를 작성합니다.",
+    why: "테스트는 코드가 깨졌는지 알려주는 안전망입니다. Spring 프로젝트가 커질수록 테스트 없이는 수정이 무서워집니다.",
+    analogy: "테스트는 요리 후 맛보는 작은 숟가락입니다. 손님에게 내기 전에 문제가 있는지 확인합니다.",
+    concepts: [["JUnit", "Java 테스트 프레임워크입니다."], ["assertThat", "기대한 값과 실제 값을 비교합니다."], ["given-when-then", "준비, 실행, 검증 순서입니다."]],
+    steps: ["계산 메서드를 하나 만듭니다.", "테스트 클래스에서 입력값을 준비합니다.", "메서드를 실행합니다.", "결과가 예상과 같은지 검증합니다."],
+    pitfalls: ["테스트 이름은 무엇을 검증하는지 드러나야 합니다.", "한 테스트에 너무 많은 검증을 넣지 마세요."]
+  },
+  {
+    no: 33,
+    id: "java33_cli_project",
+    kind: "java",
+    part: "Java Part 8. Java 미니 프로젝트",
+    title: "콘솔 Todo 프로젝트로 Java 종합",
+    tags: ["java", "practice", "oop"],
+    summary: "Java 기본 문법, 객체지향, 컬렉션, 예외, 테스트를 콘솔 Todo 프로젝트로 연결합니다.",
+    goal: "Todo 등록, 조회, 완료, 삭제 기능을 Java만으로 구현합니다.",
+    why: "Spring으로 가기 전에 Java만으로 작은 프로그램을 완성해보면 객체와 컬렉션이 실제로 어떻게 연결되는지 보입니다.",
+    analogy: "미니 프로젝트는 배운 부품을 처음 조립해보는 시간입니다. 부품 이름을 아는 것과 움직이는 물건을 만드는 것은 다릅니다.",
+    concepts: [["Todo", "id, title, completed 상태를 가진 객체입니다."], ["Repository", "Todo 목록을 저장하고 찾습니다."], ["Service", "등록, 완료, 삭제 규칙을 처리합니다."]],
+    steps: ["Todo 클래스를 만듭니다.", "List<Todo> 저장소를 만듭니다.", "add, complete, delete 메서드를 만듭니다.", "JUnit으로 등록 기능을 테스트합니다."],
+    pitfalls: ["처음부터 파일 저장까지 넣지 말고 메모리 List로 시작하세요.", "출력 코드와 비즈니스 로직을 한 메서드에 모두 넣지 마세요."]
+  }
+];
+
+const expandedSpringTopics = [
+  {
+    no: 1,
+    id: "spring01_overview",
+    kind: "spring",
+    part: "Spring Part 1. 입문과 웹 기본",
+    title: "Spring Boot와 백엔드 웹 애플리케이션 큰 그림",
+    tags: ["spring", "boot", "backend"],
+    summary: "Spring Boot가 Java 백엔드에서 어떤 문제를 해결하는지 전체 그림을 봅니다.",
+    goal: "Spring, Spring Boot, WAS, HTTP API의 관계를 설명할 수 있습니다.",
+    why: "Spring은 객체를 만들고 연결하며 웹 요청, DB, 트랜잭션 같은 반복 작업을 도와줍니다. 큰 그림이 없으면 어노테이션만 외우게 됩니다.",
+    analogy: "Spring Boot는 기본 설비가 갖춰진 식당입니다. 개발자는 전기와 수도 공사보다 메뉴 개발에 집중할 수 있습니다.",
+    concepts: [["Spring", "Java 객체를 관리하고 연결하는 프레임워크입니다."], ["Boot", "설정과 서버 실행을 쉽게 시작하게 합니다."], ["API", "클라이언트와 서버가 약속된 형식으로 대화하는 창구입니다."]],
+    steps: ["Spring Initializr에서 프로젝트를 만듭니다.", "Web 의존성을 추가합니다.", "서버를 실행합니다.", "브라우저에서 localhost:8080을 확인합니다."],
+    pitfalls: ["Spring과 Spring Boot를 완전히 같은 말로 생각하지 마세요.", "처음부터 모든 설정 파일을 이해하려고 하지 않아도 됩니다."]
+  },
+  {
+    no: 2,
+    id: "spring02_project_structure",
+    kind: "spring",
+    part: "Spring Part 1. 입문과 웹 기본",
+    title: "Spring Initializr와 프로젝트 구조",
+    tags: ["spring", "boot", "backend"],
+    summary: "build.gradle, main 클래스, resources, test 폴더의 역할을 배웁니다.",
+    goal: "Spring Boot 프로젝트에서 자주 만지는 파일과 폴더를 구분합니다.",
+    why: "구조를 모르면 어디에 코드를 넣어야 하는지 매번 막힙니다.",
+    analogy: "프로젝트 구조는 건물 평면도입니다. 주방, 창고, 사무실 위치를 알아야 일을 시작할 수 있습니다.",
+    concepts: [["build.gradle", "라이브러리와 빌드 설정을 관리합니다."], ["Application class", "Spring Boot 앱의 시작점입니다."], ["resources", "설정 파일과 정적 자원이 들어갑니다."]],
+    steps: ["새 프로젝트를 생성합니다.", "build.gradle 의존성을 읽습니다.", "Application main을 실행합니다.", "test 폴더에 첫 테스트를 만듭니다."],
+    pitfalls: ["main 클래스는 기본 패키지 최상단에 두는 것이 안전합니다.", "패키지 밖 클래스는 컴포넌트 스캔에서 빠질 수 있습니다."]
+  },
+  {
+    no: 3,
+    id: "spring03_controller",
+    kind: "spring",
+    part: "Spring Part 1. 입문과 웹 기본",
+    title: "Controller와 첫 HTTP 응답",
+    tags: ["spring", "mvc", "http"],
+    summary: "@RestController와 @GetMapping으로 첫 API를 만듭니다.",
+    goal: "URL 요청이 Controller 메서드로 연결되는 흐름을 이해합니다.",
+    why: "Controller는 외부 요청이 애플리케이션으로 들어오는 입구입니다.",
+    analogy: "Controller는 주문 카운터입니다. 손님의 주문을 받고 주방에 넘기거나 바로 응답합니다.",
+    concepts: [["@RestController", "문자열이나 JSON을 응답 본문으로 반환합니다."], ["@GetMapping", "GET 요청 주소와 메서드를 연결합니다."], ["Response body", "클라이언트에게 보내는 응답 내용입니다."]],
+    steps: ["HelloController를 만듭니다.", "/hello GET API를 작성합니다.", "브라우저로 호출합니다.", "응답 문자열을 바꿔 다시 확인합니다."],
+    pitfalls: ["@Controller와 @RestController 차이를 헷갈리지 마세요.", "주소 앞의 /를 빠뜨리지 마세요."]
+  },
+  {
+    no: 4,
+    id: "spring04_ioc_di",
+    kind: "spring",
+    part: "Spring Part 2. 핵심 원리",
+    title: "IoC와 DI",
+    tags: ["spring", "oop", "backend"],
+    summary: "객체 생성과 의존관계 연결을 Spring에게 맡기는 이유를 배웁니다.",
+    goal: "new로 직접 생성하는 코드와 생성자 주입의 차이를 이해합니다.",
+    why: "DI는 변경에 강한 객체지향 설계를 Spring에서 실현하는 핵심입니다.",
+    analogy: "DI는 조립 공장입니다. 부품이 서로를 직접 만들지 않고 공장이 조립해줍니다.",
+    concepts: [["IoC", "제어권이 개발자 코드에서 프레임워크로 넘어갑니다."], ["DI", "필요한 객체를 외부에서 넣어줍니다."], ["생성자 주입", "필수 의존성을 안전하게 전달합니다."]],
+    steps: ["Service가 Repository를 직접 new 하는 코드를 봅니다.", "생성자로 Repository를 받게 바꿉니다.", "인터페이스를 도입합니다.", "구현체를 바꿔도 Service가 그대로인지 확인합니다."],
+    pitfalls: ["필드 주입은 테스트와 불변성 측면에서 불리합니다.", "DI를 이해하려면 Java 다형성을 먼저 복습하세요."]
+  },
+  {
+    no: 5,
+    id: "spring05_bean_scan",
+    kind: "spring",
+    part: "Spring Part 2. 핵심 원리",
+    title: "Spring Bean과 컴포넌트 스캔",
+    tags: ["spring", "backend"],
+    summary: "@Component, @Service, @Repository, @Controller가 Bean으로 등록되는 흐름을 배웁니다.",
+    goal: "어떤 객체가 Spring 컨테이너에 등록되는지 설명합니다.",
+    why: "Bean 등록 원리를 알아야 의존성 주입 실패 오류를 해결할 수 있습니다.",
+    analogy: "Spring 컨테이너는 객체 보관 창고입니다. Bean은 창고에 등록된 공식 부품입니다.",
+    concepts: [["Bean", "Spring이 관리하는 객체입니다."], ["Component scan", "애노테이션이 붙은 클래스를 찾아 등록합니다."], ["Stereotype", "Service, Repository처럼 역할을 드러내는 애노테이션입니다."]],
+    steps: ["@Service 클래스를 만듭니다.", "Controller에서 생성자 주입으로 받습니다.", "패키지 위치를 바꿔 주입 실패를 만들어봅니다.", "컴포넌트 스캔 범위를 정리합니다."],
+    pitfalls: ["Bean이 아닌 객체에는 자동 주입이 되지 않습니다.", "패키지 구조가 main 클래스 아래에 있는지 확인하세요."]
+  },
+  {
+    no: 6,
+    id: "spring06_configuration_bean",
+    kind: "spring",
+    part: "Spring Part 2. 핵심 원리",
+    title: "@Configuration과 @Bean",
+    tags: ["spring", "backend"],
+    summary: "자동 스캔이 아닌 수동 Bean 등록 방식과 설정 클래스의 역할을 배웁니다.",
+    goal: "외부 라이브러리 객체나 직접 조립이 필요한 객체를 Bean으로 등록합니다.",
+    why: "모든 객체에 @Component를 붙일 수는 없습니다. 상황에 따라 설정 클래스로 명시 등록해야 합니다.",
+    analogy: "@Bean은 창고 관리자에게 '이 부품도 공식 부품으로 등록해줘'라고 직접 말하는 것입니다.",
+    concepts: [["@Configuration", "Bean 설정 클래스임을 나타냅니다."], ["@Bean", "메서드 반환 객체를 Bean으로 등록합니다."], ["수동 등록", "조립 과정을 코드로 명확히 표현합니다."]],
+    steps: ["AppConfig 클래스를 만듭니다.", "@Bean 메서드를 작성합니다.", "생성자 주입으로 사용합니다.", "컴포넌트 스캔 방식과 비교합니다."],
+    pitfalls: ["설정 클래스도 컴포넌트 스캔 범위 안에 있어야 합니다.", "같은 타입 Bean이 여러 개면 충돌이 날 수 있습니다."]
+  },
+  {
+    no: 7,
+    id: "spring07_http_rest",
+    kind: "spring",
+    part: "Spring Part 3. HTTP와 REST",
+    title: "HTTP 메서드와 REST API 설계",
+    tags: ["spring", "http", "backend"],
+    summary: "GET, POST, PUT, PATCH, DELETE를 자원 중심 URL과 연결합니다.",
+    goal: "상품 API 주소와 HTTP 메서드를 자연스럽게 설계합니다.",
+    why: "API 설계가 흔들리면 프론트엔드와 백엔드가 대화하기 어려워집니다.",
+    analogy: "HTTP 메서드는 택배 요청 종류입니다. 조회, 등록, 수정, 삭제가 각각 다른 요청서입니다.",
+    concepts: [["GET", "조회합니다."], ["POST", "등록하거나 처리 요청을 보냅니다."], ["PATCH", "일부 수정합니다."], ["DELETE", "삭제합니다."]],
+    steps: ["상품 목록 조회 URL을 설계합니다.", "상품 등록 URL을 설계합니다.", "상품 수정/삭제 URL을 설계합니다.", "동사 URL을 명사 URL로 바꿔봅니다."],
+    pitfalls: ["/getProducts 같은 동사형 URL을 남발하지 마세요.", "조회 요청에 중요한 변경 작업을 넣지 마세요."]
+  },
+  {
+    no: 8,
+    id: "spring08_request_mapping",
+    kind: "spring",
+    part: "Spring Part 3. HTTP와 REST",
+    title: "요청 매핑, PathVariable, RequestParam",
+    tags: ["spring", "http", "mvc"],
+    summary: "URL 경로 변수와 쿼리 파라미터를 Controller에서 받는 법을 배웁니다.",
+    goal: "/products/{id}?sort=price 같은 요청을 처리합니다.",
+    why: "클라이언트가 보낸 조건을 서버 코드로 받아야 실제 API가 됩니다.",
+    analogy: "PathVariable은 주소에 적힌 호수이고, RequestParam은 요청서에 추가로 적은 조건입니다.",
+    concepts: [["PathVariable", "URL 경로 일부를 변수로 받습니다."], ["RequestParam", "쿼리 문자열 값을 받습니다."], ["RequestMapping", "공통 URL 경로를 묶습니다."]],
+    steps: ["/products/{id} API를 만듭니다.", "id를 Long으로 받습니다.", "sort 파라미터를 추가합니다.", "없는 파라미터의 기본값을 설정합니다."],
+    pitfalls: ["PathVariable 이름과 URL 변수 이름이 다르면 매핑이 실패할 수 있습니다.", "필수 파라미터가 없을 때의 응답을 생각하세요."]
+  },
+  {
+    no: 9,
+    id: "spring09_json_dto",
+    kind: "spring",
+    part: "Spring Part 3. HTTP와 REST",
+    title: "JSON 요청/응답과 DTO",
+    tags: ["spring", "http", "mvc"],
+    summary: "@RequestBody와 응답 DTO로 JSON API를 만듭니다.",
+    goal: "Entity를 그대로 노출하지 않고 요청/응답 전용 객체를 사용합니다.",
+    why: "API 형식과 내부 도메인 모델은 바뀌는 이유가 다릅니다. DTO로 분리하면 변경에 강해집니다.",
+    analogy: "DTO는 택배 포장 상자입니다. 내부 창고 물건을 그대로 내보내지 않고 배송용 포장으로 바꿉니다.",
+    concepts: [["JSON", "클라이언트와 서버가 자주 쓰는 데이터 형식입니다."], ["@RequestBody", "요청 본문 JSON을 객체로 바꿉니다."], ["DTO", "API 입출력 전용 객체입니다."]],
+    steps: ["ProductCreateRequest record를 만듭니다.", "@RequestBody로 받습니다.", "ProductResponse를 반환합니다.", "요청 DTO와 응답 DTO를 분리합니다."],
+    pitfalls: ["Entity를 그대로 API 응답으로 내보내지 마세요.", "요청 필드 이름과 JSON 필드 이름이 맞는지 확인하세요."]
+  },
+  {
+    no: 10,
+    id: "spring10_validation",
+    kind: "spring",
+    part: "Spring Part 4. MVC 실전 기본",
+    title: "Bean Validation",
+    tags: ["spring", "mvc", "backend"],
+    summary: "@Valid, @NotBlank, @Positive로 잘못된 입력을 막습니다.",
+    goal: "요청 DTO에 검증 규칙을 붙이고 실패 응답을 처리합니다.",
+    why: "잘못된 데이터는 DB에 들어가기 전에 막아야 합니다. 검증은 서비스 안정성의 첫 방어선입니다.",
+    analogy: "검증은 입구 보안 검색대입니다. 위험한 물건은 건물 안으로 들이지 않습니다.",
+    concepts: [["@Valid", "검증을 실행합니다."], ["@NotBlank", "빈 문자열을 막습니다."], ["@Positive", "양수만 허용합니다."]],
+    steps: ["요청 DTO에 검증 애노테이션을 붙입니다.", "Controller 파라미터에 @Valid를 붙입니다.", "빈 값을 보내 오류를 확인합니다.", "오류 메시지를 사용자 친화적으로 바꿉니다."],
+    pitfalls: ["검증을 Entity에만 몰아넣으면 API별 요구사항 차이를 표현하기 어렵습니다.", "@Valid를 빼먹으면 애노테이션이 있어도 검증되지 않습니다."]
+  },
+  {
+    no: 11,
+    id: "spring11_exception_advice",
+    kind: "spring",
+    part: "Spring Part 4. MVC 실전 기본",
+    title: "전역 예외 처리와 Error Response",
+    tags: ["spring", "mvc", "backend"],
+    summary: "@ControllerAdvice로 예외를 일관된 JSON 응답으로 바꿉니다.",
+    goal: "비즈니스 예외를 HTTP 상태코드와 에러 메시지로 변환합니다.",
+    why: "API 실패 응답이 제각각이면 프론트엔드가 처리하기 어렵습니다.",
+    analogy: "전역 예외 처리는 고객센터입니다. 어느 지점에서 문제가 생겨도 같은 양식으로 안내합니다.",
+    concepts: [["@ControllerAdvice", "여러 Controller 예외를 한곳에서 처리합니다."], ["@ExceptionHandler", "특정 예외 처리 메서드를 지정합니다."], ["ErrorResponse", "에러 응답 형식을 통일합니다."]],
+    steps: ["BusinessException을 만듭니다.", "ErrorResponse record를 만듭니다.", "@ExceptionHandler를 작성합니다.", "없는 상품 조회 시 404를 반환합니다."],
+    pitfalls: ["모든 예외를 500으로 보내면 클라이언트가 원인을 알기 어렵습니다.", "예외 메시지에 민감한 내부 정보를 담지 마세요."]
+  },
+  {
+    no: 12,
+    id: "spring12_layers",
+    kind: "spring",
+    part: "Spring Part 4. MVC 실전 기본",
+    title: "Controller, Service, Repository 계층 구조",
+    tags: ["spring", "mvc", "backend"],
+    summary: "웹 요청 처리, 비즈니스 로직, 데이터 접근 책임을 나누는 방법을 배웁니다.",
+    goal: "각 계층에 어떤 코드를 둬야 하는지 판단합니다.",
+    why: "Controller가 모든 일을 하면 테스트와 유지보수가 어려워집니다. 계층 분리는 코드의 책임을 선명하게 합니다.",
+    analogy: "Controller는 카운터, Service는 주방장, Repository는 창고 담당자입니다.",
+    concepts: [["Controller", "HTTP 요청/응답을 담당합니다."], ["Service", "비즈니스 규칙을 담당합니다."], ["Repository", "데이터 저장과 조회를 담당합니다."]],
+    steps: ["TodoController를 만듭니다.", "TodoService로 등록 로직을 옮깁니다.", "TodoRepository로 저장 로직을 옮깁니다.", "각 계층의 역할을 주석으로 적습니다."],
+    pitfalls: ["Service가 단순 전달만 한다면 책임이 제대로 분리되었는지 점검하세요.", "Repository에서 웹 요청 객체를 알게 만들지 마세요."]
+  },
+  {
+    no: 13,
+    id: "spring13_testing",
+    kind: "spring",
+    part: "Spring Part 4. MVC 실전 기본",
+    title: "Spring 테스트: 단위 테스트와 통합 테스트",
+    tags: ["spring", "practice", "backend"],
+    summary: "Service 단위 테스트, Controller 테스트, SpringBootTest의 차이를 배웁니다.",
+    goal: "작은 테스트와 전체 통합 테스트를 상황에 맞게 작성합니다.",
+    why: "Spring 앱은 객체 연결이 많습니다. 테스트가 없으면 리팩토링할 때 기능이 깨졌는지 알기 어렵습니다.",
+    analogy: "단위 테스트는 부품 검사, 통합 테스트는 완성차 시운전입니다.",
+    concepts: [["Unit Test", "작은 단위만 빠르게 검증합니다."], ["Integration Test", "Spring 컨테이너와 함께 검증합니다."], ["MockMvc", "HTTP 요청 없이 MVC를 테스트합니다."]],
+    steps: ["Service 메서드를 순수 Java 테스트로 검증합니다.", "MockMvc로 Controller 응답을 확인합니다.", "@SpringBootTest로 전체 흐름을 확인합니다.", "테스트 속도 차이를 비교합니다."],
+    pitfalls: ["모든 테스트를 통합 테스트로 만들면 느려집니다.", "테스트 데이터 정리를 잊으면 다음 테스트에 영향을 줄 수 있습니다."]
+  },
+  {
+    no: 14,
+    id: "spring14_jdbc_datasource",
+    kind: "spring",
+    part: "Spring Part 5. DB 접근 핵심",
+    title: "JDBC와 DataSource",
+    tags: ["spring", "db", "backend"],
+    summary: "Spring DB 접근의 가장 아래 흐름인 JDBC와 커넥션 획득 방식을 배웁니다.",
+    goal: "DB 연결, SQL 실행, 자원 정리의 기본 흐름을 이해합니다.",
+    why: "JPA를 쓰더라도 아래에서는 결국 DB 연결과 SQL 실행이 일어납니다.",
+    analogy: "DataSource는 DB와 통화하기 위한 전화 회선을 빌려주는 창구입니다.",
+    concepts: [["JDBC", "Java에서 DB와 통신하는 표준 API입니다."], ["Connection", "DB와 연결된 통로입니다."], ["DataSource", "Connection을 제공하는 객체입니다."]],
+    steps: ["H2 DB를 연결합니다.", "DataSource Bean을 확인합니다.", "Connection을 얻어봅니다.", "SQL 실행 후 자원 정리 과정을 적습니다."],
+    pitfalls: ["Connection을 닫지 않으면 자원이 고갈될 수 있습니다.", "DB URL, username, password 설정을 먼저 확인하세요."]
+  },
+  {
+    no: 15,
+    id: "spring15_jdbctemplate",
+    kind: "spring",
+    part: "Spring Part 5. DB 접근 핵심",
+    title: "JdbcTemplate",
+    tags: ["spring", "db", "backend"],
+    summary: "반복 JDBC 코드를 줄여주는 JdbcTemplate을 사용합니다.",
+    goal: "query, update, RowMapper를 사용해 CRUD를 구현합니다.",
+    why: "순수 JDBC는 반복 코드가 많습니다. JdbcTemplate은 핵심 SQL과 매핑에 집중하게 해줍니다.",
+    analogy: "JdbcTemplate은 DB 통화 내용을 대신 정리해주는 비서입니다.",
+    concepts: [["query", "조회 SQL을 실행합니다."], ["update", "등록, 수정, 삭제 SQL을 실행합니다."], ["RowMapper", "ResultSet 한 줄을 객체로 바꿉니다."]],
+    steps: ["Member 테이블을 만듭니다.", "insert SQL을 작성합니다.", "select SQL과 RowMapper를 작성합니다.", "없는 id 조회 상황을 처리합니다."],
+    pitfalls: ["SQL 문자열 오타는 컴파일러가 잡아주지 않습니다.", "컬럼명과 객체 필드 매핑을 확인하세요."]
+  },
+  {
+    no: 16,
+    id: "spring16_transaction",
+    kind: "spring",
+    part: "Spring Part 5. DB 접근 핵심",
+    title: "트랜잭션과 @Transactional",
+    tags: ["spring", "db", "backend"],
+    summary: "여러 DB 작업을 하나의 작업 단위로 묶는 트랜잭션을 배웁니다.",
+    goal: "커밋과 롤백, 트랜잭션 경계, @Transactional 위치를 이해합니다.",
+    why: "주문 저장과 재고 감소 중 하나만 성공하면 데이터가 망가집니다.",
+    analogy: "트랜잭션은 은행 송금 안전장치입니다. 출금과 입금은 함께 성공하거나 함께 취소되어야 합니다.",
+    concepts: [["Commit", "변경을 확정합니다."], ["Rollback", "변경을 취소합니다."], ["@Transactional", "메서드 실행을 트랜잭션으로 감쌉니다."]],
+    steps: ["주문 저장과 재고 감소 코드를 작성합니다.", "@Transactional을 붙입니다.", "중간에 예외를 던져 롤백을 확인합니다.", "읽기 전용 트랜잭션을 적용해봅니다."],
+    pitfalls: ["private 메서드에 @Transactional을 붙여도 기대대로 동작하지 않을 수 있습니다.", "같은 클래스 내부 호출은 프록시를 거치지 않습니다."]
+  },
+  {
+    no: 17,
+    id: "spring17_jpa_entity",
+    kind: "spring",
+    part: "Spring Part 6. JPA 기본",
+    title: "JPA Entity와 기본 매핑",
+    tags: ["spring", "jpa", "db"],
+    summary: "@Entity, @Id, @GeneratedValue, @Column으로 객체와 테이블을 연결합니다.",
+    goal: "엔티티 클래스를 만들고 DB 테이블과 매핑합니다.",
+    why: "JPA는 객체를 저장하면 SQL을 만들어 DB에 반영합니다. 그 출발점이 엔티티 매핑입니다.",
+    analogy: "Entity는 Java 객체 세계와 DB 테이블 세계를 잇는 여권입니다.",
+    concepts: [["@Entity", "JPA가 관리하는 객체입니다."], ["@Id", "기본키를 표시합니다."], ["@GeneratedValue", "id 생성 전략을 지정합니다."]],
+    steps: ["Member 엔티티를 만듭니다.", "id와 name 필드를 매핑합니다.", "기본 생성자를 protected로 둡니다.", "Repository로 저장해봅니다."],
+    pitfalls: ["엔티티에는 기본 생성자가 필요합니다.", "setter를 무분별하게 열면 엔티티 상태가 쉽게 망가집니다."]
+  },
+  {
+    no: 18,
+    id: "spring18_persistence_context",
+    kind: "spring",
+    part: "Spring Part 6. JPA 기본",
+    title: "영속성 컨텍스트와 변경 감지",
+    tags: ["spring", "jpa", "db"],
+    summary: "JPA가 엔티티를 관리하는 1차 캐시, 동일성, 변경 감지를 배웁니다.",
+    goal: "조회한 엔티티 값을 바꾸면 트랜잭션 커밋 때 UPDATE가 나가는 이유를 이해합니다.",
+    why: "JPA는 단순 SQL 생성기가 아니라 엔티티 상태를 추적합니다. 이 원리를 모르면 UPDATE 동작이 이상해 보입니다.",
+    analogy: "영속성 컨텍스트는 작업대입니다. 작업대 위 물건의 변경 사항을 JPA가 기억합니다.",
+    concepts: [["1차 캐시", "트랜잭션 안에서 엔티티를 보관합니다."], ["동일성", "같은 id 조회 결과가 같은 객체일 수 있습니다."], ["변경 감지", "엔티티 변경을 감지해 UPDATE합니다."]],
+    steps: ["엔티티를 저장합니다.", "같은 id를 두 번 조회합니다.", "객체 참조가 같은지 확인합니다.", "필드 변경 후 커밋 시 SQL을 봅니다."],
+    pitfalls: ["준영속 상태 엔티티는 변경 감지가 되지 않습니다.", "트랜잭션 밖에서는 영속성 컨텍스트가 기대와 다르게 동작할 수 있습니다."]
+  },
+  {
+    no: 19,
+    id: "spring19_relation_mapping",
+    kind: "spring",
+    part: "Spring Part 6. JPA 기본",
+    title: "연관관계 매핑",
+    tags: ["spring", "jpa", "db"],
+    summary: "Member와 Order 같은 객체 관계를 @ManyToOne, @OneToMany로 매핑합니다.",
+    goal: "외래키의 주인과 객체 참조 방향을 이해합니다.",
+    why: "실제 도메인은 객체 하나로 끝나지 않습니다. 주문은 회원과 상품을 참조하고, 이 관계를 올바르게 매핑해야 합니다.",
+    analogy: "연관관계는 사람 사이의 연락처입니다. 누가 누구를 알고 있는지와 실제 주소록 주인이 누구인지 구분해야 합니다.",
+    concepts: [["ManyToOne", "여러 주문이 한 회원을 참조합니다."], ["mappedBy", "연관관계의 주인이 아님을 표시합니다."], ["외래키", "DB에서 다른 테이블 행을 가리킵니다."]],
+    steps: ["Member와 Order 엔티티를 만듭니다.", "Order에 Member 참조를 둡니다.", "DB 외래키를 확인합니다.", "양방향 관계가 꼭 필요한지 검토합니다."],
+    pitfalls: ["양방향 관계는 편하지만 복잡합니다. 초반에는 단방향부터 시작하세요.", "연관관계 주인을 잘못 잡으면 FK 업데이트가 예상과 다릅니다."]
+  },
+  {
+    no: 20,
+    id: "spring20_spring_data_jpa",
+    kind: "spring",
+    part: "Spring Part 7. JPA 활용",
+    title: "Spring Data JPA Repository",
+    tags: ["spring", "jpa", "db"],
+    summary: "JpaRepository로 반복 CRUD 코드를 줄입니다.",
+    goal: "save, findById, findAll, delete를 사용할 수 있습니다.",
+    why: "단순 저장소 코드는 대부분 반복됩니다. Spring Data JPA는 반복 구현을 줄여 비즈니스 로직에 집중하게 합니다.",
+    analogy: "Spring Data JPA는 기본 사무 업무를 대신 처리하는 직원입니다.",
+    concepts: [["JpaRepository", "기본 CRUD 기능을 제공합니다."], ["Repository interface", "인터페이스만 작성해도 구현체가 생성됩니다."], ["ID type", "엔티티 식별자 타입을 지정합니다."]],
+    steps: ["MemberRepository 인터페이스를 만듭니다.", "JpaRepository를 상속합니다.", "save와 findById를 사용합니다.", "없는 id 처리 방식을 정합니다."],
+    pitfalls: ["Optional 반환을 무시하지 마세요.", "Repository에 비즈니스 규칙을 과도하게 넣지 마세요."]
+  },
+  {
+    no: 21,
+    id: "spring21_query_method",
+    kind: "spring",
+    part: "Spring Part 7. JPA 활용",
+    title: "쿼리 메서드와 @Query",
+    tags: ["spring", "jpa", "db"],
+    summary: "메서드 이름 기반 쿼리와 JPQL @Query를 배웁니다.",
+    goal: "findByName, findByStatusOrderByCreatedAtDesc 같은 조회를 작성합니다.",
+    why: "기본 CRUD만으로는 실제 화면 요구사항을 처리하기 어렵습니다.",
+    analogy: "쿼리 메서드는 정해진 문법으로 작성하는 주문서입니다. 복잡하면 @Query로 직접 설명합니다.",
+    concepts: [["Query method", "메서드 이름을 분석해 쿼리를 만듭니다."], ["JPQL", "엔티티 객체를 대상으로 하는 쿼리 언어입니다."], ["@Query", "직접 쿼리를 작성합니다."]],
+    steps: ["findByName 메서드를 만듭니다.", "상태별 조회 메서드를 만듭니다.", "@Query로 조건 조회를 작성합니다.", "실행 SQL을 로그로 확인합니다."],
+    pitfalls: ["메서드 이름이 너무 길어지면 @Query나 Querydsl을 고려하세요.", "JPQL은 테이블이 아니라 엔티티 이름을 기준으로 작성합니다."]
+  },
+  {
+    no: 22,
+    id: "spring22_paging_sorting",
+    kind: "spring",
+    part: "Spring Part 7. JPA 활용",
+    title: "페이징과 정렬",
+    tags: ["spring", "jpa", "db"],
+    summary: "Pageable과 Sort로 목록 API를 나누어 조회합니다.",
+    goal: "page, size, sort 조건을 받아 목록을 반환합니다.",
+    why: "전체 데이터를 한 번에 내려주면 서버와 클라이언트 모두 부담이 커집니다.",
+    analogy: "페이징은 책을 한 장씩 넘기는 것입니다. 서점 전체 책을 한 번에 들고 오지 않습니다.",
+    concepts: [["Pageable", "페이지 번호, 크기, 정렬 정보를 담습니다."], ["Page", "내용과 전체 개수 정보를 함께 가집니다."], ["Slice", "다음 페이지 존재 여부 중심으로 가볍게 조회합니다."]],
+    steps: ["상품 목록 Repository에 Pageable을 추가합니다.", "Controller에서 page와 size를 받습니다.", "응답에 totalElements를 포함합니다.", "정렬 조건을 추가합니다."],
+    pitfalls: ["페이지 번호가 0부터 시작하는지 1부터 시작하는지 API에서 명확히 하세요.", "큰 offset 페이징은 성능 문제가 생길 수 있습니다."]
+  },
+  {
+    no: 23,
+    id: "spring23_n_plus_one",
+    kind: "spring",
+    part: "Spring Part 7. JPA 활용",
+    title: "지연 로딩, Fetch Join, N+1 문제",
+    tags: ["spring", "jpa", "db"],
+    summary: "JPA 성능 문제의 대표 사례인 N+1과 fetch join을 배웁니다.",
+    goal: "연관 객체 조회 시 SQL이 몇 번 나가는지 확인하고 줄일 수 있습니다.",
+    why: "JPA를 편하게 쓰다 보면 작은 코드가 수십 개 SQL을 만들 수 있습니다.",
+    analogy: "N+1은 택배를 한 번에 받을 수 있는데 물건마다 따로 배송시키는 상황입니다.",
+    concepts: [["Lazy loading", "필요할 때 연관 객체를 조회합니다."], ["N+1", "목록 1번 조회 후 각 행마다 추가 조회가 나갑니다."], ["fetch join", "연관 데이터를 한 번에 가져옵니다."]],
+    steps: ["주문 목록을 조회합니다.", "주문별 회원 이름을 출력합니다.", "SQL 개수를 확인합니다.", "fetch join으로 줄입니다."],
+    pitfalls: ["모든 연관관계를 즉시 로딩으로 바꾸는 것은 해결책이 아닙니다.", "fetch join과 페이징 조합은 주의가 필요합니다."]
+  },
+  {
+    no: 24,
+    id: "spring24_domain_design",
+    kind: "spring",
+    part: "Spring Part 7. JPA 활용",
+    title: "도메인 모델 설계",
+    tags: ["spring", "jpa", "backend"],
+    summary: "회원, 상품, 주문, 주문상품 도메인을 객체로 설계합니다.",
+    goal: "엔티티가 단순 데이터 상자가 아니라 비즈니스 규칙을 갖게 설계합니다.",
+    why: "실무 프로젝트는 테이블을 그대로 코드로 옮기는 것보다 도메인 행동을 잘 배치하는 것이 중요합니다.",
+    analogy: "도메인 모델은 회사 조직도입니다. 누가 어떤 책임을 갖는지 정해야 일이 흘러갑니다.",
+    concepts: [["Entity behavior", "상태 변경 메서드를 엔티티 안에 둡니다."], ["Aggregate", "함께 일관성을 지켜야 하는 객체 묶음입니다."], ["Invariant", "항상 지켜야 하는 규칙입니다."]],
+    steps: ["Order 엔티티에 cancel 메서드를 만듭니다.", "Product에 decreaseStock을 둡니다.", "Service에서 객체 행동을 호출합니다.", "규칙이 어디에 있는지 정리합니다."],
+    pitfalls: ["엔티티를 getter/setter만 있는 구조로 만들지 마세요.", "모든 규칙을 Service에 몰아넣으면 도메인이 빈약해질 수 있습니다."]
+  },
+  {
+    no: 25,
+    id: "spring25_mvc_view",
+    kind: "spring",
+    part: "Spring Part 8. MVC 2와 웹 기능",
+    title: "서버 사이드 렌더링과 Thymeleaf",
+    tags: ["spring", "mvc", "backend"],
+    summary: "API뿐 아니라 서버에서 HTML을 만들어 반환하는 MVC 화면 흐름을 배웁니다.",
+    goal: "Controller가 Model에 데이터를 담고 View가 HTML로 출력하는 흐름을 이해합니다.",
+    why: "REST API만 만드는 경우도 많지만, Spring MVC의 원리를 이해하려면 View 렌더링 흐름도 도움이 됩니다.",
+    analogy: "Controller는 재료를 준비하고 View는 접시에 담아 손님에게 보여줍니다.",
+    concepts: [["Model", "화면에 전달할 데이터를 담습니다."], ["View", "HTML 결과를 만듭니다."], ["Template", "데이터가 들어갈 자리가 있는 HTML입니다."]],
+    steps: ["templates 폴더에 HTML을 만듭니다.", "Controller에서 model.addAttribute를 호출합니다.", "Thymeleaf 문법으로 값을 출력합니다.", "API 방식과 차이를 비교합니다."],
+    pitfalls: ["REST Controller와 일반 Controller를 구분하세요.", "템플릿 경로와 파일 이름을 정확히 맞추세요."]
+  },
+  {
+    no: 26,
+    id: "spring26_cookie_session",
+    kind: "spring",
+    part: "Spring Part 8. MVC 2와 웹 기능",
+    title: "쿠키, 세션, 로그인 기본",
+    tags: ["spring", "http", "mvc"],
+    summary: "HTTP가 상태를 기억하지 못한다는 점과 쿠키/세션으로 로그인 상태를 유지하는 법을 배웁니다.",
+    goal: "쿠키와 세션의 차이, 로그인 상태 유지 원리를 설명합니다.",
+    why: "로그인 기능은 거의 모든 웹 서비스의 기본입니다. 상태 유지 원리를 알아야 보안도 이해할 수 있습니다.",
+    analogy: "쿠키는 손님이 들고 다니는 번호표이고, 세션은 가게 안 보관함에 저장된 손님 정보입니다.",
+    concepts: [["Stateless", "HTTP는 기본적으로 이전 요청을 기억하지 않습니다."], ["Cookie", "브라우저에 저장되는 작은 값입니다."], ["Session", "서버가 사용자 상태를 보관합니다."]],
+    steps: ["로그인 성공 시 세션에 memberId를 저장합니다.", "다음 요청에서 세션 값을 읽습니다.", "로그아웃 시 세션을 제거합니다.", "쿠키와 세션 저장 위치를 비교합니다."],
+    pitfalls: ["민감한 정보를 쿠키에 그대로 넣지 마세요.", "세션 만료와 로그아웃 처리를 고려하세요."]
+  },
+  {
+    no: 27,
+    id: "spring27_filter_interceptor",
+    kind: "spring",
+    part: "Spring Part 8. MVC 2와 웹 기능",
+    title: "필터와 인터셉터",
+    tags: ["spring", "mvc", "backend"],
+    summary: "공통 웹 요청 처리를 위한 Filter와 HandlerInterceptor를 배웁니다.",
+    goal: "로그인 체크나 요청 로그를 공통 처리로 분리합니다.",
+    why: "모든 Controller에 로그인 체크 코드를 복사하면 유지보수가 어렵습니다.",
+    analogy: "필터와 인터셉터는 건물 입구 보안요원입니다. 방마다 보안요원을 둘 필요가 없습니다.",
+    concepts: [["Filter", "Servlet 앞단에서 요청을 가로챕니다."], ["Interceptor", "Spring MVC Handler 실행 전후에 동작합니다."], ["공통 관심사", "여러 요청에 반복 적용되는 작업입니다."]],
+    steps: ["요청 로그 필터를 만듭니다.", "로그인 체크 인터셉터를 만듭니다.", "특정 경로는 제외합니다.", "Controller 코드가 단순해지는지 확인합니다."],
+    pitfalls: ["필터와 인터셉터 실행 위치가 다릅니다.", "정적 리소스나 로그인 페이지 제외 처리를 잊지 마세요."]
+  },
+  {
+    no: 28,
+    id: "spring28_file_upload",
+    kind: "spring",
+    part: "Spring Part 8. MVC 2와 웹 기능",
+    title: "파일 업로드와 다운로드",
+    tags: ["spring", "mvc", "backend"],
+    summary: "MultipartFile로 파일을 받고 서버에 저장하는 흐름을 배웁니다.",
+    goal: "파일 메타데이터와 실제 파일 저장 위치를 분리해서 생각합니다.",
+    why: "프로필 이미지, 첨부파일, 상품 이미지 업로드는 웹 서비스에서 자주 필요합니다.",
+    analogy: "파일 업로드는 택배 물건과 송장을 함께 받는 일입니다. 물건과 기록을 모두 관리해야 합니다.",
+    concepts: [["MultipartFile", "업로드된 파일을 표현합니다."], ["Storage path", "실제 파일이 저장될 위치입니다."], ["Metadata", "원본 파일명, 저장 파일명, 크기 같은 정보입니다."]],
+    steps: ["업로드 폼이나 API를 만듭니다.", "MultipartFile을 Controller에서 받습니다.", "UUID 파일명으로 저장합니다.", "DB에는 파일 메타데이터만 저장합니다."],
+    pitfalls: ["사용자가 보낸 파일명을 그대로 저장하지 마세요.", "파일 크기 제한과 확장자 검증을 고려하세요."]
+  },
+  {
+    no: 29,
+    id: "spring29_mybatis",
+    kind: "spring",
+    part: "Spring Part 9. 다양한 DB 접근 기술",
+    title: "MyBatis와 SQL Mapper",
+    tags: ["spring", "db", "backend"],
+    summary: "SQL을 직접 작성하면서 객체 매핑을 도와주는 MyBatis를 배웁니다.",
+    goal: "JPA와 MyBatis의 장단점을 비교합니다.",
+    why: "회사마다 JPA만 쓰지 않습니다. 복잡한 SQL 중심 프로젝트에서는 MyBatis도 많이 사용됩니다.",
+    analogy: "MyBatis는 SQL을 직접 쓰되 결과 포장을 도와주는 도구입니다.",
+    concepts: [["Mapper", "SQL과 Java 메서드를 연결합니다."], ["XML/Annotation SQL", "SQL을 명시적으로 작성합니다."], ["Result mapping", "조회 결과를 객체로 바꿉니다."]],
+    steps: ["Mapper 인터페이스를 만듭니다.", "select SQL을 작성합니다.", "파라미터 바인딩을 사용합니다.", "JPA Repository와 비교합니다."],
+    pitfalls: ["SQL 오타는 런타임에 발견될 수 있습니다.", "동적 SQL이 복잡해지면 읽기 어려워질 수 있습니다."]
+  },
+  {
+    no: 30,
+    id: "spring30_querydsl",
+    kind: "spring",
+    part: "Spring Part 9. 다양한 DB 접근 기술",
+    title: "Querydsl 입문",
+    tags: ["spring", "jpa", "db"],
+    summary: "동적 쿼리를 타입 안전하게 작성하는 Querydsl의 필요성을 배웁니다.",
+    goal: "검색 조건이 많아질 때 Querydsl이 왜 편한지 이해합니다.",
+    why: "실무 검색 화면은 조건이 많습니다. 이름, 가격, 상태, 기간이 선택적으로 들어오면 단순 쿼리 메서드가 길어집니다.",
+    analogy: "Querydsl은 조립식 쿼리 블록입니다. 필요한 조건 블록만 붙여 쿼리를 만듭니다.",
+    concepts: [["Q Type", "엔티티 기반으로 생성되는 쿼리 타입입니다."], ["BooleanExpression", "조건식을 조립합니다."], ["동적 쿼리", "입력 조건에 따라 WHERE가 달라집니다."]],
+    steps: ["상품 검색 조건 DTO를 만듭니다.", "조건이 있을 때만 where에 추가합니다.", "결과 DTO로 조회합니다.", "메서드 이름 쿼리와 비교합니다."],
+    pitfalls: ["초반 설정이 어렵다면 먼저 JPQL을 익히세요.", "동적 조건 메서드를 작게 나누면 읽기 쉬워집니다."]
+  },
+  {
+    no: 31,
+    id: "spring31_aop_proxy",
+    kind: "spring",
+    part: "Spring Part 10. 고급 원리",
+    title: "프록시와 AOP",
+    tags: ["spring", "advanced", "backend"],
+    summary: "공통 관심사를 핵심 로직 밖으로 분리하는 프록시와 AOP를 배웁니다.",
+    goal: "로그, 시간 측정, 트랜잭션이 AOP와 어떻게 연결되는지 이해합니다.",
+    why: "모든 메서드에 로그나 트랜잭션 코드를 복사하면 핵심 로직이 흐려집니다.",
+    analogy: "프록시는 대리인입니다. 실제 대상 앞에서 부가 업무를 처리하고 넘깁니다.",
+    concepts: [["Proxy", "대상 객체 대신 호출을 받는 객체입니다."], ["Advice", "부가 기능입니다."], ["Pointcut", "부가 기능을 적용할 위치를 고릅니다."]],
+    steps: ["실행 시간 측정 AOP를 만듭니다.", "Service 메서드에 적용합니다.", "로그 출력 위치를 확인합니다.", "@Transactional도 프록시 기반임을 연결합니다."],
+    pitfalls: ["내부 호출은 프록시를 거치지 않아 AOP가 적용되지 않을 수 있습니다.", "포인트컷 범위를 너무 넓게 잡지 마세요."]
+  },
+  {
+    no: 32,
+    id: "spring32_threadlocal",
+    kind: "spring",
+    part: "Spring Part 10. 고급 원리",
+    title: "ThreadLocal과 로그 추적",
+    tags: ["spring", "advanced", "backend"],
+    summary: "요청별 trace id를 보관하는 ThreadLocal과 사용 후 정리의 중요성을 배웁니다.",
+    goal: "동시 요청에서 각 요청의 로그 문맥을 분리하는 원리를 이해합니다.",
+    why: "서버는 여러 요청을 동시에 처리합니다. 요청별 로그를 섞이지 않게 관리해야 장애 분석이 쉬워집니다.",
+    analogy: "ThreadLocal은 직원별 개인 수첩입니다. 공용 칠판에 쓰지 않고 자기 수첩에 적습니다.",
+    concepts: [["ThreadLocal", "스레드별 값을 저장합니다."], ["TraceId", "요청 흐름을 추적하는 id입니다."], ["remove", "사용 후 값을 정리합니다."]],
+    steps: ["ThreadLocal에 trace id를 저장합니다.", "여러 메서드에서 같은 값을 읽습니다.", "요청 종료 후 remove를 호출합니다.", "remove를 빼면 어떤 위험이 있는지 정리합니다."],
+    pitfalls: ["ThreadPool 환경에서 remove를 빼먹으면 다른 요청에 값이 섞일 수 있습니다.", "ThreadLocal은 편하지만 남용하지 마세요."]
+  },
+  {
+    no: 33,
+    id: "spring33_auto_config",
+    kind: "spring",
+    part: "Spring Part 11. Spring Boot 핵심 기능",
+    title: "자동 설정과 Starter",
+    tags: ["spring", "boot", "backend"],
+    summary: "Spring Boot가 의존성을 보고 필요한 설정을 자동으로 구성하는 원리를 배웁니다.",
+    goal: "starter-web을 추가하면 왜 내장 서버와 MVC가 준비되는지 이해합니다.",
+    why: "자동 설정 덕분에 빠르게 시작하지만, 문제가 생기면 어떤 설정이 적용됐는지 알아야 합니다.",
+    analogy: "Starter는 밀키트입니다. 필요한 재료와 기본 조리법이 함께 들어 있습니다.",
+    concepts: [["Starter", "관련 의존성을 묶은 패키지입니다."], ["Auto Configuration", "조건에 따라 Bean을 자동 등록합니다."], ["Condition", "특정 클래스나 설정이 있을 때만 적용됩니다."]],
+    steps: ["starter-web 의존성을 확인합니다.", "내장 Tomcat이 실행되는지 봅니다.", "자동 설정 보고서를 켜봅니다.", "직접 Bean을 등록해 자동 설정과 비교합니다."],
+    pitfalls: ["자동 설정은 마법이 아니라 조건부 Bean 등록입니다.", "의존성 하나가 많은 설정을 끌고 올 수 있습니다."]
+  },
+  {
+    no: 34,
+    id: "spring34_external_config",
+    kind: "spring",
+    part: "Spring Part 11. Spring Boot 핵심 기능",
+    title: "외부 설정, Profile, 설정 우선순위",
+    tags: ["spring", "boot", "backend"],
+    summary: "application.yml, profile, 환경변수로 환경별 설정을 나눕니다.",
+    goal: "local, dev, prod 환경에서 다른 DB 주소와 로그 레벨을 적용합니다.",
+    why: "개발 PC와 운영 서버는 설정이 다릅니다. 설정을 코드에 박아두면 배포와 보안이 위험해집니다.",
+    analogy: "Profile은 계절별 옷장입니다. 여름과 겨울에 같은 옷을 입지 않습니다.",
+    concepts: [["application.yml", "기본 설정 파일입니다."], ["Profile", "환경별 설정 그룹입니다."], ["환경변수", "서버 밖에서 주입하는 설정입니다."]],
+    steps: ["application-local.yml을 만듭니다.", "spring.profiles.active를 지정합니다.", "환경변수로 값을 덮어씁니다.", "설정 우선순위를 표로 정리합니다."],
+    pitfalls: ["운영 비밀번호를 Git에 올리지 마세요.", "현재 활성 Profile을 로그에서 확인하세요."]
+  },
+  {
+    no: 35,
+    id: "spring35_actuator_observability",
+    kind: "spring",
+    part: "Spring Part 11. Spring Boot 핵심 기능",
+    title: "Actuator, Health Check, Metrics",
+    tags: ["spring", "boot", "backend"],
+    summary: "애플리케이션 상태와 지표를 확인하는 Actuator를 배웁니다.",
+    goal: "헬스 체크와 메트릭이 운영에서 왜 중요한지 이해합니다.",
+    why: "서비스는 만드는 것보다 운영하는 시간이 훨씬 깁니다. 상태를 볼 수 없으면 장애 대응이 어렵습니다.",
+    analogy: "Actuator는 자동차 계기판입니다. 속도, 연료, 경고등을 보며 운전합니다.",
+    concepts: [["Health", "애플리케이션 생존 상태를 확인합니다."], ["Metrics", "요청 수, 메모리, JVM 상태 같은 지표입니다."], ["Endpoint", "상태 정보를 제공하는 URL입니다."]],
+    steps: ["actuator 의존성을 추가합니다.", "/actuator/health를 호출합니다.", "노출할 endpoint를 설정합니다.", "운영에서 공개 범위를 제한하는 이유를 적습니다."],
+    pitfalls: ["Actuator endpoint를 무분별하게 외부 공개하지 마세요.", "헬스 체크가 항상 비즈니스 정상 상태를 의미하지는 않습니다."]
+  },
+  {
+    no: 36,
+    id: "spring36_todo_order_project",
+    kind: "spring",
+    part: "Spring Part 12. 종합 프로젝트",
+    title: "Todo API에서 주문 API까지",
+    tags: ["spring", "practice", "jpa", "backend"],
+    summary: "Todo API로 CRUD를 익히고 주문 API로 검증, 예외, 트랜잭션, JPA를 종합합니다.",
+    goal: "작은 기능을 계층 구조로 만들고 점진적으로 실무형 API로 확장합니다.",
+    why: "개념을 많이 알아도 프로젝트로 연결하지 못하면 실력이 붙지 않습니다. 작은 완성 경험이 중요합니다.",
+    analogy: "종합 프로젝트는 배운 재료로 처음 코스 요리를 만드는 시간입니다.",
+    concepts: [["CRUD", "생성, 조회, 수정, 삭제입니다."], ["Order domain", "회원, 상품, 주문, 재고가 함께 움직입니다."], ["Transaction", "주문 저장과 재고 감소를 하나로 묶습니다."]],
+    steps: ["Todo 생성/조회/완료/삭제 API를 만듭니다.", "메모리 저장소를 JPA 저장소로 바꿉니다.", "상품/회원/주문 엔티티를 추가합니다.", "주문 생성에 검증과 트랜잭션을 적용합니다."],
+    pitfalls: ["처음부터 모든 기능을 넣지 마세요.", "작동하는 작은 단위마다 테스트를 추가하세요."]
+  },
+  {
+    no: 37,
+    id: "spring37_deploy_review",
+    kind: "spring",
+    part: "Spring Part 12. 종합 프로젝트",
+    title: "배포 전 점검과 다음 학습 순서",
+    tags: ["spring", "boot", "practice"],
+    summary: "빌드, 테스트, 설정, 로그, DB 마이그레이션, 다음 학습 주제를 정리합니다.",
+    goal: "로컬에서 만든 Spring Boot 프로젝트를 배포 가능한 상태로 점검합니다.",
+    why: "실무에서는 내 PC에서만 되는 코드가 아니라 서버에서 안정적으로 실행되는 코드가 필요합니다.",
+    analogy: "배포 전 점검은 여행 전 짐 검사입니다. 여권, 충전기, 숙소 주소를 확인하지 않으면 길에서 고생합니다.",
+    concepts: [["Build", "실행 가능한 산출물을 만듭니다."], ["Test", "기능이 깨지지 않았는지 확인합니다."], ["Migration", "DB 구조 변경을 관리합니다."]],
+    steps: ["./gradlew test를 실행합니다.", "./gradlew build를 실행합니다.", "운영 Profile 설정을 분리합니다.", "로그와 헬스 체크를 확인합니다."],
+    pitfalls: ["운영 DB 설정을 로컬 설정과 섞지 마세요.", "테스트를 건너뛰고 배포하는 습관은 위험합니다."]
+  }
+];
+
+const expandedJavaSpringChapters = [
+  ...expandedJavaTopics.map(makeJavaSpringChapter),
+  ...expandedSpringTopics.map(topic => makeJavaSpringChapter({
+    ...topic,
+    no: expandedJavaTopics.length + topic.no
+  }))
+];
+
 function buildJavaSpringPracticeSteps(chapter) {
   const steps = [];
   const firstExample = chapter.examples?.[0];
@@ -6271,7 +7449,7 @@ function buildBeginnerPracticeSteps(chapter) {
   return steps;
 }
 
-const allChapters = [...chapters, ...vueChapters, ...javaSpringChapters];
+const allChapters = [...chapters, ...vueChapters, ...expandedJavaSpringChapters];
 
 export const curriculum = allChapters.map(chapter => {
   const course = chapter.course || "sql";

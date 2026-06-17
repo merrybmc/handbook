@@ -8,8 +8,8 @@ https://sql-learning-book.vercel.app
 
 ## Java & Spring Boot
 
-- Java roadmap flow: intro syntax, OOP, collections/generics, exceptions, concurrency, I/O, lambda and streams
-- Spring Boot roadmap flow: first web app, IoC/DI, HTTP, MVC, validation, DB access, transactions, JPA, Spring Data JPA, AOP, Boot operations
+- Java roadmap flow: 33 chapters from setup, basic syntax, OOP, collections/generics, exceptions, concurrency, I/O, lambda/streams, testing, and a console Todo project
+- Spring Boot roadmap flow: 37 chapters from first web app, IoC/DI, HTTP, MVC, validation, DB access, transactions, JPA, Spring Data JPA, Querydsl, AOP, Boot operations, and deployment review
 - Every chapter includes beginner-friendly analogies, code examples, practice steps, and exercises
 - The mini project path starts with a Todo API and expands toward product/member/order APIs
 
