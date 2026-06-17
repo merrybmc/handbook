@@ -6,6 +6,12 @@ SQL과 Vue.js를 처음 배우는 사람을 위한 단계별 학습서입니다.
 
 https://sql-learning-book.vercel.app
 
+## Expanded Curriculum Size
+
+- SQL: 72 chapters from database basics, MySQL, normalization, indexes, transactions, PostgreSQL, Redis, Elasticsearch, and local stack practice
+- Vue.js: 52 chapters from Vue basics, Todo app, components, composables, Router, API, Pinia, TypeScript, forms, testing, performance, deployment, and shopping mall project refinement
+- Java & Spring Boot: 70 chapters from Java fundamentals to Spring Boot backend projects
+
 ## Java & Spring Boot
 
 - Java roadmap flow: 33 chapters from setup, basic syntax, OOP, collections/generics, exceptions, concurrency, I/O, lambda/streams, testing, and a console Todo project

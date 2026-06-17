@@ -7449,7 +7449,318 @@ function buildBeginnerPracticeSteps(chapter) {
   return steps;
 }
 
-const allChapters = [...chapters, ...vueChapters, ...expandedJavaSpringChapters];
+function makeExpandedSqlChapter(topic) {
+  const exampleSql = topic.exampleSql || "SELECT 1 AS practice;";
+
+  return {
+    id: topic.id,
+    course: "sql",
+    part: topic.part,
+    title: `${topic.no}. ${topic.title}`,
+    tags: topic.tags,
+    type: "info",
+    summary: topic.summary,
+    goal: topic.goal || `${topic.title}의 사용 목적과 기본 문법을 이해하고 작은 예제로 직접 확인합니다.`,
+    analogy: topic.analogy || "SQL 학습은 서랍이 많은 사무실을 정리하는 일과 비슷합니다. 어떤 서랍에 어떤 문서를 넣고, 어떤 기준으로 꺼내 볼지 정하는 과정입니다.",
+    studyHint: topic.studyHint || "처음에는 문법을 외우기보다 결과표가 어떻게 달라지는지 보세요. 실행 전 예상 결과를 적고, 실행 후 실제 결과와 비교하면 훨씬 빨리 늘어납니다.",
+    sections: [
+      {
+        title: "왜 배우나요?",
+        body: [
+          p(topic.why),
+          callout("tip", "처음 보는 사람용 비유", topic.analogy || "데이터베이스는 정리된 창고이고 SQL은 창고 직원에게 보내는 요청서입니다. 요청서가 정확할수록 원하는 물건을 빨리 찾을 수 있습니다.")
+        ]
+      },
+      {
+        title: "핵심 개념을 천천히 풀어보기",
+        body: [
+          ul([
+            `<strong>이번 장의 핵심</strong>: ${topic.focus}`,
+            `<strong>읽는 순서</strong>: 먼저 어떤 테이블을 볼지 정하고, 그 다음 어떤 행과 컬럼이 필요한지 좁힙니다.`,
+            `<strong>실무 감각</strong>: SQL은 결과를 맞히는 것만큼 왜 그 결과가 나왔는지 설명하는 능력이 중요합니다.`
+          ]),
+          p(topic.detail || "예제를 실행하기 전에 테이블 이름, 컬럼 이름, 조건, 정렬 기준을 따로 표시하세요. SQL은 한 줄로 보여도 내부에는 '어디서 가져올지', '무엇을 고를지', '어떤 조건을 걸지', '어떻게 보여줄지'라는 단계가 숨어 있습니다.")
+        ]
+      },
+      {
+        title: "따라 하는 실습 순서",
+        body: [
+          ol(topic.steps || [
+            "예제 SQL을 수정하지 말고 그대로 실행합니다.",
+            "결과에 나온 컬럼 이름과 행 개수를 확인합니다.",
+            "조건값이나 컬럼 하나만 바꿔 다시 실행합니다.",
+            "실행 전 예상 결과를 적고 실제 결과와 비교합니다."
+          ]),
+          p("막히면 SQL 전체를 다시 쓰지 말고 FROM, WHERE, SELECT, ORDER BY 순서로 나눠서 확인하세요. 초보자에게 가장 좋은 디버깅은 문장을 잘게 끊어 읽는 것입니다.")
+        ]
+      },
+      {
+        title: "흔한 실수와 점검 기준",
+        body: [
+          ul(topic.pitfalls || [
+            "테이블 이름과 컬럼 이름 오타를 먼저 확인하세요.",
+            "문자열 값에는 따옴표가 필요합니다.",
+            "WHERE 조건을 빼면 생각보다 많은 데이터가 바뀌거나 조회될 수 있습니다."
+          ]),
+          callout("warning", "실습 안전 규칙", "UPDATE, DELETE, DROP 같은 명령은 반드시 WHERE와 대상 테이블을 먼저 확인하세요. 학습 중에도 삭제 계열 명령은 습관이 중요합니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: topic.exampleTitle || `${topic.title} 기본 예제`,
+        desc: topic.exampleDesc || "먼저 그대로 실행한 뒤 조건이나 컬럼 하나만 바꿔보세요.",
+        sql: exampleSql
+      }
+    ],
+    drills: topic.drills || [
+      {
+        prompt: `${topic.title}을 언제 쓰는지 한 문장으로 설명해보세요.`,
+        answer: topic.why
+      },
+      {
+        prompt: "예제 SQL에서 FROM, WHERE, SELECT가 각각 어떤 역할을 하는지 표시해보세요.",
+        answer: "FROM은 데이터를 가져올 테이블, WHERE는 남길 행의 조건, SELECT는 보여줄 컬럼을 정합니다."
+      }
+    ],
+    exercise: {
+      type: "query",
+      starterSql: exampleSql,
+      correctQuery: exampleSql,
+      description: `${topic.title} 예제를 먼저 그대로 실행하고, 결과를 확인한 뒤 조건이나 컬럼 하나를 바꿔 다시 실행해보세요.`
+    }
+  };
+}
+
+const expandedSqlTopics = [
+  { no: 1, id: "sql01_why_db", part: "SQL Part 1. 데이터베이스 큰 그림", title: "데이터베이스가 필요한 이유", tags: ["basic", "mysql"], summary: "파일 저장과 DB 저장의 차이를 쇼핑몰 예제로 이해합니다.", focus: "데이터를 안전하게 저장하고 여러 사람이 함께 쓰는 이유", why: "회원, 주문, 결제 데이터는 엑셀 파일처럼 아무렇게나 저장하면 중복과 충돌이 생깁니다. DB는 규칙 있는 저장소로 데이터를 지켜줍니다.", exampleSql: "SELECT 'DATABASE_START' AS topic;" },
+  { no: 2, id: "sql02_rdbms_nosql", part: "SQL Part 1. 데이터베이스 큰 그림", title: "RDBMS와 NoSQL 차이", tags: ["basic", "mysql"], summary: "MySQL 같은 관계형 DB와 Redis/Elasticsearch 같은 NoSQL의 역할을 구분합니다.", focus: "정확한 원본 저장소와 목적 특화 저장소의 차이", why: "실무에서는 MySQL을 원본 장부로 두고 Redis는 빠른 메모지, Elasticsearch는 검색 색인처럼 함께 쓰는 경우가 많습니다.", exampleSql: "SELECT 'RDBMS keeps structured records' AS idea;" },
+  { no: 3, id: "sql03_mysql_setup", part: "SQL Part 1. 데이터베이스 큰 그림", title: "MySQL 설치와 접속 도구", tags: ["basic", "mysql"], summary: "MySQL Server, Workbench, DBeaver, DataGrip의 역할을 정리합니다.", focus: "서버와 클라이언트 도구를 구분하기", why: "DB 서버는 데이터를 보관하는 프로그램이고 Workbench/DataGrip은 그 서버에 접속해 SQL을 보내는 화면 도구입니다.", exampleSql: "SELECT VERSION();" },
+  { no: 4, id: "sql04_schema_table_row_column", part: "SQL Part 1. 데이터베이스 큰 그림", title: "스키마, 테이블, 행, 컬럼", tags: ["basic", "mysql"], summary: "DB를 이루는 기본 단어를 주소록 비유로 익힙니다.", focus: "테이블 구조를 읽는 눈 만들기", why: "SQL을 잘하려면 먼저 데이터가 어떤 표에 어떤 컬럼으로 저장되는지 읽을 수 있어야 합니다.", exampleSql: "SELECT name, email FROM customers;" },
+  { no: 5, id: "sql05_sql_execution_order", part: "SQL Part 1. 데이터베이스 큰 그림", title: "SQL 작성 순서와 실행 순서", tags: ["basic", "mysql"], summary: "SELECT가 먼저 보이지만 실제 처리 순서는 FROM부터라는 점을 배웁니다.", focus: "FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY의 흐름", why: "실행 순서를 알면 별칭이 왜 WHERE에서 안 되는지, 집계 조건을 왜 HAVING에 쓰는지 이해됩니다.", exampleSql: "SELECT status, COUNT(*) AS order_count FROM orders GROUP BY status ORDER BY order_count DESC;" },
+  { no: 6, id: "sql06_select_basic", part: "SQL Part 2. SELECT 기초", title: "SELECT로 원하는 컬럼 보기", tags: ["basic", "mysql"], summary: "필요한 컬럼만 골라 조회하는 기본 문법을 익힙니다.", focus: "SELECT 컬럼 목록 작성", why: "모든 컬럼을 보는 것보다 필요한 컬럼만 보는 습관이 성능과 가독성에 좋습니다.", exampleSql: "SELECT customer_id, name, email FROM customers;" },
+  { no: 7, id: "sql07_alias_expression", part: "SQL Part 2. SELECT 기초", title: "별칭과 계산식", tags: ["basic", "mysql"], summary: "AS 별칭과 산술 계산으로 결과표를 읽기 좋게 만듭니다.", focus: "결과 컬럼 이름과 계산 컬럼 만들기", why: "조회 결과를 사람이 읽기 좋게 만들고, 가격과 수량처럼 계산된 값을 바로 확인할 수 있습니다.", exampleSql: "SELECT product_name AS name, price, price * 0.9 AS discount_price FROM products;" },
+  { no: 8, id: "sql08_distinct_limit", part: "SQL Part 2. SELECT 기초", title: "DISTINCT와 LIMIT", tags: ["basic", "mysql"], summary: "중복 제거와 일부 결과만 보기 위해 DISTINCT, LIMIT를 사용합니다.", focus: "결과 크기 줄이기", why: "처음 데이터 확인을 할 때 전체를 다 보는 것보다 일부만 안전하게 보는 습관이 중요합니다.", exampleSql: "SELECT DISTINCT status FROM orders LIMIT 10;" },
+  { no: 9, id: "sql09_order_by", part: "SQL Part 2. SELECT 기초", title: "ORDER BY 정렬", tags: ["basic", "mysql"], summary: "조회 결과를 오름차순/내림차순으로 정렬합니다.", focus: "ASC, DESC와 다중 정렬", why: "최근 주문, 높은 가격, 가나다순 이름처럼 사용자가 원하는 순서로 데이터를 보여줘야 합니다.", exampleSql: "SELECT order_id, total_amount, order_date FROM orders ORDER BY order_date DESC, total_amount DESC;" },
+  { no: 10, id: "sql10_where_compare", part: "SQL Part 3. WHERE 조건", title: "WHERE와 비교 연산자", tags: ["basic", "mysql"], summary: "특정 조건을 만족하는 행만 남기는 WHERE를 배웁니다.", focus: "행 필터링", why: "실무 조회의 대부분은 전체 데이터가 아니라 특정 고객, 특정 기간, 특정 상태를 찾는 일입니다.", exampleSql: "SELECT * FROM orders WHERE total_amount >= 50000;" },
+  { no: 11, id: "sql11_and_or_not", part: "SQL Part 3. WHERE 조건", title: "AND, OR, NOT", tags: ["basic", "mysql"], summary: "여러 조건을 조합하는 논리 연산자를 익힙니다.", focus: "조건 조합과 괄호", why: "VIP이면서 최근 주문한 고객처럼 여러 기준을 함께 표현해야 합니다.", exampleSql: "SELECT * FROM customers WHERE grade = 'VIP' AND active = 1;" },
+  { no: 12, id: "sql12_between_in_like", part: "SQL Part 3. WHERE 조건", title: "BETWEEN, IN, LIKE", tags: ["basic", "mysql"], summary: "범위, 목록, 패턴 조건을 간결하게 표현합니다.", focus: "자주 쓰는 조건 축약 문법", why: "기간 검색, 여러 상태 검색, 이름 검색은 서비스 화면에서 매우 자주 나옵니다.", exampleSql: "SELECT * FROM products WHERE price BETWEEN 10000 AND 50000 AND product_name LIKE '%키보드%';" },
+  { no: 13, id: "sql13_null", part: "SQL Part 3. WHERE 조건", title: "NULL 이해하기", tags: ["basic", "mysql"], summary: "값이 없음을 뜻하는 NULL과 IS NULL 조건을 배웁니다.", focus: "NULL은 0이나 빈 문자열이 아님", why: "NULL을 = 로 비교하면 원하는 결과가 나오지 않습니다. 값 없음은 별도 규칙으로 다뤄야 합니다.", exampleSql: "SELECT * FROM customers WHERE phone IS NULL;" },
+  { no: 14, id: "sql14_string_functions", part: "SQL Part 4. 함수", title: "문자열 함수", tags: ["basic", "mysql"], summary: "CONCAT, LENGTH, SUBSTRING, REPLACE 같은 문자열 함수를 배웁니다.", focus: "문자 데이터를 가공해서 보기", why: "이름, 이메일, 전화번호 같은 문자열은 검색과 출력 형식 변환이 자주 필요합니다.", exampleSql: "SELECT CONCAT(name, ' <', email, '>') AS contact FROM customers;" },
+  { no: 15, id: "sql15_number_date_functions", part: "SQL Part 4. 함수", title: "숫자와 날짜 함수", tags: ["basic", "mysql"], summary: "ROUND, DATE_FORMAT, DATEDIFF 등 계산과 날짜 처리 함수를 익힙니다.", focus: "금액과 기간 계산", why: "매출 반올림, 가입 후 경과일, 월별 주문 같은 계산은 SQL에서 자주 처리합니다.", exampleSql: "SELECT order_id, DATEDIFF(CURRENT_DATE, order_date) AS days_after_order FROM orders;" },
+  { no: 16, id: "sql16_case_when", part: "SQL Part 4. 함수", title: "CASE WHEN 조건별 값 만들기", tags: ["basic", "mysql"], summary: "조건에 따라 결과 컬럼 값을 다르게 만드는 CASE를 배웁니다.", focus: "SQL 안의 if 문", why: "주문 금액에 따라 VIP 여부를 표시하거나 상태 코드를 사람이 읽는 문구로 바꿀 때 유용합니다.", exampleSql: "SELECT order_id, CASE WHEN total_amount >= 100000 THEN 'VIP_ORDER' ELSE 'NORMAL' END AS order_type FROM orders;" },
+  { no: 17, id: "sql17_aggregate", part: "SQL Part 5. 집계와 그룹", title: "COUNT, SUM, AVG, MIN, MAX", tags: ["basic", "mysql"], summary: "여러 행을 하나의 요약값으로 계산하는 집계 함수를 배웁니다.", focus: "데이터 요약", why: "총 주문 수, 총 매출, 평균 객단가처럼 운영 지표는 집계에서 시작합니다.", exampleSql: "SELECT COUNT(*) AS order_count, SUM(total_amount) AS revenue FROM orders;" },
+  { no: 18, id: "sql18_group_by", part: "SQL Part 5. 집계와 그룹", title: "GROUP BY", tags: ["basic", "mysql"], summary: "상태별, 고객별, 월별로 데이터를 묶어 집계합니다.", focus: "그룹별 요약", why: "전체 합계보다 카테고리별 합계가 실무 의사결정에 더 중요할 때가 많습니다.", exampleSql: "SELECT status, COUNT(*) AS count_by_status FROM orders GROUP BY status;" },
+  { no: 19, id: "sql19_having", part: "SQL Part 5. 집계와 그룹", title: "HAVING", tags: ["basic", "mysql"], summary: "집계 결과에 조건을 거는 HAVING을 배웁니다.", focus: "그룹 결과 필터링", why: "주문이 3건 이상인 고객처럼 집계한 뒤에야 판단할 수 있는 조건이 있습니다.", exampleSql: "SELECT customer_id, COUNT(*) AS order_count FROM orders GROUP BY customer_id HAVING COUNT(*) >= 3;" },
+  { no: 20, id: "sql20_grouping_practice", part: "SQL Part 5. 집계와 그룹", title: "월별 매출 리포트 만들기", tags: ["basic", "mysql", "practice"], summary: "날짜 함수와 GROUP BY로 월별 매출을 조회합니다.", focus: "리포트 SQL 작성", why: "월별 매출은 관리자 화면과 대시보드의 가장 기본적인 지표입니다.", exampleSql: "SELECT DATE_FORMAT(order_date, '%Y-%m') AS order_month, SUM(total_amount) AS revenue FROM orders GROUP BY DATE_FORMAT(order_date, '%Y-%m') ORDER BY order_month;" },
+  { no: 21, id: "sql21_join_intro", part: "SQL Part 6. JOIN", title: "JOIN이 필요한 이유", tags: ["basic", "mysql"], summary: "테이블을 나누어 저장하고 필요할 때 연결하는 이유를 배웁니다.", focus: "정규화된 데이터 연결", why: "주문 테이블에 고객 이름과 이메일을 매번 복사하면 고객 정보 변경 때 데이터가 꼬입니다.", exampleSql: "SELECT o.order_id, c.name FROM orders o JOIN customers c ON o.customer_id = c.customer_id;" },
+  { no: 22, id: "sql22_inner_join", part: "SQL Part 6. JOIN", title: "INNER JOIN", tags: ["basic", "mysql"], summary: "양쪽 테이블에 매칭되는 데이터만 가져오는 INNER JOIN을 배웁니다.", focus: "교집합 연결", why: "주문이 있는 고객과 그 주문 정보처럼 실제 연결된 데이터만 보고 싶을 때 씁니다.", exampleSql: "SELECT c.name, o.order_id, o.total_amount FROM customers c INNER JOIN orders o ON c.customer_id = o.customer_id;" },
+  { no: 23, id: "sql23_left_join", part: "SQL Part 6. JOIN", title: "LEFT JOIN", tags: ["basic", "mysql"], summary: "왼쪽 테이블은 모두 보존하고 오른쪽 매칭 데이터를 붙입니다.", focus: "없는 관계도 함께 보기", why: "주문이 없는 고객까지 보고 싶을 때 INNER JOIN을 쓰면 누락됩니다.", exampleSql: "SELECT c.name, o.order_id FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id;" },
+  { no: 24, id: "sql24_join_multiple", part: "SQL Part 6. JOIN", title: "3개 이상 테이블 JOIN", tags: ["basic", "mysql"], summary: "고객, 주문, 주문상세, 상품을 이어서 조회합니다.", focus: "여러 관계 연결하기", why: "실제 서비스 데이터는 고객-주문-상품처럼 여러 테이블에 나뉘어 있습니다.", exampleSql: "SELECT c.name, o.order_id, p.product_name FROM customers c JOIN orders o ON c.customer_id=o.customer_id JOIN order_items oi ON o.order_id=oi.order_id JOIN products p ON oi.product_id=p.product_id;" },
+  { no: 25, id: "sql25_self_cross_join", part: "SQL Part 6. JOIN", title: "SELF JOIN과 CROSS JOIN", tags: ["advanced", "mysql"], summary: "같은 테이블끼리 연결하거나 모든 조합을 만드는 JOIN을 이해합니다.", focus: "특수 JOIN의 사용 상황", why: "상하 관계나 추천 조합처럼 일반 JOIN과 다른 연결 방식이 필요할 때가 있습니다.", exampleSql: "SELECT a.name AS customer_a, b.name AS customer_b FROM customers a CROSS JOIN customers b WHERE a.customer_id < b.customer_id;" },
+  { no: 26, id: "sql26_subquery_basic", part: "SQL Part 7. 서브쿼리와 CTE", title: "서브쿼리 기본", tags: ["basic", "mysql"], summary: "SQL 안에 또 다른 SQL을 넣는 서브쿼리를 배웁니다.", focus: "조회 결과를 조건으로 재사용", why: "평균 주문 금액보다 큰 주문처럼 먼저 계산한 값을 다음 조건에 써야 할 때가 있습니다.", exampleSql: "SELECT * FROM orders WHERE total_amount > (SELECT AVG(total_amount) FROM orders);" },
+  { no: 27, id: "sql27_exists", part: "SQL Part 7. 서브쿼리와 CTE", title: "EXISTS와 NOT EXISTS", tags: ["advanced", "mysql"], summary: "관련 데이터 존재 여부를 조건으로 검사합니다.", focus: "존재 검사", why: "주문이 있는 고객, 주문이 없는 고객을 찾을 때 JOIN보다 의도가 선명할 수 있습니다.", exampleSql: "SELECT * FROM customers c WHERE EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.customer_id);" },
+  { no: 28, id: "sql28_cte", part: "SQL Part 7. 서브쿼리와 CTE", title: "WITH CTE", tags: ["advanced", "mysql"], summary: "복잡한 쿼리를 이름 붙인 임시 결과로 나누어 읽기 쉽게 만듭니다.", focus: "쿼리 단계 나누기", why: "복잡한 리포트 SQL은 한 번에 쓰면 읽기 어렵습니다. CTE는 중간 결과에 이름을 붙입니다.", exampleSql: "WITH customer_orders AS (SELECT customer_id, COUNT(*) AS order_count FROM orders GROUP BY customer_id) SELECT * FROM customer_orders WHERE order_count >= 2;" },
+  { no: 29, id: "sql29_recursive_cte", part: "SQL Part 7. 서브쿼리와 CTE", title: "재귀 CTE 큰 그림", tags: ["advanced", "mysql"], summary: "계층형 데이터나 연속 숫자를 만들 때 쓰는 재귀 CTE를 맛봅니다.", focus: "반복되는 관계를 SQL로 따라가기", why: "카테고리 트리나 조직도처럼 부모-자식 구조를 조회할 때 필요합니다.", exampleSql: "WITH RECURSIVE numbers AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM numbers WHERE n < 5) SELECT * FROM numbers;" },
+  { no: 30, id: "sql30_insert", part: "SQL Part 8. 데이터 변경", title: "INSERT", tags: ["basic", "mysql"], summary: "테이블에 새 행을 추가하는 INSERT를 배웁니다.", focus: "새 데이터 저장", why: "회원 가입, 상품 등록, 주문 생성은 모두 INSERT로 데이터가 시작됩니다.", exampleSql: "INSERT INTO customers (name, email) VALUES ('kim', 'kim@example.com');" },
+  { no: 31, id: "sql31_update", part: "SQL Part 8. 데이터 변경", title: "UPDATE", tags: ["basic", "mysql"], summary: "기존 데이터를 수정하는 UPDATE를 배웁니다.", focus: "WHERE가 있는 수정", why: "회원 정보 변경, 주문 상태 변경처럼 기존 행의 값을 바꿀 때 필요합니다.", exampleSql: "UPDATE customers SET grade = 'VIP' WHERE customer_id = 1;" },
+  { no: 32, id: "sql32_delete", part: "SQL Part 8. 데이터 변경", title: "DELETE와 안전한 삭제", tags: ["basic", "mysql"], summary: "행을 삭제하는 DELETE와 안전 확인 습관을 배웁니다.", focus: "삭제 전 SELECT 확인", why: "삭제는 되돌리기 어렵습니다. WHERE 없는 DELETE는 초보자에게 가장 위험한 실수 중 하나입니다.", exampleSql: "DELETE FROM customers WHERE customer_id = 999;" },
+  { no: 33, id: "sql33_upsert", part: "SQL Part 8. 데이터 변경", title: "UPSERT와 중복 처리", tags: ["advanced", "mysql"], summary: "이미 있으면 갱신하고 없으면 추가하는 패턴을 배웁니다.", focus: "중복 키 충돌 처리", why: "통계 집계나 외부 데이터 동기화에서 같은 키가 다시 들어오는 상황이 흔합니다.", exampleSql: "INSERT INTO product_stock (product_id, quantity) VALUES (1, 10) ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity);" },
+  { no: 34, id: "sql34_create_table", part: "SQL Part 9. 테이블 설계", title: "CREATE TABLE", tags: ["basic", "mysql"], summary: "테이블과 컬럼을 직접 정의하는 CREATE TABLE을 배웁니다.", focus: "데이터 구조 만들기", why: "좋은 SQL은 좋은 테이블 설계 위에서 나옵니다. 컬럼 타입과 제약조건이 데이터 품질을 지킵니다.", exampleSql: "CREATE TABLE members (member_id BIGINT PRIMARY KEY, name VARCHAR(100) NOT NULL, email VARCHAR(255) UNIQUE);" },
+  { no: 35, id: "sql35_datatypes", part: "SQL Part 9. 테이블 설계", title: "데이터 타입 선택", tags: ["basic", "mysql"], summary: "INT, BIGINT, DECIMAL, VARCHAR, TEXT, DATETIME 타입을 구분합니다.", focus: "값의 성격에 맞는 타입 고르기", why: "금액을 FLOAT로 저장하거나 날짜를 문자열로 저장하면 계산과 정렬에서 문제가 생길 수 있습니다.", exampleSql: "CREATE TABLE payments (payment_id BIGINT PRIMARY KEY, amount DECIMAL(12,2), paid_at DATETIME);" },
+  { no: 36, id: "sql36_constraints", part: "SQL Part 9. 테이블 설계", title: "제약조건: PK, FK, UNIQUE, NOT NULL", tags: ["basic", "mysql"], summary: "DB가 데이터 규칙을 강제로 지키게 만드는 제약조건을 배웁니다.", focus: "데이터 무결성", why: "애플리케이션 실수로 잘못된 데이터가 들어와도 DB 제약조건이 마지막 방어선이 됩니다.", exampleSql: "CREATE TABLE orders_new (order_id BIGINT PRIMARY KEY, customer_id BIGINT NOT NULL, CONSTRAINT fk_order_customer FOREIGN KEY (customer_id) REFERENCES customers(customer_id));" },
+  { no: 37, id: "sql37_alter_drop", part: "SQL Part 9. 테이블 설계", title: "ALTER, DROP, TRUNCATE", tags: ["basic", "mysql"], summary: "테이블 구조 변경과 삭제 계열 명령의 차이를 배웁니다.", focus: "구조 변경과 위험 명령 구분", why: "운영 DB에서 구조 변경은 신중해야 합니다. DROP/TRUNCATE는 데이터 손실을 일으킬 수 있습니다.", exampleSql: "ALTER TABLE customers ADD COLUMN last_login_at DATETIME;" },
+  { no: 38, id: "sql38_normalization_intro", part: "SQL Part 10. 정규화와 모델링", title: "정규화가 필요한 이유", tags: ["basic", "mysql"], summary: "중복 데이터가 왜 문제인지 주문 예제로 배웁니다.", focus: "중복 제거와 변경 이상 방지", why: "고객 이메일이 여러 주문 행에 복사되어 있으면 이메일 변경 때 일부만 바뀌어 데이터가 꼬입니다.", exampleSql: "SELECT customer_id, COUNT(*) FROM orders GROUP BY customer_id;" },
+  { no: 39, id: "sql39_1nf", part: "SQL Part 10. 정규화와 모델링", title: "1정규형", tags: ["basic", "mysql"], summary: "한 칸에 여러 값을 넣지 않고 원자값으로 나누는 1정규형을 배웁니다.", focus: "반복 그룹 제거", why: "한 컬럼에 'Java,SQL,Vue'처럼 여러 값을 넣으면 검색과 집계가 어려워집니다.", exampleSql: "SELECT customer_id, phone FROM customer_phones;" },
+  { no: 40, id: "sql40_2nf_3nf", part: "SQL Part 10. 정규화와 모델링", title: "2정규형과 3정규형", tags: ["basic", "mysql"], summary: "부분 종속과 이행 종속을 제거하는 개념을 쉽게 풀어봅니다.", focus: "컬럼이 진짜 주인 테이블에 있는지 확인하기", why: "상품명은 주문상세가 아니라 상품 테이블의 책임입니다. 책임이 섞이면 변경 이상이 생깁니다.", exampleSql: "SELECT oi.order_id, p.product_name FROM order_items oi JOIN products p ON oi.product_id = p.product_id;" },
+  { no: 41, id: "sql41_denormalization", part: "SQL Part 10. 정규화와 모델링", title: "반정규화와 실무 균형", tags: ["advanced", "mysql"], summary: "성능과 편의를 위해 의도적으로 중복을 둘 때의 기준을 배웁니다.", focus: "정규화 원칙과 조회 성능의 균형", why: "모든 중복이 나쁜 것은 아니지만, 중복은 반드시 동기화 책임을 함께 가져옵니다.", exampleSql: "SELECT order_id, total_amount FROM orders ORDER BY order_date DESC LIMIT 20;" },
+  { no: 42, id: "sql42_erd", part: "SQL Part 10. 정규화와 모델링", title: "ERD 읽고 그리기", tags: ["basic", "mysql"], summary: "엔티티, 관계, 카디널리티를 그림으로 표현합니다.", focus: "테이블 관계 시각화", why: "ERD를 읽을 수 있으면 새 프로젝트의 데이터 구조를 빠르게 이해할 수 있습니다.", exampleSql: "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE();" },
+  { no: 43, id: "sql43_index_intro", part: "SQL Part 11. 인덱스와 성능", title: "인덱스가 필요한 이유", tags: ["basic", "mysql"], summary: "인덱스를 책의 목차 비유로 이해합니다.", focus: "전체 스캔을 줄이는 구조", why: "데이터가 많아질수록 WHERE 조건 검색은 느려집니다. 인덱스는 찾는 위치를 빠르게 좁힙니다.", exampleSql: "CREATE INDEX idx_orders_customer_id ON orders(customer_id);" },
+  { no: 44, id: "sql44_btree_index", part: "SQL Part 11. 인덱스와 성능", title: "B-Tree 인덱스와 선택도", tags: ["advanced", "mysql"], summary: "MySQL 기본 인덱스 구조와 어떤 컬럼에 인덱스를 둘지 배웁니다.", focus: "선택도 높은 컬럼", why: "성별처럼 값 종류가 적은 컬럼보다 고객 id처럼 값이 잘 나뉘는 컬럼이 인덱스 효과가 큽니다.", exampleSql: "CREATE INDEX idx_products_price ON products(price);" },
+  { no: 45, id: "sql45_composite_index", part: "SQL Part 11. 인덱스와 성능", title: "복합 인덱스와 왼쪽 prefix", tags: ["advanced", "mysql"], summary: "여러 컬럼으로 만든 인덱스의 순서가 왜 중요한지 배웁니다.", focus: "인덱스 컬럼 순서", why: "복합 인덱스는 전화번호부가 성, 이름 순서로 정렬된 것과 같아서 앞 컬럼부터 조건에 사용해야 효과가 좋습니다.", exampleSql: "CREATE INDEX idx_orders_customer_date ON orders(customer_id, order_date);" },
+  { no: 46, id: "sql46_covering_index", part: "SQL Part 11. 인덱스와 성능", title: "커버링 인덱스", tags: ["advanced", "mysql"], summary: "인덱스만 읽고 쿼리를 끝내는 커버링 인덱스를 배웁니다.", focus: "조회 컬럼까지 포함된 인덱스", why: "테이블 본문을 읽지 않고 인덱스만으로 결과를 만들면 더 빠를 수 있습니다.", exampleSql: "CREATE INDEX idx_orders_status_date_amount ON orders(status, order_date, total_amount);" },
+  { no: 47, id: "sql47_explain", part: "SQL Part 11. 인덱스와 성능", title: "EXPLAIN 실행 계획", tags: ["advanced", "mysql"], summary: "DB가 쿼리를 어떻게 실행할지 미리 보는 EXPLAIN을 배웁니다.", focus: "type, key, rows 읽기", why: "쿼리가 느릴 때 감으로 인덱스를 만들지 않고 실행 계획을 보고 판단해야 합니다.", exampleSql: "EXPLAIN SELECT * FROM orders WHERE customer_id = 1 ORDER BY order_date DESC;" },
+  { no: 48, id: "sql48_slow_query", part: "SQL Part 11. 인덱스와 성능", title: "느린 쿼리 개선 순서", tags: ["advanced", "mysql"], summary: "느린 SQL을 발견했을 때 확인할 순서를 정리합니다.", focus: "측정 후 개선", why: "성능 개선은 추측이 아니라 측정입니다. 실행 계획, 데이터 분포, 인덱스를 함께 봐야 합니다.", exampleSql: "SELECT customer_id, COUNT(*) FROM orders WHERE order_date >= '2026-01-01' GROUP BY customer_id;" },
+  { no: 49, id: "sql49_transaction_intro", part: "SQL Part 12. 트랜잭션과 동시성", title: "트랜잭션과 ACID", tags: ["basic", "mysql"], summary: "COMMIT, ROLLBACK과 ACID를 은행 송금 예제로 이해합니다.", focus: "모두 성공하거나 모두 실패하기", why: "주문 저장은 됐는데 결제 저장이 실패하면 데이터가 깨집니다. 트랜잭션은 이런 중간 실패를 다룹니다.", exampleSql: "START TRANSACTION; UPDATE products SET stock = stock - 1 WHERE product_id = 1; COMMIT;" },
+  { no: 50, id: "sql50_isolation", part: "SQL Part 12. 트랜잭션과 동시성", title: "격리 수준", tags: ["advanced", "mysql"], summary: "READ COMMITTED, REPEATABLE READ 같은 격리 수준의 의미를 배웁니다.", focus: "동시에 읽고 쓸 때 보이는 데이터", why: "동시 요청이 많은 서비스에서는 트랜잭션끼리 서로 어떤 영향을 주는지 알아야 합니다.", exampleSql: "SELECT @@transaction_isolation;" },
+  { no: 51, id: "sql51_lock_deadlock", part: "SQL Part 12. 트랜잭션과 동시성", title: "Lock과 Deadlock", tags: ["advanced", "mysql"], summary: "데이터 변경 시 잠금이 생기는 이유와 교착상태를 이해합니다.", focus: "동시 수정 보호", why: "같은 재고를 동시에 줄이면 잘못된 값이 될 수 있습니다. Lock은 이를 막지만 잘못 쓰면 서로 기다리는 문제가 생깁니다.", exampleSql: "SELECT * FROM products WHERE product_id = 1 FOR UPDATE;" },
+  { no: 52, id: "sql52_view", part: "SQL Part 13. 고급 SQL", title: "VIEW", tags: ["advanced", "mysql"], summary: "자주 쓰는 SELECT에 이름을 붙이는 VIEW를 배웁니다.", focus: "조회 로직 재사용", why: "복잡한 JOIN을 매번 쓰기보다 View로 감싸면 읽기 쉬운 조회 인터페이스를 만들 수 있습니다.", exampleSql: "CREATE VIEW customer_order_summary AS SELECT customer_id, COUNT(*) AS order_count FROM orders GROUP BY customer_id;" },
+  { no: 53, id: "sql53_window_function", part: "SQL Part 13. 고급 SQL", title: "윈도우 함수", tags: ["advanced", "mysql"], summary: "ROW_NUMBER, RANK, SUM OVER로 행을 유지한 채 분석합니다.", focus: "행별 분석 지표", why: "그룹으로 줄이지 않고 각 행 옆에 순위나 누적합을 붙이고 싶을 때 필요합니다.", exampleSql: "SELECT order_id, customer_id, total_amount, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date DESC) AS rn FROM orders;" },
+  { no: 54, id: "sql54_procedure_function", part: "SQL Part 13. 고급 SQL", title: "Stored Procedure와 Function", tags: ["advanced", "mysql"], summary: "DB 안에 로직을 저장하는 프로시저와 함수를 배웁니다.", focus: "DB 내부 로직", why: "반복 DB 작업을 서버 밖이 아니라 DB 안에 둘 수도 있지만, 애플리케이션 로직과 책임 분리를 신중히 봐야 합니다.", exampleSql: "SELECT COUNT(*) AS order_count FROM orders;" },
+  { no: 55, id: "sql55_trigger", part: "SQL Part 13. 고급 SQL", title: "Trigger", tags: ["advanced", "mysql"], summary: "데이터 변경에 반응해 자동 실행되는 Trigger의 장단점을 배웁니다.", focus: "자동 후속 작업", why: "자동 감사 로그에는 유용할 수 있지만 숨어 있는 로직이 되어 디버깅을 어렵게 만들 수 있습니다.", exampleSql: "SELECT 'trigger should be used carefully' AS note;" },
+  { no: 56, id: "sql56_security_user", part: "SQL Part 14. 운영과 보안", title: "계정과 권한", tags: ["advanced", "mysql"], summary: "DB 사용자와 권한을 최소 권한 원칙으로 관리합니다.", focus: "접근 제어", why: "애플리케이션 계정이 모든 권한을 가지면 실수나 침해 시 피해가 커집니다.", exampleSql: "SELECT CURRENT_USER();" },
+  { no: 57, id: "sql57_backup_restore", part: "SQL Part 14. 운영과 보안", title: "백업과 복구", tags: ["advanced", "mysql"], summary: "데이터를 지키기 위한 백업과 복구 훈련의 중요성을 배웁니다.", focus: "복구 가능한 운영", why: "백업은 있는 것보다 복구해본 경험이 중요합니다. 복구가 안 되는 백업은 백업이 아닙니다.", exampleSql: "SELECT 'backup and restore drill' AS checklist;" },
+  { no: 58, id: "sql58_mysql_innodb", part: "SQL Part 15. MySQL 심화", title: "InnoDB와 스토리지 엔진", tags: ["advanced", "mysql"], summary: "MySQL의 대표 스토리지 엔진 InnoDB의 역할을 이해합니다.", focus: "트랜잭션, 인덱스, 잠금의 기반", why: "MySQL 성능과 동시성 문제를 이해하려면 InnoDB가 데이터를 어떻게 관리하는지 큰 그림이 필요합니다.", exampleSql: "SHOW TABLE STATUS;" },
+  { no: 59, id: "sql59_mysql_replication", part: "SQL Part 15. MySQL 심화", title: "복제와 읽기 분산", tags: ["advanced", "mysql"], summary: "Primary와 Replica로 읽기 부하를 나누는 기본 개념을 배웁니다.", focus: "원본과 복제본", why: "트래픽이 늘면 모든 조회를 한 DB가 처리하기 어렵습니다. 복제는 읽기 확장과 장애 대응의 기반입니다.", exampleSql: "SELECT 'primary replica concept' AS replication;" },
+  { no: 60, id: "sql60_mysql_partition", part: "SQL Part 15. MySQL 심화", title: "파티셔닝", tags: ["advanced", "mysql"], summary: "큰 테이블을 기준에 따라 나누는 파티셔닝의 개념을 배웁니다.", focus: "대용량 테이블 관리", why: "오래된 로그나 주문 데이터를 날짜별로 관리하면 보관과 삭제가 쉬워질 수 있습니다.", exampleSql: "SELECT 'partition by date range' AS idea;" },
+  { no: 61, id: "sql61_pg_intro", part: "SQL Part 16. PostgreSQL 심화", title: "PostgreSQL을 배우는 이유", tags: ["postgres", "advanced"], summary: "MySQL 이후 PostgreSQL로 확장할 때의 장점을 이해합니다.", focus: "표준 SQL, 확장성, 풍부한 타입", why: "PostgreSQL은 JSONB, 배열, 윈도우 함수, 확장 기능 등 복잡한 데이터 처리와 분석에 강합니다.", exampleSql: "SELECT version();" },
+  { no: 62, id: "sql62_pg_types", part: "SQL Part 16. PostgreSQL 심화", title: "JSONB, ARRAY, UUID 타입", tags: ["postgres", "advanced"], summary: "PostgreSQL의 풍부한 타입 시스템을 배웁니다.", focus: "관계형 안에서 유연한 타입 사용", why: "모든 유연한 데이터를 NoSQL로 빼기 전에 PostgreSQL 타입으로 해결할 수 있는 경우가 있습니다.", exampleSql: "SELECT '{\"level\":\"vip\"}'::jsonb AS profile;" },
+  { no: 63, id: "sql63_pg_distinct_lateral", part: "SQL Part 16. PostgreSQL 심화", title: "DISTINCT ON과 LATERAL", tags: ["postgres", "advanced"], summary: "PostgreSQL 특화 고급 조회 문법을 맛봅니다.", focus: "그룹별 최신 행과 행별 하위 쿼리", why: "그룹별 최신 주문처럼 실무에서 자주 나오는 문제를 간결하게 풀 수 있습니다.", exampleSql: "SELECT DISTINCT ON (customer_id) customer_id, order_id, order_date FROM orders ORDER BY customer_id, order_date DESC;" },
+  { no: 64, id: "sql64_pg_index", part: "SQL Part 16. PostgreSQL 심화", title: "GIN, GiST, BRIN 인덱스", tags: ["postgres", "advanced"], summary: "PostgreSQL의 다양한 인덱스 종류를 목적별로 구분합니다.", focus: "데이터 모양에 맞는 인덱스", why: "JSONB 검색, 범위 검색, 대용량 순차 데이터는 B-Tree 외 다른 인덱스가 어울릴 수 있습니다.", exampleSql: "CREATE INDEX idx_docs_payload ON docs USING GIN (payload);" },
+  { no: 65, id: "sql65_pg_mvcc_vacuum", part: "SQL Part 16. PostgreSQL 심화", title: "MVCC와 VACUUM", tags: ["postgres", "advanced"], summary: "PostgreSQL의 동시성 처리와 오래된 행 정리 개념을 배웁니다.", focus: "읽기와 쓰기가 서로 덜 막히는 구조", why: "PostgreSQL 운영에서 VACUUM과 통계 관리는 성능 안정성에 중요합니다.", exampleSql: "SELECT 'MVCC keeps old row versions' AS concept;" },
+  { no: 66, id: "sql66_redis_intro", part: "SQL Part 17. Redis", title: "Redis가 필요한 이유", tags: ["redis", "advanced"], summary: "Redis를 캐시, 세션, 카운터로 쓰는 이유를 이해합니다.", focus: "빠른 메모리 저장소", why: "자주 읽는 값을 매번 DB에서 가져오면 느리고 부담이 큽니다. Redis는 빠른 임시 저장소 역할을 합니다.", exampleSql: "SELECT 'Redis is a fast memo pad' AS concept;" },
+  { no: 67, id: "sql67_redis_structures", part: "SQL Part 17. Redis", title: "Redis 자료구조", tags: ["redis", "advanced"], summary: "String, Hash, List, Set, Sorted Set을 상황별로 고릅니다.", focus: "문제에 맞는 자료구조 선택", why: "Redis 실력은 명령어 암기보다 어떤 자료구조를 고를지 판단하는 데서 갈립니다.", exampleSql: "SELECT 'String Hash List Set SortedSet' AS redis_types;" },
+  { no: 68, id: "sql68_redis_cache", part: "SQL Part 17. Redis", title: "캐시 패턴과 TTL", tags: ["redis", "advanced"], summary: "Cache Aside, TTL, 캐시 무효화 개념을 배웁니다.", focus: "빠르지만 오래되면 위험한 값 관리", why: "캐시는 빠르지만 원본 DB와 값이 달라질 수 있습니다. TTL과 무효화 전략이 필요합니다.", exampleSql: "SELECT 'cache aside with ttl' AS pattern;" },
+  { no: 69, id: "sql69_redis_ops", part: "SQL Part 17. Redis", title: "Redis 운영 주의점", tags: ["redis", "advanced"], summary: "메모리, eviction, persistence, cluster의 큰 그림을 봅니다.", focus: "빠른 도구를 안전하게 운영하기", why: "Redis는 빠르지만 메모리 기반이라 용량과 만료 정책을 잘못 잡으면 장애가 날 수 있습니다.", exampleSql: "SELECT 'memory eviction persistence cluster' AS ops;" },
+  { no: 70, id: "sql70_elastic_intro", part: "SQL Part 18. Elasticsearch", title: "Elasticsearch가 필요한 이유", tags: ["elasticsearch", "search", "advanced"], summary: "DB 검색과 검색엔진 검색의 차이를 이해합니다.", focus: "전문 검색과 관련도 점수", why: "LIKE 검색만으로는 형태소, 오타, 관련도 기반 검색을 잘 처리하기 어렵습니다.", exampleSql: "SELECT 'Elasticsearch is a search index' AS concept;" },
+  { no: 71, id: "sql71_elastic_mapping_query", part: "SQL Part 18. Elasticsearch", title: "Index, Mapping, Query DSL", tags: ["elasticsearch", "search", "advanced"], summary: "Elasticsearch의 색인 구조와 검색 요청 기본을 배웁니다.", focus: "문서를 색인하고 검색하기", why: "Elasticsearch는 테이블이 아니라 문서와 색인을 중심으로 동작합니다. DB와 용어부터 다릅니다.", exampleSql: "SELECT 'index mapping query dsl' AS elastic_terms;" },
+  { no: 72, id: "sql72_local_stack_project", part: "SQL Part 19. 종합 실습", title: "MySQL, PostgreSQL, Redis, Elasticsearch 로컬 실습", tags: ["practice", "mysql", "postgres", "redis", "elasticsearch"], summary: "각 저장소를 어떤 역할로 함께 쓰는지 미니 프로젝트 흐름으로 정리합니다.", focus: "원본 DB, 캐시, 검색엔진 역할 분리", why: "실무 백엔드는 한 저장소만 쓰지 않습니다. MySQL/PostgreSQL은 원본, Redis는 캐시, Elasticsearch는 검색을 맡기는 식으로 조합합니다.", exampleSql: "SELECT 'LOCAL_STACK_READY' AS status;" }
+];
+
+const expandedSqlChapters = expandedSqlTopics.map(makeExpandedSqlChapter);
+
+function makeExpandedVueChapter(topic) {
+  const exampleCode = topic.exampleCode || `
+<script setup>
+import { ref } from "vue";
+
+const message = ref("${topic.title}");
+</script>
+
+<template>
+  <p>{{ message }}</p>
+</template>
+  `;
+
+  return {
+    id: topic.id,
+    course: "vue",
+    part: topic.part,
+    title: `${topic.no}. ${topic.title}`,
+    tags: topic.tags,
+    type: "info",
+    summary: topic.summary,
+    goal: topic.goal || `${topic.title}의 역할을 이해하고 작은 Vue 예제로 직접 확인합니다.`,
+    analogy: topic.analogy || "Vue 앱은 레고 블록으로 만든 화면입니다. 작은 컴포넌트를 만들고 조립하면 큰 화면이 됩니다.",
+    studyHint: topic.studyHint || "Vue를 처음 배울 때는 문법을 외우기보다 상태가 바뀌면 화면이 자동으로 바뀐다는 감각을 먼저 잡으세요.",
+    sections: [
+      {
+        title: "왜 배우나요?",
+        body: [
+          p(topic.why),
+          callout("tip", "처음 보는 사람용 비유", topic.analogy || "컴포넌트는 화면 조각이고 props와 emit은 조각끼리 주고받는 택배와 알림입니다.")
+        ]
+      },
+      {
+        title: "핵심 개념을 천천히 풀어보기",
+        body: [
+          ul([
+            `<strong>이번 장의 핵심</strong>: ${topic.focus}`,
+            `<strong>Vue 관점</strong>: 화면은 상태를 보여주는 결과물이고, 상태를 바꾸면 Vue가 화면을 다시 그립니다.`,
+            `<strong>React 비교</strong>: ${topic.react || "React에서도 같은 문제를 풀지만 JSX와 Hook 중심으로 표현합니다. Vue는 template과 Composition API 중심으로 표현합니다."}`
+          ]),
+          p(topic.detail || "예제를 볼 때 script setup에는 상태와 함수가, template에는 화면 구조가 들어간다고 나누어 읽으세요. 이 구분만 잡아도 Vue 파일이 훨씬 덜 복잡하게 보입니다.")
+        ]
+      },
+      {
+        title: "예제 실습 흐름",
+        body: [
+          ol(topic.steps || [
+            "새 Vue 파일이나 App.vue에 예제 코드를 그대로 입력합니다.",
+            "브라우저에서 화면이 표시되는지 확인합니다.",
+            "상태값 하나를 바꾸고 화면 변화를 확인합니다.",
+            "같은 기능을 Todo 또는 쇼핑몰 예제 어디에 쓸 수 있을지 적습니다."
+          ]),
+          p("처음에는 예쁜 UI보다 데이터 흐름이 더 중요합니다. 입력값이 어디에 저장되고, 어떤 함수가 상태를 바꾸고, 화면 어느 부분이 다시 보이는지 표시해보세요.")
+        ]
+      },
+      {
+        title: "흔한 실수와 점검 기준",
+        body: [
+          ul(topic.pitfalls || [
+            "ref 값은 script 안에서 .value로 접근해야 하는 경우가 많습니다.",
+            "v-for에는 안정적인 :key를 붙이세요.",
+            "자식 컴포넌트에서 props를 직접 바꾸지 말고 emit으로 부모에게 알려주세요."
+          ]),
+          callout("warning", "막혔을 때 보는 순서", "1. import가 맞는지, 2. 변수 이름이 template과 script에서 같은지, 3. ref/reactive 사용이 맞는지, 4. 콘솔 오류가 있는지 순서대로 확인하세요.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: topic.exampleTitle || `${topic.title} 최소 예제`,
+        desc: topic.exampleDesc || "먼저 그대로 실행한 뒤 Todo 또는 쇼핑몰 예제로 연결해보세요.",
+        sql: exampleCode
+      }
+    ],
+    drills: topic.drills || [
+      {
+        prompt: `${topic.title}을 Todo 앱이나 쇼핑몰에서 어디에 쓸 수 있을지 적어보세요.`,
+        answer: topic.why
+      },
+      {
+        prompt: "React에서는 이 개념을 어떤 식으로 표현하는지 비교해보세요.",
+        answer: topic.react || "React는 보통 JSX, useState, props, custom hook 같은 방식으로 비슷한 문제를 해결합니다."
+      }
+    ],
+    practiceSteps: [
+      `<strong>목표를 먼저 적습니다.</strong> ${topic.title}을 배우면 어떤 화면 문제를 해결할 수 있는지 한 문장으로 적으세요.`,
+      "<strong>예제를 그대로 실행합니다.</strong> 처음부터 응용하지 말고 화면이 정상적으로 뜨는지 먼저 확인하세요.",
+      "<strong>상태와 화면을 색으로 구분하듯 표시합니다.</strong> script setup의 변수, 함수와 template의 출력 위치를 따로 표시하세요.",
+      "<strong>한 가지만 바꿔봅니다.</strong> 변수명, 문구, 조건, 배열 값 중 하나만 바꾸고 결과를 확인하세요.",
+      "<strong>Todo 또는 쇼핑몰에 연결합니다.</strong> 이 개념이 입력, 목록, 상세, 장바구니, 주문 중 어디에 쓰일지 적으세요."
+    ]
+  };
+}
+
+const expandedVueTopics = [
+  { no: 1, id: "vue01_why_vue", part: "Vue Part 1. 시작과 큰 그림", title: "Vue를 왜 배우는가", tags: ["vue", "frontend", "react"], summary: "Vue가 화면 개발에서 어떤 문제를 해결하는지 큰 그림을 잡습니다.", focus: "상태 중심 화면 개발", why: "직접 DOM을 찾아 바꾸는 방식은 화면이 커질수록 복잡해집니다. Vue는 상태를 바꾸면 화면이 따라 바뀌게 해줍니다.", react: "React도 상태가 바뀌면 화면을 다시 그리지만 JSX 중심이고, Vue는 template 중심입니다." },
+  { no: 2, id: "vue02_environment", part: "Vue Part 1. 시작과 큰 그림", title: "Vite와 개발 환경 세팅", tags: ["vue", "frontend"], summary: "npm create vue, Vite, 개발 서버, 프로젝트 폴더 구조를 배웁니다.", focus: "Vue 프로젝트 시작하기", why: "환경 세팅이 되어야 예제를 직접 실행하며 감각을 만들 수 있습니다.", react: "React도 Vite로 시작할 수 있고 main.jsx에서 앱을 mount합니다." },
+  { no: 3, id: "vue03_file_structure", part: "Vue Part 1. 시작과 큰 그림", title: "Vue 프로젝트 파일 구조", tags: ["vue", "frontend"], summary: "main.js, App.vue, components, assets의 역할을 이해합니다.", focus: "파일별 책임 구분", why: "어디에 코드를 넣어야 하는지 알아야 프로젝트가 커져도 길을 잃지 않습니다.", react: "React에서는 App.jsx, main.jsx, components 폴더가 비슷한 역할을 합니다." },
+  { no: 4, id: "vue04_sfc", part: "Vue Part 1. 시작과 큰 그림", title: "Single File Component 구조", tags: ["vue", "frontend"], summary: "template, script setup, style을 한 파일에서 다루는 SFC 구조를 배웁니다.", focus: "Vue 파일 읽는 법", why: "Vue의 기본 단위는 .vue 파일입니다. 이 구조를 알아야 모든 예제가 읽힙니다.", react: "React 컴포넌트는 보통 JSX와 로직을 하나의 함수 안에서 작성합니다." },
+  { no: 5, id: "vue05_template_interpolation", part: "Vue Part 2. 템플릿과 반응형", title: "보간법과 템플릿 문법", tags: ["vue", "frontend"], summary: "{{ }} 문법으로 상태를 화면에 출력합니다.", focus: "데이터를 화면에 보여주기", why: "사용자 이름, 상품명, 가격처럼 상태값을 화면에 보여주는 것이 프론트엔드의 기본입니다.", react: "React는 JSX 안에서 {value}로 값을 출력합니다." },
+  { no: 6, id: "vue06_ref_reactive", part: "Vue Part 2. 템플릿과 반응형", title: "ref와 reactive", tags: ["vue", "frontend"], summary: "Vue의 반응형 상태를 만드는 ref와 reactive를 배웁니다.", focus: "상태 만들기", why: "상태가 반응형이어야 값이 바뀔 때 화면이 자동으로 갱신됩니다.", react: "React의 useState와 비슷한 역할이지만 사용 문법이 다릅니다." },
+  { no: 7, id: "vue07_v_bind", part: "Vue Part 2. 템플릿과 반응형", title: "v-bind와 동적 속성", tags: ["vue", "frontend"], summary: "HTML 속성을 상태와 연결하는 v-bind를 배웁니다.", focus: "src, href, class 같은 속성 연결", why: "상품 이미지 주소나 버튼 비활성 상태처럼 속성도 데이터에 따라 달라져야 합니다.", react: "React에서는 src={imageUrl}, disabled={isSaving}처럼 JSX 속성에 값을 넣습니다." },
+  { no: 8, id: "vue08_class_style", part: "Vue Part 2. 템플릿과 반응형", title: "동적 class와 style", tags: ["vue", "frontend"], summary: "조건에 따라 CSS 클래스를 바꾸는 방법을 배웁니다.", focus: "상태에 따른 시각 표현", why: "완료된 Todo, 품절 상품, 선택된 탭처럼 상태를 시각적으로 표시해야 합니다.", react: "React에서는 className을 조건식으로 조합합니다." },
+  { no: 9, id: "vue09_v_if_show", part: "Vue Part 2. 템플릿과 반응형", title: "v-if와 v-show", tags: ["vue", "frontend"], summary: "조건에 따라 화면 요소를 보여주거나 숨깁니다.", focus: "조건부 렌더링", why: "로그인 여부, 로딩 상태, 빈 목록 안내처럼 조건부 화면은 모든 앱에 필요합니다.", react: "React에서는 조건부 렌더링을 &&나 삼항 연산자로 처리합니다." },
+  { no: 10, id: "vue10_v_for_key", part: "Vue Part 2. 템플릿과 반응형", title: "v-for와 key", tags: ["vue", "frontend"], summary: "배열 데이터를 목록으로 출력하고 key의 중요성을 배웁니다.", focus: "목록 렌더링", why: "Todo 목록, 상품 목록, 주문 내역은 모두 배열을 화면에 반복 출력하는 문제입니다.", react: "React에서는 array.map과 key prop을 사용합니다." },
+  { no: 11, id: "vue11_event", part: "Vue Part 3. 이벤트와 입력", title: "이벤트 처리와 @click", tags: ["vue", "frontend"], summary: "사용자 클릭을 받아 상태를 바꾸는 이벤트 처리를 배웁니다.", focus: "사용자 행동 처리", why: "버튼 클릭, 항목 삭제, 장바구니 담기처럼 사용자의 행동이 앱을 움직입니다.", react: "React에서는 onClick={handler}를 사용합니다." },
+  { no: 12, id: "vue12_form_vmodel", part: "Vue Part 3. 이벤트와 입력", title: "v-model과 입력 폼", tags: ["vue", "frontend"], summary: "input 값을 상태와 양방향으로 연결합니다.", focus: "폼 입력 상태 관리", why: "Todo 입력, 검색어 입력, 주문자 정보 입력은 모두 폼 상태 관리입니다.", react: "React에서는 value와 onChange를 직접 연결하는 controlled input을 사용합니다." },
+  { no: 13, id: "vue13_form_submit", part: "Vue Part 3. 이벤트와 입력", title: "form submit과 prevent", tags: ["vue", "frontend"], summary: "폼 제출 이벤트를 막고 JavaScript 함수로 처리합니다.", focus: "새로고침 없는 제출", why: "SPA에서는 폼 제출 때 페이지 전체가 새로고침되지 않게 막고 상태만 갱신합니다.", react: "React에서도 event.preventDefault()를 직접 호출합니다." },
+  { no: 14, id: "vue14_todo_add", part: "Vue Part 3. Todo 초급 프로젝트", title: "Todo 추가 기능 만들기", tags: ["vue", "todo", "practice"], summary: "입력값을 받아 Todo 배열에 새 항목을 추가합니다.", focus: "입력 → 검증 → 배열 추가", why: "Todo 추가는 프론트엔드 상태 변경의 가장 좋은 첫 프로젝트입니다.", react: "React에서는 useState 배열에 setTodos([...todos, newTodo]) 형태로 추가합니다." },
+  { no: 15, id: "vue15_todo_toggle_delete", part: "Vue Part 3. Todo 초급 프로젝트", title: "Todo 완료와 삭제", tags: ["vue", "todo", "practice"], summary: "Todo 항목의 완료 상태를 바꾸고 목록에서 제거합니다.", focus: "배열 항목 수정과 삭제", why: "목록 앱의 핵심은 특정 항목을 찾아 수정하거나 삭제하는 것입니다.", react: "React에서는 map으로 수정하고 filter로 삭제하는 패턴을 많이 씁니다." },
+  { no: 16, id: "vue16_computed", part: "Vue Part 4. 계산과 감시", title: "computed", tags: ["vue", "frontend"], summary: "상태에서 파생되는 값을 computed로 계산합니다.", focus: "파생 상태", why: "남은 Todo 개수나 장바구니 총액처럼 원본 상태에서 계산되는 값은 computed가 잘 맞습니다.", react: "React에서는 useMemo가 비슷하지만 Vue computed는 의존성을 더 자연스럽게 추적합니다." },
+  { no: 17, id: "vue17_watch", part: "Vue Part 4. 계산과 감시", title: "watch와 watchEffect", tags: ["vue", "frontend"], summary: "상태 변화에 반응해 부수 효과를 실행합니다.", focus: "상태 변화 감시", why: "검색어가 바뀔 때 API 호출, Todo가 바뀔 때 localStorage 저장 같은 작업에 필요합니다.", react: "React의 useEffect와 비슷한 상황에서 쓰입니다." },
+  { no: 18, id: "vue18_lifecycle", part: "Vue Part 4. 계산과 감시", title: "Lifecycle Hook", tags: ["vue", "frontend"], summary: "컴포넌트가 생성, 표시, 제거되는 시점에 코드를 실행합니다.", focus: "컴포넌트 생애주기", why: "처음 화면이 뜰 때 데이터 불러오기, 제거될 때 타이머 정리 같은 작업이 필요합니다.", react: "React에서는 useEffect의 mount/cleanup 패턴과 연결됩니다." },
+  { no: 19, id: "vue19_local_storage", part: "Vue Part 4. Todo 중급 프로젝트", title: "localStorage로 Todo 저장", tags: ["vue", "todo", "practice"], summary: "브라우저 저장소에 Todo를 저장해 새로고침 후에도 유지합니다.", focus: "간단한 로컬 영속성", why: "상태는 새로고침하면 사라집니다. localStorage로 작은 데이터를 브라우저에 보관할 수 있습니다.", react: "React에서도 useEffect와 localStorage를 함께 사용합니다." },
+  { no: 20, id: "vue20_components_intro", part: "Vue Part 5. 컴포넌트", title: "컴포넌트가 필요한 이유", tags: ["vue", "frontend"], summary: "화면을 작은 조각으로 나누는 컴포넌트 사고를 배웁니다.", focus: "화면 분해", why: "한 파일에 모든 화면을 넣으면 수정이 어려워집니다. 컴포넌트는 책임별로 화면을 나눕니다.", react: "React도 컴포넌트 단위로 화면을 나누는 점은 같습니다." },
+  { no: 21, id: "vue21_props", part: "Vue Part 5. 컴포넌트", title: "Props", tags: ["vue", "frontend"], summary: "부모가 자식 컴포넌트에 데이터를 내려주는 props를 배웁니다.", focus: "부모에서 자식으로 데이터 전달", why: "TodoList가 TodoItem에게 항목 데이터를 내려주는 구조가 필요합니다.", react: "React의 props와 거의 같은 개념입니다." },
+  { no: 22, id: "vue22_emit", part: "Vue Part 5. 컴포넌트", title: "Emit", tags: ["vue", "frontend"], summary: "자식이 부모에게 이벤트를 올리는 emit을 배웁니다.", focus: "자식에서 부모로 알림", why: "TodoItem의 삭제 버튼 클릭을 부모 목록 상태 변경으로 연결해야 합니다.", react: "React에서는 부모가 함수를 props로 내려주고 자식이 호출합니다." },
+  { no: 23, id: "vue23_component_vmodel", part: "Vue Part 5. 컴포넌트", title: "컴포넌트 v-model", tags: ["vue", "frontend"], summary: "커스텀 컴포넌트에 v-model을 적용하는 방법을 배웁니다.", focus: "재사용 입력 컴포넌트", why: "검색창, 수량 선택기 같은 입력 컴포넌트를 재사용하려면 값과 변경 이벤트를 표준화해야 합니다.", react: "React에서는 value와 onChange props를 직접 설계합니다." },
+  { no: 24, id: "vue24_todo_split", part: "Vue Part 5. Todo 중급 프로젝트", title: "Todo 앱 컴포넌트 분리", tags: ["vue", "todo", "practice"], summary: "TodoInput, TodoList, TodoItem으로 앱을 나눕니다.", focus: "컴포넌트 책임 나누기", why: "작은 Todo 앱도 컴포넌트로 나누면 Vue의 데이터 흐름을 연습하기 좋습니다.", react: "React에서도 Input/List/Item 컴포넌트로 나누는 구조가 비슷합니다." },
+  { no: 25, id: "vue25_slots", part: "Vue Part 6. 재사용 UI", title: "Slot", tags: ["vue", "frontend"], summary: "컴포넌트 안의 일부 내용을 부모가 채우는 slot을 배웁니다.", focus: "재사용 레이아웃", why: "버튼, 카드, 모달처럼 겉 구조는 같고 내용만 다른 UI를 만들 때 유용합니다.", react: "React의 children prop과 비슷합니다." },
+  { no: 26, id: "vue26_named_slots", part: "Vue Part 6. 재사용 UI", title: "Named Slot과 Scoped Slot", tags: ["vue", "frontend"], summary: "slot 위치를 여러 개로 나누고 자식 데이터를 부모 slot에 전달합니다.", focus: "유연한 재사용 컴포넌트", why: "테이블, 리스트, 카드처럼 화면 틀은 같고 각 영역 내용이 달라지는 컴포넌트에 필요합니다.", react: "React에서는 render prop이나 children 함수 패턴과 비슷합니다." },
+  { no: 27, id: "vue27_teleport", part: "Vue Part 6. 재사용 UI", title: "Teleport", tags: ["vue", "frontend"], summary: "모달 같은 UI를 DOM의 다른 위치에 렌더링합니다.", focus: "DOM 위치 분리", why: "모달은 컴포넌트 구조상 깊은 곳에서 열려도 실제 DOM은 body 아래에 두는 편이 편합니다.", react: "React의 Portal과 비슷합니다." },
+  { no: 28, id: "vue28_transition", part: "Vue Part 6. 재사용 UI", title: "Transition", tags: ["vue", "frontend"], summary: "요소가 나타나고 사라질 때 애니메이션을 적용합니다.", focus: "상태 변화 시각화", why: "모달, 토스트, 목록 추가/삭제가 자연스럽게 보이면 사용자 경험이 좋아집니다.", react: "React에서는 CSS transition이나 애니메이션 라이브러리를 자주 씁니다." },
+  { no: 29, id: "vue29_composables", part: "Vue Part 7. Composables", title: "Composable이 필요한 이유", tags: ["vue", "frontend"], summary: "반복되는 상태 로직을 use 함수로 분리합니다.", focus: "로직 재사용", why: "여러 컴포넌트에서 같은 Todo 로직이나 API 로딩 로직을 쓰면 composable로 빼는 것이 좋습니다.", react: "React의 Custom Hook과 매우 비슷합니다." },
+  { no: 30, id: "vue30_use_todos", part: "Vue Part 7. Composables", title: "useTodos 만들기", tags: ["vue", "todo", "practice"], summary: "Todo 상태와 함수를 composable로 분리합니다.", focus: "Todo 로직 모듈화", why: "App.vue가 너무 길어지면 상태 로직을 따로 빼서 읽기 쉽게 만들 수 있습니다.", react: "React에서는 useTodos custom hook으로 구현합니다." },
+  { no: 31, id: "vue31_use_fetch", part: "Vue Part 7. Composables", title: "useFetch와 로딩 상태", tags: ["vue", "frontend"], summary: "API 호출, loading, error 상태를 재사용 composable로 만듭니다.", focus: "비동기 상태 재사용", why: "상품 목록, 상품 상세, 주문 내역 모두 로딩/에러/성공 흐름이 반복됩니다.", react: "React에서는 useFetch hook이나 SWR/React Query를 사용합니다." },
+  { no: 32, id: "vue32_router_intro", part: "Vue Part 8. Router와 쇼핑몰", title: "Vue Router가 필요한 이유", tags: ["vue", "router", "shop"], summary: "SPA에서 페이지 이동을 담당하는 Router를 배웁니다.", focus: "URL과 화면 연결", why: "쇼핑몰에는 홈, 상품 목록, 상세, 장바구니, 주문 페이지가 필요합니다.", react: "React에서는 React Router가 같은 역할을 합니다." },
+  { no: 33, id: "vue33_routes_layout", part: "Vue Part 8. Router와 쇼핑몰", title: "routes와 RouterView", tags: ["vue", "router", "shop"], summary: "주소별 컴포넌트 매핑과 RouterView 표시 위치를 배웁니다.", focus: "라우팅 기본 구조", why: "URL이 바뀔 때 어떤 화면 컴포넌트를 보여줄지 정해야 합니다.", react: "React Router의 Routes와 Outlet 구조와 비슷합니다." },
+  { no: 34, id: "vue34_router_link_params", part: "Vue Part 8. Router와 쇼핑몰", title: "RouterLink와 동적 라우트", tags: ["vue", "router", "shop"], summary: "/products/:id 같은 상세 페이지 주소를 다룹니다.", focus: "상세 페이지 이동", why: "상품마다 상세 페이지 주소가 달라져야 쇼핑몰다운 구조가 됩니다.", react: "React Router의 Link와 useParams와 비슷합니다." },
+  { no: 35, id: "vue35_router_guard", part: "Vue Part 8. Router와 쇼핑몰", title: "Navigation Guard", tags: ["vue", "router", "shop"], summary: "로그인 여부나 권한에 따라 페이지 이동을 막거나 돌립니다.", focus: "라우팅 보호", why: "주문 페이지나 마이페이지는 로그인한 사용자만 접근해야 합니다.", react: "React에서는 보호 라우트 컴포넌트로 비슷하게 처리합니다." },
+  { no: 36, id: "vue36_api_mock", part: "Vue Part 9. API와 비동기", title: "Mock 데이터에서 API로 넘어가기", tags: ["vue", "shop"], summary: "처음에는 로컬 배열로 시작하고 이후 API 호출로 교체합니다.", focus: "UI 먼저, 서버 나중", why: "처음부터 서버까지 연결하면 복잡합니다. UI 상태 흐름을 먼저 완성한 뒤 API로 바꾸면 쉽습니다.", react: "React 프로젝트에서도 mock data로 UI를 먼저 만드는 방식을 많이 씁니다." },
+  { no: 37, id: "vue37_fetch_products", part: "Vue Part 9. API와 비동기", title: "상품 목록 API 호출", tags: ["vue", "shop"], summary: "fetch로 상품 목록을 불러오고 loading/error를 처리합니다.", focus: "비동기 데이터 표시", why: "실제 쇼핑몰 상품 데이터는 서버에서 가져옵니다.", react: "React에서는 useEffect 안에서 fetch하거나 React Query를 사용합니다." },
+  { no: 38, id: "vue38_detail_api", part: "Vue Part 9. API와 비동기", title: "상품 상세 API와 라우트 파라미터", tags: ["vue", "shop"], summary: "URL의 id로 상품 상세 데이터를 가져옵니다.", focus: "파라미터 기반 API 호출", why: "상품 상세는 어떤 id를 보고 있는지에 따라 API 주소가 달라집니다.", react: "React에서는 useParams로 id를 읽고 fetch를 호출합니다." },
+  { no: 39, id: "vue39_error_empty_retry", part: "Vue Part 9. API와 비동기", title: "에러, 빈 결과, 재시도 UI", tags: ["vue", "shop"], summary: "API 실패와 데이터 없음 상태를 화면에 친절하게 보여줍니다.", focus: "실패 상태 설계", why: "항상 성공하는 API는 없습니다. 실패와 빈 결과도 화면 설계 대상입니다.", react: "React에서도 loading/error/empty state를 별도로 관리합니다." },
+  { no: 40, id: "vue40_pinia_intro", part: "Vue Part 10. Pinia 상태관리", title: "Pinia가 필요한 이유", tags: ["vue", "pinia", "shop"], summary: "여러 페이지가 공유하는 상태를 전역 store로 관리합니다.", focus: "전역 상태", why: "장바구니는 상품 상세, 헤더, 장바구니 페이지가 함께 써야 하는 상태입니다.", react: "React에서는 Zustand, Redux, Context 등이 비슷한 역할을 합니다." },
+  { no: 41, id: "vue41_cart_store", part: "Vue Part 10. Pinia 상태관리", title: "장바구니 Store 만들기", tags: ["vue", "pinia", "shop"], summary: "cartItems, addToCart, removeFromCart를 Pinia store로 만듭니다.", focus: "장바구니 전역 상태", why: "여러 화면에서 같은 장바구니 데이터를 안정적으로 공유해야 합니다.", react: "Zustand store나 Redux slice와 비슷한 구조입니다." },
+  { no: 42, id: "vue42_pinia_getters_actions", part: "Vue Part 10. Pinia 상태관리", title: "Getters와 Actions", tags: ["vue", "pinia", "shop"], summary: "총 수량, 총 금액 계산과 상태 변경 함수를 store에 둡니다.", focus: "상태 계산과 변경 분리", why: "장바구니 총액은 원본 상태에서 계산되는 값이고, 추가/삭제는 상태 변경 규칙입니다.", react: "Redux selector/action이나 Zustand computed-like selector와 비교할 수 있습니다." },
+  { no: 43, id: "vue43_store_persist", part: "Vue Part 10. Pinia 상태관리", title: "장바구니 유지와 localStorage", tags: ["vue", "pinia", "shop"], summary: "새로고침 후에도 장바구니가 남도록 저장합니다.", focus: "전역 상태 영속화", why: "사용자가 새로고침했다고 장바구니가 사라지면 쇼핑 경험이 나쁩니다.", react: "React 상태관리에서도 persist middleware나 localStorage를 씁니다." },
+  { no: 44, id: "vue44_typescript_intro", part: "Vue Part 11. TypeScript", title: "Vue에서 TypeScript가 필요한 이유", tags: ["vue", "typescript"], summary: "상품, Todo, 주문 데이터의 타입을 명확히 합니다.", focus: "오타와 잘못된 데이터 모양 방지", why: "프로젝트가 커질수록 타입은 문서이자 안전장치가 됩니다.", react: "React도 실무에서는 TypeScript와 함께 쓰는 경우가 많습니다." },
+  { no: 45, id: "vue45_define_props_emits_ts", part: "Vue Part 11. TypeScript", title: "defineProps와 defineEmits 타입", tags: ["vue", "typescript"], summary: "컴포넌트 입출력에 타입을 붙입니다.", focus: "컴포넌트 계약 명확화", why: "부모와 자식이 주고받는 값의 모양을 명확히 하면 실수가 줄어듭니다.", react: "React에서는 Props 타입이나 interface를 정의합니다." },
+  { no: 46, id: "vue46_form_validation", part: "Vue Part 12. 폼과 주문", title: "주문 폼과 검증", tags: ["vue", "shop"], summary: "주문자 이름, 전화번호, 주소 입력과 검증 메시지를 만듭니다.", focus: "사용자 입력 검증", why: "잘못된 주문 정보는 서버로 보내기 전에 화면에서 먼저 알려주는 것이 좋습니다.", react: "React Hook Form 같은 라이브러리와 비슷한 문제를 다룹니다." },
+  { no: 47, id: "vue47_order_flow", part: "Vue Part 12. 폼과 주문", title: "주문 생성 흐름", tags: ["vue", "shop", "practice"], summary: "장바구니에서 주문 확인, 주문 생성, 완료 화면까지 연결합니다.", focus: "쇼핑몰 핵심 사용자 흐름", why: "상품 보기만으로는 쇼핑몰이 완성되지 않습니다. 장바구니와 주문 흐름이 필요합니다.", react: "React에서도 cart state와 checkout route를 연결합니다." },
+  { no: 48, id: "vue48_project_structure", part: "Vue Part 13. 프로젝트 구조와 품질", title: "실무형 폴더 구조", tags: ["vue", "frontend"], summary: "components, views, stores, composables, api 폴더를 역할별로 나눕니다.", focus: "프로젝트 확장성", why: "파일이 많아질수록 폴더 구조가 학습서가 아니라 실제 작업 속도에 영향을 줍니다.", react: "React에서도 features, components, hooks, api 같은 구조를 씁니다." },
+  { no: 49, id: "vue49_testing", part: "Vue Part 13. 프로젝트 구조와 품질", title: "Vue 테스트 입문", tags: ["vue", "frontend"], summary: "컴포넌트 테스트와 사용자 행동 테스트의 큰 그림을 봅니다.", focus: "기능 깨짐 방지", why: "리팩토링할 때 버튼 클릭과 화면 변경이 그대로 동작하는지 확인할 수 있어야 합니다.", react: "React Testing Library와 비슷한 관점으로 테스트합니다." },
+  { no: 50, id: "vue50_performance", part: "Vue Part 13. 프로젝트 구조와 품질", title: "성능 최적화 기본", tags: ["vue", "frontend"], summary: "v-memo, lazy loading, 리스트 렌더링 최적화의 큰 그림을 배웁니다.", focus: "필요할 때만 최적화하기", why: "상품 목록이 많거나 화면이 커지면 렌더링 비용을 의식해야 합니다.", react: "React에서는 memo, useMemo, lazy loading과 비슷한 고민을 합니다." },
+  { no: 51, id: "vue51_deploy", part: "Vue Part 14. 배포와 다음 단계", title: "Vite 빌드와 배포", tags: ["vue", "frontend"], summary: "npm run build 결과물과 정적 배포 흐름을 이해합니다.", focus: "개발 서버와 배포 빌드 차이", why: "로컬에서 보이는 화면을 실제 사용자에게 보여주려면 빌드와 배포가 필요합니다.", react: "React Vite 프로젝트도 dist 폴더를 배포하는 흐름이 비슷합니다." },
+  { no: 52, id: "vue52_final_project", part: "Vue Part 14. 배포와 다음 단계", title: "Todo와 쇼핑몰 최종 리팩토링", tags: ["vue", "todo", "shop", "practice"], summary: "학습한 개념을 Todo 앱과 쇼핑몰 프로젝트에 다시 적용하며 정리합니다.", focus: "학습 개념 종합", why: "개념을 따로 배운 뒤 프로젝트에 다시 연결해야 진짜 실력이 됩니다.", react: "React로 같은 앱을 만든다면 컴포넌트, hook, router, store를 비슷한 역할로 배치합니다." }
+];
+
+const expandedVueChapters = expandedVueTopics.map(makeExpandedVueChapter);
+
+const allChapters = [...expandedSqlChapters, ...expandedVueChapters, ...expandedJavaSpringChapters];
 
 export const curriculum = allChapters.map(chapter => {
   const course = chapter.course || "sql";
