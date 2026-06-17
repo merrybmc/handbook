@@ -27,7 +27,16 @@ const tagLabels = {
   http: "HTTP",
   mvc: "MVC",
   db: "DB",
-  boot: "Boot"
+  boot: "Boot",
+  jsp: "JSP",
+  servlet: "Servlet",
+  tomcat: "Tomcat",
+  php: "PHP",
+  laravel: "Laravel",
+  csharp: "C#",
+  dotnet: ".NET",
+  razor: "Razor",
+  security: "Security"
 };
 
 const esc = value => String(value)
@@ -8237,7 +8246,719 @@ const expandedVueTopics = [
 
 const expandedVueChapters = expandedVueTopics.map(makeExpandedVueChapter);
 
-const allChapters = [...expandedSqlChapters, ...expandedVueChapters, ...expandedJavaSpringChapters];
+const webCourseTopicBlueprints = [
+  ["Part 1. 웹 개발 큰 그림", "웹 개발이란 무엇인가", "브라우저, 서버, 데이터베이스가 나뉘는 이유", "웹 앱은 사용자가 브라우저로 요청을 보내고 서버가 HTML, JSON, 파일을 돌려주는 구조입니다."],
+  ["Part 1. 웹 개발 큰 그림", "HTTP 요청과 응답", "주소, 메서드, 상태 코드, 헤더, 본문", "웹 개발의 모든 기능은 요청을 받고 응답을 만드는 일에서 시작합니다."],
+  ["Part 1. 웹 개발 큰 그림", "정적 페이지와 동적 페이지", "고정 HTML과 서버에서 만든 HTML의 차이", "로그인한 사용자마다 다른 화면을 보여주려면 서버가 데이터를 넣어 화면을 만들어야 합니다."],
+  ["Part 1. 웹 개발 큰 그림", "웹 프로젝트 폴더 구조", "파일을 역할별로 나누는 기준", "파일이 많아질수록 어디에 무엇을 두는지 정하는 힘이 개발 속도를 좌우합니다."],
+  ["Part 1. 웹 개발 큰 그림", "개발 환경과 실행 흐름", "로컬 서버, 포트, 브라우저 확인", "코드가 어떻게 서버에서 실행되고 브라우저에 보이는지 알아야 에러를 찾을 수 있습니다."],
+  ["Part 2. 화면과 폼 기초", "첫 화면 만들기", "서버가 돌려주는 기본 페이지", "첫 화면은 집의 현관입니다. 사용자는 여기서 앱이 살아 있는지 처음 판단합니다."],
+  ["Part 2. 화면과 폼 기초", "HTML 폼 입력 처리", "input, name, submit, 서버 값 읽기", "Todo 추가나 주문자 정보 입력은 모두 폼 값을 서버로 보내는 일입니다."],
+  ["Part 2. 화면과 폼 기초", "GET과 POST 구분", "조회 요청과 변경 요청 나누기", "조회는 GET, 생성과 수정은 POST로 나누면 기능의 의도가 선명해집니다."],
+  ["Part 2. 화면과 폼 기초", "서버 템플릿 문법", "데이터를 HTML에 끼워 넣기", "템플릿은 빈 양식지에 서버 데이터로 칸을 채우는 작업입니다."],
+  ["Part 2. 화면과 폼 기초", "반복 렌더링", "목록 데이터를 화면에 반복 출력", "Todo 목록, 상품 목록, 주문 내역은 모두 배열을 반복해서 그리는 문제입니다."],
+  ["Part 2. 화면과 폼 기초", "조건부 렌더링", "빈 목록, 로그인 여부, 에러 메시지 표시", "데이터가 없을 때와 있을 때 화면이 달라져야 사용자가 길을 잃지 않습니다."],
+  ["Part 2. 화면과 폼 기초", "레이아웃과 공통 UI", "헤더, 푸터, 공통 조각 분리", "반복되는 화면 조각을 분리하면 여러 페이지를 한 번에 관리할 수 있습니다."],
+  ["Part 3. Todo 기초 프로젝트", "Todo 목록 모델 설계", "id, title, completed 필드", "작은 Todo라도 데이터 모양을 먼저 정하면 코드가 훨씬 덜 흔들립니다."],
+  ["Part 3. Todo 기초 프로젝트", "Todo 목록 조회", "저장된 항목을 화면에 표시", "조회는 데이터베이스나 메모리에서 꺼낸 값을 사용자가 읽기 좋게 보여주는 일입니다."],
+  ["Part 3. Todo 기초 프로젝트", "Todo 추가", "폼 입력 검증과 새 항목 생성", "사용자의 입력을 믿지 말고 비어 있는 값인지 먼저 확인해야 합니다."],
+  ["Part 3. Todo 기초 프로젝트", "Todo 완료 처리", "특정 항목 상태 변경", "완료 처리는 목록 중 하나를 정확히 찾아 값을 바꾸는 연습입니다."],
+  ["Part 3. Todo 기초 프로젝트", "Todo 삭제", "id 기준 삭제와 삭제 전 확인", "삭제는 되돌리기 어렵기 때문에 어떤 id를 지우는지 항상 확인해야 합니다."],
+  ["Part 3. Todo 기초 프로젝트", "Todo 검색과 필터", "전체, 진행 중, 완료 목록 나누기", "필터는 전체 데이터 중 지금 필요한 것만 꺼내는 렌즈입니다."],
+  ["Part 3. Todo 기초 프로젝트", "Todo 입력 에러 표시", "검증 실패 메시지와 사용자 안내", "좋은 앱은 실패를 숨기지 않고 사용자가 고칠 수 있게 알려줍니다."],
+  ["Part 3. Todo 기초 프로젝트", "Todo 리팩토링", "화면, 처리, 저장 역할 나누기", "처음에는 한 파일로 만들고, 동작을 확인한 뒤 역할별로 나누면 안전합니다."],
+  ["Part 4. 데이터베이스 연결", "DB가 필요한 이유", "메모리 저장과 영구 저장 차이", "서버를 껐다 켜도 데이터가 남으려면 DB가 필요합니다."],
+  ["Part 4. 데이터베이스 연결", "테이블 설계", "todos, products, orders 테이블", "DB 테이블은 앱의 기억 창고입니다. 칸을 잘 나눠야 나중에 찾기 쉽습니다."],
+  ["Part 4. 데이터베이스 연결", "DB 연결 설정", "연결 문자열, 계정, 비밀번호, 포트", "DB 연결 정보는 서버가 창고 문을 여는 열쇠와 같습니다."],
+  ["Part 4. 데이터베이스 연결", "목록 조회 SQL", "SELECT와 정렬", "화면 목록의 품질은 조회 조건과 정렬 기준에서 결정됩니다."],
+  ["Part 4. 데이터베이스 연결", "생성 SQL", "INSERT와 생성 후 이동", "새 Todo나 새 주문은 서버가 검증한 뒤 DB에 INSERT합니다."],
+  ["Part 4. 데이터베이스 연결", "수정 SQL", "UPDATE와 변경 대상 확인", "수정은 어떤 행을 바꿀지 정확히 지정하는 것이 핵심입니다."],
+  ["Part 4. 데이터베이스 연결", "삭제 SQL", "DELETE와 안전한 조건", "WHERE 없는 삭제는 창고 전체를 비우는 실수로 이어질 수 있습니다."],
+  ["Part 4. 데이터베이스 연결", "트랜잭션 기초", "여러 DB 작업을 하나로 묶기", "주문 생성과 재고 감소는 같이 성공하거나 같이 실패해야 합니다."],
+  ["Part 5. MVC와 구조화", "MVC 패턴 큰 그림", "Model, View, Controller 역할", "MVC는 식당으로 비유하면 Controller는 주문 받는 직원, Model은 주방 재료와 규칙, View는 손님에게 나가는 접시입니다."],
+  ["Part 5. MVC와 구조화", "Controller 역할", "요청을 받고 흐름을 결정", "Controller는 모든 일을 직접 하지 않고 적절한 담당자에게 일을 맡겨야 합니다."],
+  ["Part 5. MVC와 구조화", "Service 역할", "비즈니스 규칙 모으기", "Service는 앱의 규칙을 담는 곳입니다. 화면이 바뀌어도 규칙은 여기 남아야 합니다."],
+  ["Part 5. MVC와 구조화", "Repository 역할", "DB 접근 코드 격리", "Repository는 DB와 대화하는 창구입니다. SQL이나 ORM 코드를 한곳에 모읍니다."],
+  ["Part 5. MVC와 구조화", "DTO와 ViewModel", "화면과 API에 필요한 데이터 모양", "DB 모양 그대로 화면에 보내지 않고 화면에 맞는 포장지를 씌웁니다."],
+  ["Part 5. MVC와 구조화", "예외 처리", "에러 페이지와 실패 응답", "에러 처리는 고장 난 길목에 표지판을 세우는 일입니다."],
+  ["Part 5. MVC와 구조화", "로그 남기기", "문제 추적을 위한 기록", "로그는 나중에 문제를 찾기 위한 블랙박스입니다."],
+  ["Part 6. 인증과 보안", "세션과 쿠키", "로그인 상태를 기억하는 방법", "HTTP는 원래 기억력이 없습니다. 쿠키와 세션은 사용자를 알아보기 위한 출입증입니다."],
+  ["Part 6. 인증과 보안", "회원가입", "비밀번호 저장과 중복 확인", "회원가입은 개인정보를 다루므로 검증과 보안이 중요합니다."],
+  ["Part 6. 인증과 보안", "로그인과 로그아웃", "인증 흐름 구현", "로그인은 사용자를 확인하고, 로그아웃은 출입증을 폐기하는 과정입니다."],
+  ["Part 6. 인증과 보안", "권한 체크", "관리자와 일반 사용자 구분", "모든 사용자가 모든 버튼을 누를 수 있으면 운영 사고가 납니다."],
+  ["Part 6. 인증과 보안", "입력값 보안", "XSS, SQL Injection, CSRF 기초", "사용자 입력은 택배 상자와 같습니다. 열기 전에 위험한 물건이 없는지 확인해야 합니다."],
+  ["Part 7. 쇼핑몰 심화 프로젝트", "상품 목록", "상품 카드, 가격, 재고 표시", "쇼핑몰의 시작은 사용자가 살 수 있는 상품을 보기 좋게 보여주는 것입니다."],
+  ["Part 7. 쇼핑몰 심화 프로젝트", "상품 상세", "id 기반 상세 조회", "상세 화면은 목록에서 고른 하나의 상품을 깊게 보여줍니다."],
+  ["Part 7. 쇼핑몰 심화 프로젝트", "장바구니 담기", "상품 id와 수량 관리", "장바구니는 여러 화면이 공유하는 임시 주문서입니다."],
+  ["Part 7. 쇼핑몰 심화 프로젝트", "장바구니 수량 변경", "수량 증가, 감소, 삭제", "수량 변경은 상품 가격과 총액 계산까지 함께 바꿉니다."],
+  ["Part 7. 쇼핑몰 심화 프로젝트", "주문 생성", "주문, 주문상세, 재고 감소", "주문은 쇼핑몰에서 가장 중요한 트랜잭션 흐름입니다."],
+  ["Part 7. 쇼핑몰 심화 프로젝트", "주문 내역", "사용자별 주문 목록 조회", "사용자는 자신이 무엇을 샀는지 언제든 확인할 수 있어야 합니다."],
+  ["Part 8. 품질과 배포", "테스트 기초", "핵심 기능이 깨지지 않는지 확인", "테스트는 리팩토링할 때 기능이 살아 있는지 확인하는 안전망입니다."],
+  ["Part 8. 품질과 배포", "환경 변수", "비밀번호와 설정 분리", "DB 비밀번호를 코드에 박아두면 열쇠를 문 앞에 붙여둔 것과 같습니다."],
+  ["Part 8. 품질과 배포", "배포 준비", "빌드, 서버 설정, 운영 체크", "내 컴퓨터에서만 도는 앱을 실제 사용자가 접속할 수 있게 만드는 단계입니다."],
+  ["Part 8. 품질과 배포", "최종 리팩토링", "Todo와 쇼핑몰 구조 정리", "마지막에는 돌아가는 코드를 읽기 좋은 코드로 다듬어야 실무 감각이 붙습니다."]
+];
+
+const webCourseConfigs = {
+  jspWeb: {
+    label: "JSP",
+    course: "jspWeb",
+    tags: ["jsp", "servlet", "tomcat", "mvc", "db"],
+    titlePrefix: "JSP 웹 개발",
+    desc: "JSP, Servlet, Tomcat, JDBC로 전통적인 Java 웹 개발 흐름을 배웁니다.",
+    analogy: "JSP는 HTML 종이에 Java 값을 끼워 넣는 방식입니다. Servlet은 요청을 받는 안내 데스크이고, JSP는 사용자가 보는 출력 용지라고 생각하면 쉽습니다.",
+    setup: "JDK 17, Tomcat 10, IntelliJ 또는 Eclipse, MySQL, JDBC Driver를 준비합니다.",
+    minimal: `
+// src/main/java/com/example/web/HomeServlet.java
+@WebServlet("/")
+public class HomeServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setAttribute("message", "JSP 웹 개발 시작");
+        request.getRequestDispatcher("/WEB-INF/views/home.jsp").forward(request, response);
+    }
+}
+
+<!-- /WEB-INF/views/home.jsp -->
+<%@ page contentType="text/html; charset=UTF-8" %>
+<h1>\${message}</h1>
+<a href="/todos">Todo로 이동</a>
+    `,
+    todo: `
+// TodoServlet.java
+@WebServlet("/todos")
+public class TodoServlet extends HttpServlet {
+    private final List<Todo> todos = new CopyOnWriteArrayList<>();
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setAttribute("todos", todos);
+        request.getRequestDispatcher("/WEB-INF/views/todos.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        String title = request.getParameter("title");
+        if (title != null && !title.isBlank()) {
+            todos.add(new Todo(System.currentTimeMillis(), title, false));
+        }
+        response.sendRedirect("/todos");
+    }
+}
+
+public record Todo(long id, String title, boolean completed) {}
+
+<!-- todos.jsp -->
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<form method="post" action="/todos">
+  <input name="title" placeholder="할 일 입력">
+  <button>추가</button>
+</form>
+<ul>
+  <c:forEach var="todo" items="\${todos}">
+    <li>\${todo.title()}</li>
+  </c:forEach>
+</ul>
+    `,
+    repository: `
+public class TodoRepository {
+    private final DataSource dataSource;
+
+    public TodoRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public List<Todo> findAll() throws SQLException {
+        String sql = "select id, title, completed from todos order by id desc";
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<Todo> result = new ArrayList<>();
+            while (rs.next()) {
+                result.add(new Todo(rs.getLong("id"), rs.getString("title"), rs.getBoolean("completed")));
+            }
+            return result;
+        }
+    }
+
+    public void save(String title) throws SQLException {
+        String sql = "insert into todos(title, completed) values(?, false)";
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, title);
+            ps.executeUpdate();
+        }
+    }
+}
+    `,
+    shop: `
+@WebServlet("/products")
+public class ProductServlet extends HttpServlet {
+    private final ProductRepository productRepository = new ProductRepository();
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setAttribute("products", productRepository.findAll());
+        request.getRequestDispatcher("/WEB-INF/views/products.jsp").forward(request, response);
+    }
+}
+
+<!-- products.jsp -->
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<h1>상품 목록</h1>
+<c:forEach var="product" items="\${products}">
+  <article>
+    <h2>\${product.name()}</h2>
+    <p>\${product.price()}원</p>
+    <form method="post" action="/cart/items">
+      <input type="hidden" name="productId" value="\${product.id()}">
+      <button>장바구니 담기</button>
+    </form>
+  </article>
+</c:forEach>
+    `
+  },
+  springMvc: {
+    label: "Spring MVC",
+    course: "springMvc",
+    tags: ["spring", "mvc", "backend", "db"],
+    titlePrefix: "Spring MVC 웹 개발",
+    desc: "Spring MVC의 Controller, Service, Repository, View 흐름으로 서버 렌더링 웹을 만듭니다.",
+    analogy: "Spring MVC는 역할이 나뉜 식당입니다. Controller는 주문 접수, Service는 조리 규칙, Repository는 창고, View는 완성된 접시입니다.",
+    setup: "JDK 17, Gradle, Spring MVC 또는 Spring Boot MVC, Thymeleaf/JSP, MySQL을 준비합니다.",
+    minimal: `
+@Controller
+public class HomeController {
+    @GetMapping("/")
+    public String home(Model model) {
+        model.addAttribute("message", "Spring MVC 웹 개발 시작");
+        return "home";
+    }
+}
+
+<!-- templates/home.html -->
+<h1 th:text="\${message}">메시지</h1>
+<a href="/todos">Todo로 이동</a>
+    `,
+    todo: `
+@Controller
+@RequestMapping("/todos")
+public class TodoController {
+    private final TodoService todoService;
+
+    public TodoController(TodoService todoService) {
+        this.todoService = todoService;
+    }
+
+    @GetMapping
+    public String list(Model model) {
+        model.addAttribute("todos", todoService.findAll());
+        model.addAttribute("form", new TodoCreateRequest(""));
+        return "todos/list";
+    }
+
+    @PostMapping
+    public String create(@Valid @ModelAttribute("form") TodoCreateRequest request,
+                         BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) return "todos/list";
+        todoService.create(request.title());
+        return "redirect:/todos";
+    }
+}
+
+public record TodoCreateRequest(@NotBlank String title) {}
+    `,
+    repository: `
+@Repository
+public class JdbcTodoRepository implements TodoRepository {
+    private final JdbcTemplate jdbcTemplate;
+
+    public JdbcTodoRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public List<Todo> findAll() {
+        return jdbcTemplate.query(
+            "select id, title, completed from todos order by id desc",
+            (rs, rowNum) -> new Todo(rs.getLong("id"), rs.getString("title"), rs.getBoolean("completed"))
+        );
+    }
+
+    public void save(String title) {
+        jdbcTemplate.update("insert into todos(title, completed) values(?, false)", title);
+    }
+}
+    `,
+    shop: `
+@Controller
+@RequestMapping("/products")
+public class ProductController {
+    private final ProductService productService;
+
+    @GetMapping
+    public String products(Model model) {
+        model.addAttribute("products", productService.findAll());
+        return "products/list";
+    }
+
+    @GetMapping("/{id}")
+    public String detail(@PathVariable Long id, Model model) {
+        model.addAttribute("product", productService.findById(id));
+        return "products/detail";
+    }
+}
+
+@Service
+public class CartService {
+    public void add(Long memberId, Long productId, int quantity) {
+        Product product = productRepository.findById(productId);
+        if (product.stock() < quantity) throw new IllegalArgumentException("재고가 부족합니다.");
+        cartRepository.add(memberId, productId, quantity);
+    }
+}
+    `
+  },
+  phpWeb: {
+    label: "PHP",
+    course: "phpWeb",
+    tags: ["php", "backend", "db", "mvc"],
+    titlePrefix: "PHP 웹 개발",
+    desc: "순수 PHP로 요청, 폼, 세션, PDO, MVC 구조를 차근차근 만듭니다.",
+    analogy: "PHP는 요청이 들어올 때마다 서버에서 HTML을 조립해 보내는 조립대입니다. 작은 파일부터 시작해 역할별로 나누면 충분히 탄탄한 웹 앱을 만들 수 있습니다.",
+    setup: "PHP 8, Composer, Apache 또는 PHP 내장 서버, MySQL, PDO를 준비합니다.",
+    minimal: `
+<?php
+// public/index.php
+$message = "PHP 웹 개발 시작";
+?>
+<!doctype html>
+<html lang="ko">
+<body>
+  <h1><?= htmlspecialchars($message) ?></h1>
+  <a href="/todos.php">Todo로 이동</a>
+</body>
+</html>
+    `,
+    todo: `
+<?php
+// todos.php
+session_start();
+$_SESSION['todos'] ??= [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $title = trim($_POST['title'] ?? '');
+    if ($title !== '') {
+        $_SESSION['todos'][] = [
+            'id' => time(),
+            'title' => $title,
+            'completed' => false,
+        ];
+    }
+    header('Location: /todos.php');
+    exit;
+}
+?>
+<form method="post">
+  <input name="title" placeholder="할 일 입력">
+  <button>추가</button>
+</form>
+<ul>
+  <?php foreach ($_SESSION['todos'] as $todo): ?>
+    <li><?= htmlspecialchars($todo['title']) ?></li>
+  <?php endforeach; ?>
+</ul>
+    `,
+    repository: `
+<?php
+final class TodoRepository
+{
+    public function __construct(private PDO $pdo) {}
+
+    public function all(): array
+    {
+        $stmt = $this->pdo->query('select id, title, completed from todos order by id desc');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function create(string $title): void
+    {
+        $stmt = $this->pdo->prepare('insert into todos(title, completed) values(:title, 0)');
+        $stmt->execute(['title' => $title]);
+    }
+}
+
+$pdo = new PDO('mysql:host=localhost;dbname=study;charset=utf8mb4', 'study_user', 'password', [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+]);
+    `,
+    shop: `
+<?php
+// products.php
+$products = $productRepository->all();
+?>
+<h1>상품 목록</h1>
+<?php foreach ($products as $product): ?>
+  <article>
+    <h2><?= htmlspecialchars($product['name']) ?></h2>
+    <p><?= number_format($product['price']) ?>원</p>
+    <form method="post" action="/cart-add.php">
+      <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+      <button>장바구니 담기</button>
+    </form>
+  </article>
+<?php endforeach; ?>
+
+<?php
+// cart-add.php
+session_start();
+$productId = (int)($_POST['product_id'] ?? 0);
+$_SESSION['cart'][$productId] = ($_SESSION['cart'][$productId] ?? 0) + 1;
+header('Location: /cart.php');
+    `
+  },
+  laravelWeb: {
+    label: "Laravel",
+    course: "laravelWeb",
+    tags: ["php", "laravel", "backend", "db"],
+    titlePrefix: "Laravel 웹 개발",
+    desc: "Laravel의 Route, Controller, Blade, Eloquent, Validation으로 PHP 웹 개발을 심화합니다.",
+    analogy: "Laravel은 순수 PHP에서 직접 만들던 도구들을 잘 정리한 공구함입니다. 라우팅, 검증, DB, 로그인 뼈대가 준비되어 있어 기능에 집중할 수 있습니다.",
+    setup: "PHP 8.3, Composer, Laravel Installer, MySQL, Node.js를 준비합니다.",
+    minimal: `
+// routes/web.php
+Route::get('/', function () {
+    return view('home', ['message' => 'Laravel 웹 개발 시작']);
+});
+
+<!-- resources/views/home.blade.php -->
+<h1>{{ $message }}</h1>
+<a href="{{ route('todos.index') }}">Todo로 이동</a>
+    `,
+    todo: `
+// routes/web.php
+Route::resource('todos', TodoController::class)->only(['index', 'store', 'update', 'destroy']);
+
+class TodoController extends Controller
+{
+    public function index()
+    {
+        return view('todos.index', ['todos' => Todo::latest()->get()]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate(['title' => ['required', 'max:100']]);
+        Todo::create(['title' => $validated['title'], 'completed' => false]);
+        return redirect()->route('todos.index');
+    }
+}
+
+// app/Models/Todo.php
+class Todo extends Model
+{
+    protected $fillable = ['title', 'completed'];
+}
+    `,
+    repository: `
+// database/migrations/xxxx_create_todos_table.php
+Schema::create('todos', function (Blueprint $table) {
+    $table->id();
+    $table->string('title', 100);
+    $table->boolean('completed')->default(false);
+    $table->timestamps();
+});
+
+// resources/views/todos/index.blade.php
+<form method="post" action="{{ route('todos.store') }}">
+  @csrf
+  <input name="title" value="{{ old('title') }}" placeholder="할 일 입력">
+  @error('title') <p>{{ $message }}</p> @enderror
+  <button>추가</button>
+</form>
+
+@foreach ($todos as $todo)
+  <p>{{ $todo->title }}</p>
+@endforeach
+    `,
+    shop: `
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.store');
+
+class CartController extends Controller
+{
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'product_id' => ['required', 'exists:products,id'],
+            'quantity' => ['required', 'integer', 'min:1'],
+        ]);
+
+        CartItem::updateOrCreate(
+            ['user_id' => auth()->id(), 'product_id' => $validated['product_id']],
+            ['quantity' => DB::raw('quantity + ' . $validated['quantity'])]
+        );
+
+        return redirect()->route('cart.index');
+    }
+}
+    `
+  },
+  csharpWeb: {
+    label: "C#",
+    course: "csharpWeb",
+    tags: ["csharp", "dotnet", "razor", "mvc", "db"],
+    titlePrefix: "C# 웹 개발",
+    desc: "ASP.NET Core MVC와 Razor, Entity Framework Core로 C# 웹 개발을 배웁니다.",
+    analogy: "ASP.NET Core MVC는 C#으로 웹 요청을 처리하는 잘 정리된 역입니다. Controller가 안내하고, Model이 데이터를 담고, Razor View가 화면을 만듭니다.",
+    setup: ".NET SDK 8 이상, Visual Studio 또는 Rider/VS Code, SQL Server 또는 MySQL, EF Core를 준비합니다.",
+    minimal: `
+// Controllers/HomeController.cs
+public class HomeController : Controller
+{
+    public IActionResult Index()
+    {
+        ViewBag.Message = "C# ASP.NET Core 웹 개발 시작";
+        return View();
+    }
+}
+
+<!-- Views/Home/Index.cshtml -->
+<h1>@ViewBag.Message</h1>
+<a asp-controller="Todos" asp-action="Index">Todo로 이동</a>
+    `,
+    todo: `
+public class Todo
+{
+    public long Id { get; set; }
+    public string Title { get; set; } = "";
+    public bool Completed { get; set; }
+}
+
+public class TodosController : Controller
+{
+    private readonly AppDbContext _db;
+
+    public TodosController(AppDbContext db)
+    {
+        _db = db;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var todos = await _db.Todos.OrderByDescending(t => t.Id).ToListAsync();
+        return View(todos);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(string title)
+    {
+        if (!string.IsNullOrWhiteSpace(title)) {
+            _db.Todos.Add(new Todo { Title = title });
+            await _db.SaveChangesAsync();
+        }
+        return RedirectToAction(nameof(Index));
+    }
+}
+    `,
+    repository: `
+public class AppDbContext : DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
+
+    public DbSet<Todo> Todos => Set<Todo>();
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<Order> Orders => Set<Order>();
+}
+
+// Program.cs
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    `,
+    shop: `
+public class ProductsController : Controller
+{
+    private readonly AppDbContext _db;
+
+    public async Task<IActionResult> Index()
+    {
+        var products = await _db.Products.AsNoTracking().ToListAsync();
+        return View(products);
+    }
+
+    public async Task<IActionResult> Details(long id)
+    {
+        var product = await _db.Products.FindAsync(id);
+        if (product is null) return NotFound();
+        return View(product);
+    }
+}
+
+[HttpPost]
+public async Task<IActionResult> AddToCart(long productId, int quantity = 1)
+{
+    HttpContext.Session.SetInt32($"cart:{productId}", quantity);
+    return RedirectToAction("Index", "Cart");
+}
+    `
+  }
+};
+
+function buildWebCourseExamples(config, topic) {
+  return [
+    {
+      title: `${topic.title} 기본 예제`,
+      desc: `${config.label}에서 이번 장의 핵심 흐름을 가장 작은 코드로 확인합니다. 먼저 그대로 실행하고, 표시 문구 하나만 바꿔 보세요.`,
+      sql: config.minimal
+    },
+    {
+      title: "Todo 기초 실습: 목록, 입력, 추가 흐름",
+      desc: "초보자는 Todo로 요청, 폼, 검증, 목록 렌더링을 익히는 것이 가장 좋습니다. 작은 앱이지만 웹 개발의 기본 뼈대가 모두 들어 있습니다.",
+      sql: config.todo
+    },
+    {
+      title: "DB 연결 실습: 저장소 계층 만들기",
+      desc: "메모리 예제가 동작하면 DB 저장으로 바꿉니다. 서버를 껐다 켜도 데이터가 남는 순간부터 진짜 웹 앱에 가까워집니다.",
+      sql: config.repository
+    },
+    {
+      title: "쇼핑몰 심화 실습: 상품과 장바구니",
+      desc: "중급 이후에는 상품 목록, 상세, 장바구니, 주문 흐름으로 확장합니다. Todo보다 데이터와 화면이 많아 실무 감각을 키우기 좋습니다.",
+      sql: config.shop
+    }
+  ];
+}
+
+function buildWebCourseDrills(config, topic) {
+  return [
+    {
+      prompt: `${config.label}에서 "${topic.title}"이 왜 필요한지 초보자에게 설명하듯 적어보세요.`,
+      answer: topic.why
+    },
+    {
+      prompt: "Todo 예제에서 요청을 받는 코드, 데이터를 저장하는 코드, 화면을 만드는 코드를 각각 찾아보세요.",
+      answer: "요청은 Controller/Servlet/Route, 저장은 Repository/Model/PDO/DbContext, 화면은 JSP/Blade/Razor/HTML 템플릿이 담당합니다."
+    },
+    {
+      prompt: "Todo 기능을 쇼핑몰 기능으로 바꾸면 데이터 이름이 어떻게 달라지는지 적어보세요.",
+      answer: "Todo의 title/completed는 상품의 name/price/stock, 장바구니의 productId/quantity, 주문의 orderItems/status로 확장됩니다."
+    },
+    {
+      prompt: "이번 장에서 발생할 수 있는 대표 에러 2개와 확인 순서를 적어보세요.",
+      answer: "주소가 맞는지, HTTP 메서드가 맞는지, 폼 name이 서버 코드와 같은지, DB 연결 정보와 테이블 이름이 맞는지 순서대로 확인합니다."
+    }
+  ];
+}
+
+function buildWebCoursePracticeSteps(config, topic) {
+  return [
+    `<strong>오늘 배울 기능의 위치를 먼저 잡습니다.</strong> ${config.label} 앱에서 "${topic.title}"이 브라우저, 서버, DB 중 어디에 가까운 일인지 표시하세요.`,
+    `<strong>개발 환경을 확인합니다.</strong> ${config.setup} 실행 주소, 포트, 로그 위치를 먼저 확인하면 에러가 나도 덜 당황합니다.`,
+    "<strong>기본 예제를 그대로 실행합니다.</strong> 처음부터 꾸미거나 구조를 바꾸지 말고 화면에 문구가 나오는지 확인합니다.",
+    "<strong>Todo 실습으로 축소해서 이해합니다.</strong> 입력값이 서버로 들어오고, 검증되고, 목록에 추가되고, 다시 화면에 보이는 흐름을 손으로 따라가세요.",
+    "<strong>DB 저장으로 바꿉니다.</strong> 메모리 배열이나 세션으로 되던 코드를 DB 조회/추가/수정/삭제 코드로 교체합니다.",
+    "<strong>쇼핑몰 예제로 확장합니다.</strong> Todo의 한 줄짜리 데이터가 상품, 장바구니, 주문상세처럼 여러 테이블과 화면으로 커지는 과정을 비교하세요.",
+    "<strong>마지막에 에러를 일부러 내 봅니다.</strong> URL 하나, 폼 name 하나, DB 컬럼 하나를 틀리게 한 뒤 에러 메시지가 어디를 가리키는지 읽어보세요."
+  ];
+}
+
+function makeWebCourseChapter(config, blueprint, index) {
+  const [part, title, focus, why] = blueprint;
+  const no = index + 1;
+  const topic = { part, title, focus, why };
+  const id = `${config.course}_${String(no).padStart(2, "0")}_${title
+    .replace(/[^\w가-힣]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .toLowerCase()}`;
+
+  return {
+    id,
+    course: config.course,
+    part: `${config.titlePrefix} ${part}`,
+    title: `${no}. ${title}`,
+    tags: config.tags,
+    type: "info",
+    summary: `${config.label}로 ${title}을 배우고 Todo 기초 실습과 쇼핑몰 심화 예제로 연결합니다.`,
+    goal: `${focus}을 이해하고 ${config.label} 코드로 직접 구현할 수 있습니다.`,
+    analogy: config.analogy,
+    studyHint: `${config.label}는 문법보다 요청 흐름을 먼저 잡는 것이 중요합니다. 주소로 들어온 요청이 어떤 코드로 이동하고, 어떤 데이터를 만들고, 어떤 화면으로 나가는지 화살표로 그려보세요.`,
+    sections: [
+      {
+        title: "왜 배우나요?",
+        body: [
+          p(why),
+          callout("tip", "초보자용 비유", config.analogy)
+        ]
+      },
+      {
+        title: "핵심 개념을 천천히 풀어보기",
+        body: [
+          ul([
+            `<strong>이번 장 핵심</strong>: ${focus}`,
+            "<strong>요청</strong>: 브라우저가 서버에게 보내는 주문서입니다.",
+            "<strong>처리</strong>: 서버가 입력값을 확인하고 필요한 데이터를 준비하는 단계입니다.",
+            "<strong>응답</strong>: 서버가 HTML 화면이나 이동 명령을 브라우저에 돌려주는 단계입니다."
+          ]),
+          p("처음에는 코드가 길어 보여도 흐름은 거의 같습니다. 사용자가 버튼을 누르면 요청이 서버로 오고, 서버는 값을 읽고, 검증하고, 저장하거나 조회한 뒤, 다시 화면을 보여줍니다. 이 흐름을 Todo에서 익힌 뒤 쇼핑몰로 확장하면 훨씬 덜 어렵습니다.")
+        ]
+      },
+      {
+        title: "Todo에서 쇼핑몰로 확장되는 방식",
+        body: [
+          table(["Todo 앱", "쇼핑몰 앱", "확장 포인트"], [
+            ["Todo 1개", "상품 1개", "id, 이름, 상태에서 가격, 재고, 이미지로 데이터가 늘어납니다."],
+            ["Todo 목록", "상품 목록", "반복 렌더링은 같고 보여줄 정보만 많아집니다."],
+            ["Todo 추가", "장바구니 담기", "폼 입력을 받아 서버 상태를 바꾸는 흐름은 같습니다."],
+            ["Todo 완료", "주문 상태 변경", "특정 id의 상태를 변경한다는 점이 같습니다."],
+            ["Todo 삭제", "장바구니 항목 삭제", "삭제 대상 id를 정확히 전달해야 합니다."]
+          ])
+        ]
+      },
+      {
+        title: "자주 막히는 지점",
+        body: [
+          ul([
+            "브라우저 주소와 서버 라우팅 주소가 다르면 404가 납니다.",
+            "폼의 name과 서버에서 읽는 파라미터 이름이 다르면 값이 비어 있습니다.",
+            "DB 테이블이나 컬럼 이름이 코드와 다르면 저장과 조회가 실패합니다.",
+            "로그인 기능을 붙인 뒤에는 세션, 쿠키, 권한 체크 위치를 따로 확인해야 합니다."
+          ]),
+          callout("warning", "디버깅 순서", "주소, HTTP 메서드, 폼 name, 서버 로그, DB 연결, SQL 또는 ORM 쿼리 순서로 확인하세요. 감으로 고치기보다 요청 흐름을 따라가면 문제를 훨씬 빨리 찾습니다.")
+        ]
+      }
+    ],
+    examples: buildWebCourseExamples(config, topic),
+    drills: buildWebCourseDrills(config, topic),
+    practiceSteps: buildWebCoursePracticeSteps(config, topic),
+    practiceGuide: `${config.label} 학습은 첫 주에 Todo를 끝내고, 이후 같은 흐름을 상품 목록, 장바구니, 주문 생성으로 넓히는 방식이 좋습니다. 매 장마다 예제 코드를 그대로 실행한 뒤 Todo 코드에서 한 부분, 쇼핑몰 코드에서 한 부분을 직접 바꿔보세요.`
+  };
+}
+
+function buildWebCourse(config) {
+  return webCourseTopicBlueprints.map((blueprint, index) => makeWebCourseChapter(config, blueprint, index));
+}
+
+const expandedJspWebChapters = buildWebCourse(webCourseConfigs.jspWeb);
+const expandedSpringMvcChapters = buildWebCourse(webCourseConfigs.springMvc);
+const expandedPhpWebChapters = buildWebCourse(webCourseConfigs.phpWeb);
+const expandedLaravelWebChapters = buildWebCourse(webCourseConfigs.laravelWeb);
+const expandedCsharpWebChapters = buildWebCourse(webCourseConfigs.csharpWeb);
+
+const allChapters = [
+  ...expandedSqlChapters,
+  ...expandedVueChapters,
+  ...expandedJavaSpringChapters,
+  ...expandedJspWebChapters,
+  ...expandedSpringMvcChapters,
+  ...expandedPhpWebChapters,
+  ...expandedLaravelWebChapters,
+  ...expandedCsharpWebChapters
+];
 
 export const curriculum = allChapters.map(chapter => {
   const course = chapter.course || "sql";

@@ -56,6 +56,36 @@ courseMeta.javaSpring = {
   desc: "Java 기초부터 Spring Boot 백엔드까지"
 };
 
+courseMeta.jspWeb = {
+  label: "JSP",
+  icon: "file-code",
+  desc: "JSP, Servlet, Tomcat, JDBC 웹 개발"
+};
+
+courseMeta.springMvc = {
+  label: "Spring MVC",
+  icon: "leaf",
+  desc: "Controller, Service, Repository 기반 서버 렌더링 웹"
+};
+
+courseMeta.phpWeb = {
+  label: "PHP",
+  icon: "braces",
+  desc: "순수 PHP, PDO, 세션, MVC 웹 개발"
+};
+
+courseMeta.laravelWeb = {
+  label: "Laravel",
+  icon: "blocks",
+  desc: "Route, Controller, Blade, Eloquent 웹 개발"
+};
+
+courseMeta.csharpWeb = {
+  label: "C#",
+  icon: "hash",
+  desc: "ASP.NET Core MVC, Razor, EF Core 웹 개발"
+};
+
 function getChapterCourse(chapter) {
   return chapter.course || "sql";
 }

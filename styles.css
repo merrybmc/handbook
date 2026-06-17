@@ -240,7 +240,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  max-width: min(42vw, 520px);
+  max-width: min(58vw, 860px);
   overflow-x: auto;
   padding: 2px;
 }
