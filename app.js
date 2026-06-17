@@ -50,6 +50,12 @@ const courseMeta = {
   }
 };
 
+courseMeta.javaSpring = {
+  label: "Java & Spring",
+  icon: "coffee",
+  desc: "Java 기초부터 Spring Boot 백엔드까지"
+};
+
 function getChapterCourse(chapter) {
   return chapter.course || "sql";
 }

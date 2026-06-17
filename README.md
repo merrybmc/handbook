@@ -6,6 +6,13 @@ SQL과 Vue.js를 처음 배우는 사람을 위한 단계별 학습서입니다.
 
 https://sql-learning-book.vercel.app
 
+## Java & Spring Boot
+
+- Java roadmap flow: intro syntax, OOP, collections/generics, exceptions, concurrency, I/O, lambda and streams
+- Spring Boot roadmap flow: first web app, IoC/DI, HTTP, MVC, validation, DB access, transactions, JPA, Spring Data JPA, AOP, Boot operations
+- Every chapter includes beginner-friendly analogies, code examples, practice steps, and exercises
+- The mini project path starts with a Todo API and expands toward product/member/order APIs
+
 ## 학습 범위
 
 ### SQL

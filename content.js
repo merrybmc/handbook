@@ -18,7 +18,16 @@ const tagLabels = {
   shop: "쇼핑몰",
   router: "Router",
   pinia: "Pinia",
-  typescript: "TypeScript"
+  typescript: "TypeScript",
+  java: "Java",
+  spring: "Spring Boot",
+  backend: "Backend",
+  oop: "OOP",
+  jpa: "JPA",
+  http: "HTTP",
+  mvc: "MVC",
+  db: "DB",
+  boot: "Boot"
 };
 
 const esc = value => String(value)
@@ -4936,9 +4945,1265 @@ const learningGuides = {
   }
 };
 
+const javaSpringChapters = [
+  {
+    id: "js1_roadmap",
+    course: "javaSpring",
+    part: "Java Part 1. 시작 전 큰 그림",
+    title: "1. Java와 Spring Boot를 왜 배우는가",
+    tags: ["java", "spring", "backend"],
+    type: "info",
+    summary: "Java가 백엔드에서 오래 쓰이는 이유와 Spring Boot가 왜 Java 백엔드의 표준처럼 쓰이는지 큰 그림부터 잡습니다.",
+    goal: "Java는 언어, Spring Boot는 서버 애플리케이션을 빠르고 안정적으로 만드는 도구라는 관계를 이해합니다.",
+    analogy: "Java는 요리사의 기본 칼질이고, Spring Boot는 주방 설비가 갖춰진 식당입니다. 칼질을 알아야 재료를 다룰 수 있고, 주방 설비를 알아야 많은 손님에게 안정적으로 음식을 낼 수 있습니다.",
+    studyHint: "처음에는 문법과 프레임워크 이름이 많이 나와서 복잡해 보입니다. 지금은 'Java로 생각을 코드로 표현하고, Spring Boot로 그 코드를 웹 서비스로 연결한다'는 큰 줄기만 잡아도 충분합니다.",
+    sections: [
+      {
+        title: "김영한 로드맵 흐름으로 보는 학습 순서",
+        body: [
+          p("이 학습서는 인프런 김영한 강사의 실전 자바 로드맵과 스프링 완전 정복 로드맵의 순서를 참고해 재구성했습니다. Java 입문, Java 기본, 중급, 고급으로 언어 기본기를 쌓고, 그 다음 Spring 입문, 핵심 원리, HTTP, MVC, DB, 고급 원리, Spring Boot 활용으로 넘어갑니다."),
+          p("노베이스라면 처음부터 Spring Boot 프로젝트를 크게 만들기보다 Java로 변수, 조건문, 반복문, 객체, 컬렉션을 손에 익힌 뒤 Spring으로 넘어가는 편이 훨씬 덜 힘듭니다. Spring은 결국 Java 코드 위에서 움직입니다."),
+          table(["구간", "무엇을 배우나", "왜 필요한가"], [
+            ["Java 입문", "변수, 조건문, 반복문, 메서드", "생각을 코드로 표현하는 기본 문법"],
+            ["Java 기본/OOP", "클래스, 객체, 상속, 다형성", "큰 프로그램을 역할별로 나누는 방법"],
+            ["Java 중급", "예외, 컬렉션, 제네릭", "실무 코드에서 데이터를 안전하게 다루는 방법"],
+            ["Java 고급", "스레드, I/O, 네트워크, 람다, 스트림", "서버 프로그램의 성능과 표현력을 이해하는 기반"],
+            ["Spring Boot", "DI, MVC, DB, JPA, 트랜잭션", "웹 API와 실제 백엔드 서비스를 만드는 방법"]
+          ])
+        ]
+      },
+      {
+        title: "백엔드 개발자가 하는 일",
+        body: [
+          p("백엔드는 사용자가 버튼을 누른 뒤 보이지 않는 곳에서 요청을 받고, 검증하고, 데이터베이스에 저장하고, 결과를 다시 보내는 영역입니다. 예를 들어 쇼핑몰에서 주문 버튼을 누르면 서버는 상품 재고를 확인하고, 주문을 저장하고, 결제 상태를 기록하고, 사용자에게 성공 응답을 보냅니다."),
+          ul([
+            "<strong>Java</strong>: 계산, 조건 판단, 객체 설계처럼 서버 내부 로직을 작성합니다.",
+            "<strong>Spring Boot</strong>: HTTP 요청을 받고, 필요한 객체를 연결하고, DB 접근과 설정을 쉽게 처리합니다.",
+            "<strong>DB/JPA</strong>: 주문, 회원, 상품 같은 데이터를 저장하고 조회합니다.",
+            "<strong>테스트</strong>: 기능이 실제로 원하는 대로 동작하는지 자동으로 확인합니다."
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "서버가 하는 일을 아주 작게 표현하기",
+        desc: "사용자 이름을 받아 환영 문장을 만드는 것도 작은 백엔드 로직입니다.",
+        sql: `
+public class WelcomeService {
+    public String welcome(String name) {
+        return name + "님, 환영합니다!";
+    }
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "Java와 Spring Boot의 관계를 한 문장으로 설명해보세요.",
+        answer: "Java는 프로그램을 작성하는 언어이고, Spring Boot는 Java로 웹 서버와 백엔드 기능을 쉽게 만들게 도와주는 프레임워크입니다."
+      },
+      {
+        prompt: "백엔드가 쇼핑몰 주문 과정에서 해야 할 일을 3개만 적어보세요.",
+        answer: "요청 받기, 주문 데이터 검증하기, DB에 주문 저장하기, 결제 결과 기록하기, 응답 보내기 등이 있습니다."
+      }
+    ]
+  },
+  {
+    id: "js2_environment",
+    course: "javaSpring",
+    part: "Java Part 1. 시작 전 큰 그림",
+    title: "2. 개발 환경 세팅: JDK, IntelliJ, Gradle",
+    tags: ["java", "backend"],
+    type: "info",
+    summary: "Java 코드를 작성하고 실행하기 위한 JDK, IntelliJ IDEA, Gradle의 역할을 초보자 눈높이로 정리합니다.",
+    goal: "Hello World를 실행하고, 프로젝트 폴더 구조가 어떤 의미인지 이해합니다.",
+    analogy: "JDK는 요리 도구 세트, IntelliJ는 작업대, Gradle은 재료 준비와 포장을 자동화하는 매니저입니다. 셋이 함께 있어야 편하게 개발할 수 있습니다.",
+    studyHint: "처음 설치할 때 가장 많이 막히는 부분은 PATH, JDK 버전, 프로젝트 위치입니다. 오류가 나면 코드보다 실행 환경부터 확인하세요.",
+    sections: [
+      {
+        title: "무엇을 설치해야 하나",
+        body: [
+          ul([
+            "<strong>JDK 21 또는 17</strong>: Java 코드를 컴퓨터가 실행할 수 있게 컴파일하고 실행하는 도구입니다.",
+            "<strong>IntelliJ IDEA Community</strong>: 무료로 사용하기 좋은 Java 개발 도구입니다. Spring Boot까지 본격적으로 하면 Ultimate가 편하지만, 처음 Java 학습은 Community로 충분합니다.",
+            "<strong>Gradle</strong>: 직접 설치하지 않아도 프로젝트에 포함된 Gradle Wrapper로 실행할 수 있습니다.",
+            "<strong>Git</strong>: 실습 코드를 저장하고 되돌릴 때 사용합니다."
+          ]),
+          code(`
+java -version
+javac -version
+          `),
+          p("위 명령에서 버전이 출력되면 JDK가 정상 설치된 것입니다. 명령을 찾을 수 없다는 메시지가 나오면 설치가 안 되었거나 환경 변수 PATH가 연결되지 않은 것입니다.")
+        ]
+      },
+      {
+        title: "프로젝트 구조 읽기",
+        body: [
+          table(["위치", "역할"], [
+            ["src/main/java", "실제 애플리케이션 코드가 들어갑니다."],
+            ["src/test/java", "테스트 코드가 들어갑니다."],
+            ["build.gradle", "프로젝트 이름, Java 버전, 라이브러리 의존성을 적습니다."],
+            ["gradlew, gradlew.bat", "프로젝트에 맞는 Gradle을 실행하는 파일입니다."],
+            [".gitignore", "Git에 올리지 않을 파일 목록입니다."]
+          ]),
+          p("처음에는 폴더가 많아 보여도 실제로 자주 만지는 곳은 src/main/java, src/test/java, build.gradle 정도입니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "Hello World",
+        desc: "Java 프로그램의 가장 작은 시작점입니다.",
+        sql: `
+public class HelloJava {
+    public static void main(String[] args) {
+        System.out.println("Hello Java");
+    }
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "JDK와 IntelliJ의 역할 차이는 무엇인가요?",
+        answer: "JDK는 Java 코드를 컴파일하고 실행하는 도구이고, IntelliJ는 코드를 편하게 작성하고 실행하도록 도와주는 개발 환경입니다."
+      },
+      {
+        prompt: "src/main/java와 src/test/java에는 각각 무엇을 넣나요?",
+        answer: "src/main/java에는 실제 기능 코드, src/test/java에는 그 기능을 검증하는 테스트 코드를 넣습니다."
+      }
+    ]
+  },
+  {
+    id: "js3_java_basics",
+    course: "javaSpring",
+    part: "Java Part 2. 문법 기초",
+    title: "3. 변수, 타입, 조건문, 반복문",
+    tags: ["java", "basic"],
+    type: "info",
+    summary: "프로그래밍을 처음 시작하는 사람이 가장 먼저 익혀야 하는 변수, 타입, if, for, while을 다룹니다.",
+    goal: "값을 저장하고, 조건에 따라 다른 코드를 실행하고, 같은 작업을 반복할 수 있습니다.",
+    analogy: "변수는 이름표가 붙은 상자입니다. 조건문은 갈림길이고, 반복문은 같은 작업을 정해진 횟수만큼 해주는 자동 반복 장치입니다.",
+    studyHint: "처음에는 문법을 외우기보다 '이 값이 어디에 저장되고, 어떤 조건에서 어떤 줄이 실행되는가'를 소리 내어 따라가는 것이 좋습니다.",
+    sections: [
+      {
+        title: "변수와 타입",
+        body: [
+          p("변수는 값을 저장하는 이름입니다. Java는 타입을 중요하게 봅니다. 숫자를 담을지, 문자를 담을지, 참/거짓을 담을지 미리 정해야 합니다."),
+          table(["타입", "예시", "언제 쓰나"], [
+            ["int", "10", "정수"],
+            ["long", "10000000000L", "큰 정수"],
+            ["double", "3.14", "소수"],
+            ["boolean", "true", "조건 판단"],
+            ["String", "\"hello\"", "문자열"]
+          ])
+        ]
+      },
+      {
+        title: "조건문과 반복문",
+        body: [
+          p("조건문은 '만약 결제 금액이 5만원 이상이면 무료배송'처럼 상황에 따라 다른 행동을 하게 합니다. 반복문은 상품 목록 전체를 출력하거나, 주문 내역을 하나씩 검사할 때 씁니다."),
+          p("<code>if</code>는 갈림길, <code>for</code>는 횟수가 정해진 반복, <code>while</code>은 조건이 참인 동안 계속하는 반복이라고 생각하면 됩니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "무료 배송 조건",
+        desc: "조건에 따라 다른 문장을 출력합니다.",
+        sql: `
+int price = 60000;
+
+if (price >= 50000) {
+    System.out.println("무료 배송입니다.");
+} else {
+    System.out.println("배송비 3000원이 추가됩니다.");
+}
+        `
+      },
+      {
+        title: "반복문으로 장바구니 금액 합계 구하기",
+        desc: "배열에 담긴 금액을 하나씩 더합니다.",
+        sql: `
+int[] prices = {12000, 30000, 8000};
+int total = 0;
+
+for (int price : prices) {
+    total += price;
+}
+
+System.out.println("총 금액 = " + total);
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "점수가 90점 이상이면 A, 80점 이상이면 B, 아니면 C를 출력하는 코드를 작성해보세요.",
+        answer: `
+int score = 85;
+
+if (score >= 90) {
+    System.out.println("A");
+} else if (score >= 80) {
+    System.out.println("B");
+} else {
+    System.out.println("C");
+}
+        `
+      }
+    ]
+  },
+  {
+    id: "js4_methods_arrays",
+    course: "javaSpring",
+    part: "Java Part 2. 문법 기초",
+    title: "4. 메서드와 배열: 코드를 묶고 데이터를 모으기",
+    tags: ["java", "basic"],
+    type: "info",
+    summary: "반복되는 코드를 메서드로 분리하고, 같은 종류의 값을 배열로 모아 다룹니다.",
+    goal: "메서드의 입력값과 반환값을 이해하고, 배열을 반복문과 함께 사용할 수 있습니다.",
+    analogy: "메서드는 자주 쓰는 일을 버튼 하나로 묶어둔 리모컨 버튼입니다. 배열은 같은 종류의 물건을 번호 순서대로 꽂아둔 서랍장입니다.",
+    studyHint: "메서드를 볼 때는 이름보다 먼저 입력과 출력을 보세요. 무엇을 받아서 무엇을 돌려주는지 알면 코드가 훨씬 덜 무섭습니다.",
+    sections: [
+      {
+        title: "메서드를 쓰는 이유",
+        body: [
+          p("같은 계산을 여러 번 복사해서 쓰면 나중에 수정할 때 모두 찾아 바꿔야 합니다. 메서드로 빼면 한 곳만 고치면 됩니다."),
+          ul([
+            "코드 이름을 붙여 의도를 드러낼 수 있습니다.",
+            "중복을 줄일 수 있습니다.",
+            "작은 단위로 테스트하기 쉬워집니다."
+          ])
+        ]
+      },
+      {
+        title: "배열과 반복문",
+        body: [
+          p("배열은 여러 값을 순서대로 저장합니다. 첫 번째 위치는 0번입니다. 이 0부터 시작하는 규칙 때문에 처음에는 헷갈리지만, 컴퓨터가 순서를 세는 방식이라고 받아들이면 됩니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "할인 금액 계산 메서드",
+        desc: "가격과 할인율을 받아 할인된 가격을 반환합니다.",
+        sql: `
+public static int discount(int price, int rate) {
+    return price - (price * rate / 100);
+}
+
+public static void main(String[] args) {
+    int result = discount(10000, 10);
+    System.out.println(result);
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "두 숫자를 받아 더한 값을 반환하는 add 메서드를 만들어보세요.",
+        answer: `
+public static int add(int a, int b) {
+    return a + b;
+}
+        `
+      }
+    ]
+  },
+  {
+    id: "js5_oop_class",
+    course: "javaSpring",
+    part: "Java Part 3. 객체지향 기본",
+    title: "5. 클래스와 객체: 역할별로 코드 나누기",
+    tags: ["java", "oop"],
+    type: "info",
+    summary: "객체지향의 출발점인 클래스, 객체, 필드, 메서드를 쇼핑몰 예제로 이해합니다.",
+    goal: "클래스는 설계도, 객체는 설계도로 만든 실제 물건이라는 감각을 잡습니다.",
+    analogy: "클래스는 붕어빵 틀이고 객체는 실제 붕어빵입니다. 같은 틀로 만들었지만 각각의 붕어빵은 팥의 양이나 상태가 다를 수 있습니다.",
+    studyHint: "객체지향은 한 번에 이해하려고 하면 어렵습니다. 먼저 '데이터와 기능을 한 덩어리로 묶는다'는 정도로 시작하세요.",
+    sections: [
+      {
+        title: "왜 클래스를 쓰나",
+        body: [
+          p("회원 이름, 이메일, 나이를 따로따로 변수로 들고 다니면 코드가 금방 어지러워집니다. Member 클래스로 묶으면 회원이라는 개념을 코드로 표현할 수 있습니다."),
+          p("객체는 상태와 행동을 함께 가질 수 있습니다. 예를 들어 Order 객체는 주문 금액이라는 상태와 cancel()이라는 행동을 가질 수 있습니다.")
+        ]
+      },
+      {
+        title: "필드와 메서드",
+        body: [
+          table(["구성요소", "뜻", "예시"], [
+            ["필드", "객체가 기억하는 값", "name, price, quantity"],
+            ["메서드", "객체가 할 수 있는 행동", "changeName(), calculateTotal()"],
+            ["생성자", "객체가 처음 만들어질 때 필요한 초기화", "new Member(\"kim\")"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "상품 객체 만들기",
+        desc: "상품 이름과 가격을 하나의 객체로 묶습니다.",
+        sql: `
+public class Product {
+    String name;
+    int price;
+
+    public Product(String name, int price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public void printInfo() {
+        System.out.println(name + " : " + price + "원");
+    }
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "Member 클래스를 만들고 name, email 필드와 printInfo 메서드를 작성해보세요.",
+        answer: `
+public class Member {
+    String name;
+    String email;
+
+    public Member(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    public void printInfo() {
+        System.out.println(name + " / " + email);
+    }
+}
+        `
+      }
+    ]
+  },
+  {
+    id: "js6_oop_design",
+    course: "javaSpring",
+    part: "Java Part 3. 객체지향 기본",
+    title: "6. 캡슐화, 상속, 다형성",
+    tags: ["java", "oop"],
+    type: "info",
+    summary: "객체지향에서 가장 중요한 캡슐화와 다형성을 쉬운 예제로 익힙니다.",
+    goal: "다형성이 Spring의 핵심 원리인 DI와 왜 연결되는지 이해할 준비를 합니다.",
+    analogy: "캡슐화는 리모컨 내부 회로를 숨기고 버튼만 제공하는 것입니다. 다형성은 같은 결제 버튼을 눌러도 카드 결제, 카카오페이 결제처럼 실제 방식이 달라질 수 있는 구조입니다.",
+    studyHint: "상속 자체보다 다형성이 더 중요합니다. 부모 타입으로 자식 구현체를 갈아끼울 수 있다는 점이 Spring을 이해하는 핵심 다리입니다.",
+    sections: [
+      {
+        title: "캡슐화",
+        body: [
+          p("객체의 필드를 모두 public으로 열어두면 아무 곳에서나 값을 망가뜨릴 수 있습니다. 필드는 private으로 숨기고, 필요한 기능만 메서드로 공개하는 습관을 들이면 안전한 코드를 만들 수 있습니다.")
+        ]
+      },
+      {
+        title: "다형성",
+        body: [
+          p("다형성은 역할과 구현을 분리하는 힘입니다. Payment 인터페이스는 '결제한다'는 역할만 말하고, CardPayment와 PointPayment가 실제 결제 방식을 구현합니다."),
+          callout("tip", "Spring으로 이어지는 핵심", "Spring의 DI는 결국 인터페이스 역할에 실제 구현 객체를 넣어주는 구조입니다. 그래서 Java 다형성을 알면 Spring 핵심 원리가 훨씬 잘 보입니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "결제 인터페이스와 구현체",
+        desc: "같은 pay() 호출이 다른 구현으로 동작합니다.",
+        sql: `
+interface Payment {
+    void pay(int amount);
+}
+
+class CardPayment implements Payment {
+    public void pay(int amount) {
+        System.out.println("카드로 " + amount + "원 결제");
+    }
+}
+
+class PointPayment implements Payment {
+    public void pay(int amount) {
+        System.out.println("포인트로 " + amount + "원 결제");
+    }
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "다형성을 쓰면 어떤 장점이 있나요?",
+        answer: "클라이언트 코드는 Payment 같은 역할에만 의존하고, 실제 구현은 CardPayment나 PointPayment로 바꿀 수 있어 변경에 강한 구조를 만들 수 있습니다."
+      }
+    ]
+  },
+  {
+    id: "js7_collections_generics",
+    course: "javaSpring",
+    part: "Java Part 4. 중급 문법",
+    title: "7. 컬렉션과 제네릭: List, Set, Map",
+    tags: ["java", "advanced"],
+    type: "info",
+    summary: "실무에서 매일 쓰는 List, Set, Map과 타입 안정성을 주는 제네릭을 다룹니다.",
+    goal: "목록, 중복 없는 집합, key-value 저장소를 상황에 맞게 고를 수 있습니다.",
+    analogy: "List는 줄 서 있는 대기열, Set은 중복 없는 출입 명단, Map은 사전처럼 key로 value를 찾는 구조입니다.",
+    studyHint: "컬렉션은 외우는 과목이 아니라 상황에 맞는 상자를 고르는 과목입니다. 순서가 중요한지, 중복을 허용하는지, 이름표로 찾아야 하는지를 먼저 보세요.",
+    sections: [
+      {
+        title: "컬렉션 선택 기준",
+        body: [
+          table(["자료구조", "특징", "예시"], [
+            ["List", "순서 있음, 중복 허용", "주문 목록, 댓글 목록"],
+            ["Set", "중복 제거", "좋아요를 누른 회원 id 목록"],
+            ["Map", "key로 value 조회", "상품 id -> 상품 정보"]
+          ])
+        ]
+      },
+      {
+        title: "제네릭",
+        body: [
+          p("<code>List&lt;String&gt;</code>처럼 꺾쇠 안에 타입을 쓰면 이 List에는 String만 담겠다는 뜻입니다. 제네릭을 쓰면 잘못된 타입을 넣는 실수를 컴파일 단계에서 막을 수 있습니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "상품 이름 목록",
+        desc: "ArrayList에 값을 넣고 반복합니다.",
+        sql: `
+List<String> products = new ArrayList<>();
+products.add("Keyboard");
+products.add("Mouse");
+
+for (String product : products) {
+    System.out.println(product);
+}
+        `
+      },
+      {
+        title: "상품 id로 가격 찾기",
+        desc: "Map은 key를 통해 value를 빠르게 찾습니다.",
+        sql: `
+Map<Long, Integer> priceMap = new HashMap<>();
+priceMap.put(1L, 12000);
+priceMap.put(2L, 30000);
+
+System.out.println(priceMap.get(1L));
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "회원 id 중복을 제거하려면 List, Set, Map 중 무엇이 어울리나요?",
+        answer: "Set이 어울립니다. Set은 같은 값을 중복해서 저장하지 않습니다."
+      }
+    ]
+  },
+  {
+    id: "js8_exceptions",
+    course: "javaSpring",
+    part: "Java Part 4. 중급 문법",
+    title: "8. 예외 처리: 실패를 프로그램의 일부로 다루기",
+    tags: ["java", "backend"],
+    type: "info",
+    summary: "try-catch, checked/unchecked exception, 예외 메시지 설계를 배웁니다.",
+    goal: "오류를 무조건 숨기지 않고, 필요한 위치에서 의미 있게 처리하는 감각을 익힙니다.",
+    analogy: "예외 처리는 화재 경보기입니다. 경보를 꺼버리는 것이 목적이 아니라 어디서 문제가 났고 어떻게 대피할지 알려주는 것이 목적입니다.",
+    studyHint: "catch에서 아무것도 하지 않는 코드는 초보자에게 특히 위험합니다. 에러가 사라진 것이 아니라 보이지 않게 숨어버린 것입니다.",
+    sections: [
+      {
+        title: "예외가 필요한 이유",
+        body: [
+          p("파일이 없거나, 숫자로 바꿀 수 없는 문자열이 들어오거나, DB 연결이 끊기는 일은 실제 서비스에서 자주 일어납니다. 예외는 이런 실패 상황을 코드로 표현하는 방법입니다."),
+          p("Spring에서도 예외 처리는 중요합니다. 컨트롤러에서 잘못된 요청을 받았을 때 400 응답을 보내거나, 없는 데이터를 조회했을 때 404 응답을 보내는 구조로 이어집니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "숫자 변환 예외 처리",
+        desc: "문자열을 숫자로 바꾸는 과정에서 실패할 수 있습니다.",
+        sql: `
+try {
+    int value = Integer.parseInt("abc");
+    System.out.println(value);
+} catch (NumberFormatException e) {
+    System.out.println("숫자로 바꿀 수 없는 값입니다.");
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "catch 블록을 비워두면 왜 위험한가요?",
+        answer: "문제가 발생했는데도 아무 기록이나 대응 없이 넘어가므로 나중에 장애 원인을 찾기 어려워집니다."
+      }
+    ]
+  },
+  {
+    id: "js9_threads_io_lambda",
+    course: "javaSpring",
+    part: "Java Part 5. 고급 기본기",
+    title: "9. 스레드, I/O, 람다와 스트림 큰 그림",
+    tags: ["java", "advanced"],
+    type: "info",
+    summary: "Java 고급 로드맵의 핵심인 동시성, 입출력, 람다/스트림을 초보자에게 필요한 수준으로 연결합니다.",
+    goal: "각 기술을 왜 배우는지 알고, Spring 서버와 어떤 관련이 있는지 이해합니다.",
+    analogy: "스레드는 여러 직원이 동시에 일하는 것이고, I/O는 외부와 물건을 주고받는 창구이며, 스트림은 컨베이어 벨트 위 데이터를 차례대로 가공하는 방식입니다.",
+    studyHint: "고급 문법은 처음부터 깊게 파면 지칩니다. 백엔드 입문 단계에서는 '왜 존재하는지'와 '어떤 위험이 있는지'를 먼저 잡고, 나중에 다시 깊게 들어가면 됩니다.",
+    sections: [
+      {
+        title: "스레드와 동시성",
+        body: [
+          p("웹 서버는 여러 사용자의 요청을 동시에 처리해야 합니다. 이때 스레드 개념이 등장합니다. 동시에 실행되는 코드가 같은 값을 함께 바꾸면 예상하지 못한 문제가 생길 수 있는데, 이것이 동시성 문제입니다.")
+        ]
+      },
+      {
+        title: "I/O와 네트워크",
+        body: [
+          p("파일을 읽고 쓰거나, 다른 서버와 통신하거나, 사용자의 요청을 받는 일은 모두 I/O와 연결됩니다. Spring Boot에서는 많은 부분을 감춰주지만, 내부적으로는 이런 입출력 위에서 동작합니다.")
+        ]
+      },
+      {
+        title: "람다와 스트림",
+        body: [
+          p("람다는 함수를 값처럼 전달하는 문법이고, 스트림은 컬렉션 데이터를 필터링하고 변환하고 집계하는 도구입니다. Java 백엔드 코드에서 목록 처리 로직을 읽기 좋게 만드는 데 자주 쓰입니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "스트림으로 비싼 상품만 고르기",
+        desc: "List에서 조건에 맞는 데이터만 걸러냅니다.",
+        sql: `
+List<Integer> prices = List.of(10000, 50000, 9000, 120000);
+
+List<Integer> expensive = prices.stream()
+        .filter(price -> price >= 50000)
+        .toList();
+
+System.out.println(expensive);
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "여러 요청이 동시에 같은 재고 값을 줄이면 어떤 문제가 생길 수 있나요?",
+        answer: "동시에 같은 값을 읽고 수정하면서 재고가 잘못 계산될 수 있습니다. 이런 문제를 동시성 문제라고 합니다."
+      }
+    ]
+  },
+  {
+    id: "js10_spring_intro",
+    course: "javaSpring",
+    part: "Spring Part 1. Spring Boot 입문",
+    title: "10. Spring Boot 첫 프로젝트와 웹 동작 방식",
+    tags: ["spring", "boot", "backend"],
+    type: "info",
+    summary: "Spring Initializr로 프로젝트를 만들고, Controller가 HTTP 요청을 받는 흐름을 배웁니다.",
+    goal: "브라우저 요청이 Controller 메서드까지 도착하고 문자열/JSON으로 응답되는 과정을 이해합니다.",
+    analogy: "Spring Boot 애플리케이션은 식당이고 Controller는 주문을 받는 카운터입니다. 사용자가 URL로 주문서를 보내면 Controller가 어떤 응답을 줄지 결정합니다.",
+    studyHint: "처음 Spring을 볼 때 어노테이션이 낯섭니다. 어노테이션은 Spring에게 '이 클래스는 이런 역할이야'라고 붙이는 이름표라고 생각하세요.",
+    sections: [
+      {
+        title: "프로젝트 만들기",
+        body: [
+          p("Spring Initializr에서 Gradle, Java, Spring Boot, Java 21 또는 17을 선택하고 Web 의존성을 추가합니다. 압축을 풀고 IntelliJ에서 열면 기본 프로젝트가 준비됩니다."),
+          code(`
+./gradlew bootRun
+
+# Windows
+gradlew.bat bootRun
+          `),
+          p("서버가 실행되면 브라우저에서 <code>http://localhost:8080</code>으로 접근할 수 있습니다.")
+        ]
+      },
+      {
+        title: "Controller와 응답",
+        body: [
+          p("<code>@Controller</code>나 <code>@RestController</code>는 이 클래스가 웹 요청을 처리한다는 표시입니다. <code>@GetMapping</code>은 GET 요청의 주소를 메서드와 연결합니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "첫 REST Controller",
+        desc: "/hello로 요청하면 문자열을 반환합니다.",
+        sql: `
+@RestController
+public class HelloController {
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "hello spring";
+    }
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "@GetMapping(\"/hello\")의 의미는 무엇인가요?",
+        answer: "GET 방식으로 /hello 주소에 요청이 들어오면 해당 메서드를 실행하라는 뜻입니다."
+      }
+    ]
+  },
+  {
+    id: "js11_spring_core",
+    course: "javaSpring",
+    part: "Spring Part 2. 핵심 원리",
+    title: "11. IoC, DI, Spring Bean",
+    tags: ["spring", "oop", "backend"],
+    type: "info",
+    summary: "Spring 핵심 원리의 중심인 제어의 역전, 의존관계 주입, Bean을 객체지향 관점에서 이해합니다.",
+    goal: "new로 직접 만들던 객체를 Spring 컨테이너가 대신 만들고 연결해주는 이유를 이해합니다.",
+    analogy: "DI는 조립 공장과 같습니다. 자동차 부품이 서로 직접 만들지 않고, 공장이 필요한 부품을 조립해 완성차로 만들어 줍니다.",
+    studyHint: "Spring은 마법이 아니라 객체 생성과 연결을 대신 해주는 도구입니다. 객체지향의 역할과 구현 분리를 편하게 적용하도록 도와준다고 보면 됩니다.",
+    sections: [
+      {
+        title: "직접 생성의 문제",
+        body: [
+          p("서비스 코드 안에서 <code>new MemoryMemberRepository()</code>를 직접 호출하면 구현체를 바꾸기 어렵습니다. 나중에 DBMemberRepository로 바꾸려면 여러 코드를 수정해야 합니다."),
+          p("Spring은 객체를 Bean으로 등록하고 필요한 곳에 주입합니다. 덕분에 코드는 인터페이스에 의존하고 실제 구현은 설정으로 바꿀 수 있습니다.")
+        ]
+      },
+      {
+        title: "Bean 등록 방식",
+        body: [
+          ul([
+            "<code>@Component</code>: 클래스를 자동으로 Bean 등록합니다.",
+            "<code>@Service</code>: 비즈니스 로직을 담당하는 Bean이라는 의미를 더합니다.",
+            "<code>@Repository</code>: DB 접근 Bean이라는 의미를 더하고 예외 변환에도 관여합니다.",
+            "<code>@Configuration</code> + <code>@Bean</code>: 직접 생성 로직을 작성해 Bean으로 등록합니다."
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "생성자 주입",
+        desc: "필요한 객체를 생성자로 받으면 테스트와 변경에 강해집니다.",
+        sql: `
+@Service
+public class OrderService {
+    private final MemberRepository memberRepository;
+
+    public OrderService(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
+    }
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "생성자 주입을 권장하는 이유를 적어보세요.",
+        answer: "필수 의존성을 누락하기 어렵고, 객체 생성 후 의존성이 바뀌지 않으며, 테스트에서 가짜 객체를 넣기 쉽습니다."
+      }
+    ]
+  },
+  {
+    id: "js12_http",
+    course: "javaSpring",
+    part: "Spring Part 3. HTTP와 웹 기본",
+    title: "12. HTTP 기본: 요청, 응답, 메서드, 상태코드",
+    tags: ["http", "backend", "spring"],
+    type: "info",
+    summary: "Spring MVC를 배우기 전에 꼭 필요한 HTTP 요청/응답 구조를 정리합니다.",
+    goal: "GET, POST, PUT, PATCH, DELETE와 2xx/3xx/4xx/5xx 상태코드의 의미를 구분합니다.",
+    analogy: "HTTP는 웹에서 쓰는 택배 송장 규칙입니다. 요청은 주문서, 응답은 배송 결과, 상태코드는 배송 상태 안내 문구입니다.",
+    studyHint: "Spring 코드를 잘 짜도 HTTP를 모르면 API 설계가 흔들립니다. URL, 메서드, 상태코드만 제대로 잡아도 백엔드 감각이 크게 좋아집니다.",
+    sections: [
+      {
+        title: "HTTP 메서드",
+        body: [
+          table(["메서드", "의미", "예시"], [
+            ["GET", "조회", "상품 목록 조회"],
+            ["POST", "등록 또는 처리 요청", "주문 생성"],
+            ["PUT", "전체 수정 또는 대체", "회원 정보 전체 수정"],
+            ["PATCH", "부분 수정", "배송지 일부 수정"],
+            ["DELETE", "삭제", "장바구니 상품 삭제"]
+          ])
+        ]
+      },
+      {
+        title: "상태코드",
+        body: [
+          table(["범위", "뜻", "예시"], [
+            ["2xx", "성공", "200 OK, 201 Created"],
+            ["3xx", "리다이렉션", "302 Found"],
+            ["4xx", "클라이언트 요청 오류", "400 Bad Request, 404 Not Found"],
+            ["5xx", "서버 오류", "500 Internal Server Error"]
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "상품 API 주소 설계",
+        desc: "같은 /products라도 메서드에 따라 의미가 달라집니다.",
+        sql: `
+GET    /products       // 상품 목록 조회
+GET    /products/1     // 1번 상품 조회
+POST   /products       // 상품 등록
+PATCH  /products/1     // 1번 상품 일부 수정
+DELETE /products/1     // 1번 상품 삭제
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "없는 상품 id를 조회하면 어떤 상태코드가 어울리나요?",
+        answer: "404 Not Found가 어울립니다. 요청한 자원을 찾을 수 없다는 뜻입니다."
+      }
+    ]
+  },
+  {
+    id: "js13_mvc",
+    course: "javaSpring",
+    part: "Spring Part 4. MVC와 API",
+    title: "13. Spring MVC: Controller, Service, Repository",
+    tags: ["spring", "mvc", "backend"],
+    type: "info",
+    summary: "백엔드 코드를 계층별로 나누는 기본 구조를 Todo API 예제로 학습합니다.",
+    goal: "Controller, Service, Repository의 책임을 구분하고 작은 REST API를 설계할 수 있습니다.",
+    analogy: "Controller는 카운터 직원, Service는 주방장, Repository는 창고 담당자입니다. 카운터가 모든 일을 직접 하면 식당이 금방 엉망이 됩니다.",
+    studyHint: "처음에는 파일이 많아져서 복잡해 보이지만, 책임을 나누는 연습입니다. 어디에 어떤 코드를 둬야 하는지 계속 의식하세요.",
+    sections: [
+      {
+        title: "계층을 나누는 이유",
+        body: [
+          ul([
+            "<strong>Controller</strong>: HTTP 요청/응답을 처리합니다.",
+            "<strong>Service</strong>: 핵심 비즈니스 규칙을 처리합니다.",
+            "<strong>Repository</strong>: 데이터 저장소와 통신합니다.",
+            "<strong>DTO</strong>: API 요청/응답에 사용할 데이터 모양을 정의합니다."
+          ]),
+          p("예를 들어 Todo 완료 처리는 Controller가 요청을 받고, Service가 완료 가능 여부를 판단하고, Repository가 실제 데이터를 저장합니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "Todo Controller",
+        desc: "Service를 호출해 목록을 반환합니다.",
+        sql: `
+@RestController
+@RequestMapping("/todos")
+public class TodoController {
+    private final TodoService todoService;
+
+    public TodoController(TodoService todoService) {
+        this.todoService = todoService;
+    }
+
+    @GetMapping
+    public List<TodoResponse> findAll() {
+        return todoService.findAll();
+    }
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "비즈니스 규칙은 Controller와 Service 중 어디에 두는 것이 좋나요?",
+        answer: "Service에 두는 것이 좋습니다. Controller는 HTTP 요청과 응답을 다루는 역할에 집중하는 편이 유지보수에 좋습니다."
+      }
+    ]
+  },
+  {
+    id: "js14_validation_exception",
+    course: "javaSpring",
+    part: "Spring Part 4. MVC와 API",
+    title: "14. 검증과 예외 처리",
+    tags: ["spring", "mvc", "backend"],
+    type: "info",
+    summary: "잘못된 요청을 검증하고, 예외를 일관된 API 응답으로 바꾸는 방법을 배웁니다.",
+    goal: "Bean Validation과 @ControllerAdvice의 역할을 이해합니다.",
+    analogy: "검증은 입구 보안 검색대이고, 예외 처리는 문제가 생겼을 때 손님에게 같은 형식으로 안내하는 고객센터입니다.",
+    studyHint: "초보자는 정상 흐름만 만들기 쉽지만 실무 API는 실패 응답이 더 중요할 때가 많습니다. 실패도 설계 대상입니다.",
+    sections: [
+      {
+        title: "입력값 검증",
+        body: [
+          p("회원 가입에서 이메일이 비어 있거나 비밀번호가 너무 짧으면 DB에 저장하기 전에 막아야 합니다. Spring에서는 Bean Validation으로 요청 DTO에 검증 규칙을 붙일 수 있습니다.")
+        ]
+      },
+      {
+        title: "전역 예외 처리",
+        body: [
+          p("<code>@ControllerAdvice</code>는 여러 Controller에서 발생하는 예외를 한 곳에서 처리할 수 있게 해줍니다. API 응답 형식을 일정하게 유지하는 데 유용합니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "요청 DTO 검증",
+        desc: "이름은 비어 있으면 안 되고, 가격은 0보다 커야 합니다.",
+        sql: `
+public record ProductCreateRequest(
+        @NotBlank String name,
+        @Positive int price
+) {
+}
+
+@PostMapping("/products")
+public ProductResponse create(@Valid @RequestBody ProductCreateRequest request) {
+    return productService.create(request);
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "검증을 하지 않고 잘못된 데이터를 DB에 저장하면 어떤 문제가 생길 수 있나요?",
+        answer: "나중에 조회나 계산 로직에서 오류가 나거나, 데이터 정합성이 깨져 원인을 찾기 어려워질 수 있습니다."
+      }
+    ]
+  },
+  {
+    id: "js15_db_jdbc",
+    course: "javaSpring",
+    part: "Spring Part 5. DB 접근",
+    title: "15. JDBC, DataSource, JdbcTemplate",
+    tags: ["spring", "db", "backend"],
+    type: "info",
+    summary: "Spring DB 로드맵의 출발점인 JDBC와 커넥션, JdbcTemplate의 필요성을 이해합니다.",
+    goal: "DB 연결과 SQL 실행 과정이 어떻게 편해지는지 단계적으로 이해합니다.",
+    analogy: "JDBC는 DB와 대화하는 가장 기본 전화기이고, DataSource는 전화 회선을 빌려주는 창구, JdbcTemplate은 반복 통화를 대신 정리해주는 비서입니다.",
+    studyHint: "JPA를 쓰더라도 JDBC와 트랜잭션 기본을 알면 문제가 생겼을 때 훨씬 잘 디버깅할 수 있습니다.",
+    sections: [
+      {
+        title: "왜 JDBC부터 배우나",
+        body: [
+          p("JPA나 Spring Data JPA는 편리하지만 내부적으로는 결국 DB와 연결하고 SQL을 실행합니다. JDBC 흐름을 알면 추상화 뒤에서 어떤 일이 일어나는지 이해할 수 있습니다."),
+          ul([
+            "Connection을 얻습니다.",
+            "SQL을 준비합니다.",
+            "파라미터를 넣고 실행합니다.",
+            "결과를 객체로 바꿉니다.",
+            "자원을 정리합니다."
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "JdbcTemplate 조회",
+        desc: "반복되는 JDBC 코드를 줄여줍니다.",
+        sql: `
+public List<Member> findAll() {
+    return jdbcTemplate.query(
+            "select id, name from member",
+            (rs, rowNum) -> new Member(rs.getLong("id"), rs.getString("name"))
+    );
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "JdbcTemplate이 줄여주는 반복 작업은 무엇인가요?",
+        answer: "커넥션 획득, SQL 실행, 예외 처리, 자원 정리 같은 반복 작업을 줄여줍니다."
+      }
+    ]
+  },
+  {
+    id: "js16_transaction",
+    course: "javaSpring",
+    part: "Spring Part 5. DB 접근",
+    title: "16. 트랜잭션: 모두 성공하거나 모두 실패하기",
+    tags: ["spring", "db", "backend"],
+    type: "info",
+    summary: "트랜잭션의 ACID, @Transactional, 커밋과 롤백을 주문 예제로 이해합니다.",
+    goal: "여러 DB 작업을 하나의 작업 단위로 묶어야 하는 이유를 설명할 수 있습니다.",
+    analogy: "트랜잭션은 은행 송금의 안전장치입니다. 내 계좌에서 돈은 빠졌는데 상대 계좌에 입금되지 않으면 안 되므로 둘 다 성공하거나 둘 다 취소되어야 합니다.",
+    studyHint: "DB 공부에서 트랜잭션은 정말 중요합니다. Spring에서 @Transactional 하나로 편해 보이지만, 그 뒤에는 커밋/롤백과 커넥션 관리가 숨어 있습니다.",
+    sections: [
+      {
+        title: "주문 생성 예시",
+        body: [
+          p("주문을 생성할 때 주문 저장, 결제 저장, 재고 감소가 함께 일어납니다. 중간에 결제 저장이 실패했는데 주문만 저장되면 데이터가 꼬입니다. 그래서 이 작업들을 하나의 트랜잭션으로 묶습니다.")
+        ]
+      },
+      {
+        title: "@Transactional",
+        body: [
+          p("<code>@Transactional</code>을 Service 메서드에 붙이면 메서드 시작 전에 트랜잭션을 열고, 정상 종료되면 커밋, 예외가 발생하면 롤백합니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "주문 생성 트랜잭션",
+        desc: "중간에 실패하면 전체 작업이 롤백됩니다.",
+        sql: `
+@Transactional
+public Long createOrder(OrderCreateRequest request) {
+    Order order = orderRepository.save(new Order(request.memberId()));
+    paymentRepository.save(new Payment(order.getId(), request.price()));
+    stockService.decrease(request.productId(), request.quantity());
+    return order.getId();
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "주문 저장은 성공했는데 결제 저장이 실패하면 어떻게 되어야 하나요?",
+        answer: "주문 저장도 함께 롤백되어야 데이터가 일관되게 유지됩니다."
+      }
+    ]
+  },
+  {
+    id: "js17_jpa_basic",
+    course: "javaSpring",
+    part: "Spring Part 6. JPA 입문",
+    title: "17. JPA와 엔티티: 객체와 테이블 연결하기",
+    tags: ["spring", "jpa", "db"],
+    type: "info",
+    summary: "JPA가 왜 필요한지, Entity, EntityManager, 영속성 컨텍스트의 큰 그림을 배웁니다.",
+    goal: "객체를 저장하면 DB 테이블에 반영되는 ORM의 기본 감각을 익힙니다.",
+    analogy: "JPA는 객체 세계와 관계형 DB 세계 사이의 통역사입니다. Java 객체 말투를 DB 테이블 말투로 바꿔 줍니다.",
+    studyHint: "JPA는 편리하지만 SQL을 몰라도 된다는 뜻은 아닙니다. 객체와 테이블 사이의 차이를 이해할수록 JPA를 더 안전하게 쓸 수 있습니다.",
+    sections: [
+      {
+        title: "JPA가 해결하려는 문제",
+        body: [
+          p("객체는 참조로 연결되고, DB는 외래키로 연결됩니다. 객체는 상속과 메서드를 갖지만 테이블은 행과 열로 표현됩니다. JPA는 이 차이를 줄여주기 위해 등장했습니다."),
+          p("Entity는 DB 테이블과 연결되는 객체입니다. Repository를 통해 Entity를 저장하고 조회하면 JPA가 SQL을 만들어 실행합니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "Member 엔티티",
+        desc: "DB member 테이블과 연결되는 객체입니다.",
+        sql: `
+@Entity
+public class Member {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    protected Member() {
+    }
+
+    public Member(String name) {
+        this.name = name;
+    }
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "JPA를 써도 SQL 지식이 필요한 이유는 무엇인가요?",
+        answer: "JPA가 결국 SQL을 만들어 DB에 실행하므로 성능 문제나 쿼리 동작을 이해하려면 SQL 지식이 필요합니다."
+      }
+    ]
+  },
+  {
+    id: "js18_spring_data_jpa",
+    course: "javaSpring",
+    part: "Spring Part 6. JPA 입문",
+    title: "18. Spring Data JPA와 Repository",
+    tags: ["spring", "jpa", "db"],
+    type: "info",
+    summary: "반복적인 CRUD Repository 코드를 줄여주는 Spring Data JPA를 배웁니다.",
+    goal: "JpaRepository를 상속하면 기본 저장/조회/삭제 기능이 제공되는 이유와 사용법을 이해합니다.",
+    analogy: "Spring Data JPA는 기본 사무 업무를 자동으로 처리하는 직원입니다. 단순 저장, 조회, 삭제 같은 반복 업무를 대신 맡아줍니다.",
+    studyHint: "편리함에만 기대지 말고 메서드 이름으로 만들어지는 쿼리가 어떤 SQL로 이어질지 상상하는 습관을 들이세요.",
+    sections: [
+      {
+        title: "Repository 인터페이스",
+        body: [
+          p("Spring Data JPA에서는 인터페이스만 만들어도 기본 구현체를 Spring이 자동으로 만들어 줍니다. 그래서 단순 CRUD 코드를 직접 작성하지 않아도 됩니다."),
+          p("메서드 이름을 규칙에 맞게 만들면 조건 조회도 가능합니다. 예를 들어 <code>findByName</code>은 name 조건으로 조회하는 쿼리를 만듭니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "JpaRepository",
+        desc: "Member 저장소를 인터페이스만으로 만듭니다.",
+        sql: `
+public interface MemberRepository extends JpaRepository<Member, Long> {
+    List<Member> findByName(String name);
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "JpaRepository<Member, Long>에서 Long은 무엇을 뜻하나요?",
+        answer: "Member 엔티티의 id 타입을 뜻합니다."
+      }
+    ]
+  },
+  {
+    id: "js19_aop_advanced",
+    course: "javaSpring",
+    part: "Spring Part 7. 고급 원리",
+    title: "19. 프록시, AOP, ThreadLocal 큰 그림",
+    tags: ["spring", "advanced", "backend"],
+    type: "info",
+    summary: "Spring 고급편의 핵심인 프록시, AOP, ThreadLocal을 입문자가 이해할 수 있는 수준으로 정리합니다.",
+    goal: "공통 관심사와 핵심 관심사를 분리하는 이유를 이해합니다.",
+    analogy: "AOP는 공연장 입구의 안내 직원입니다. 배우가 연기에 집중하도록 티켓 확인, 입장 안내 같은 공통 작업을 무대 밖에서 처리합니다.",
+    studyHint: "고급 원리는 처음부터 구현 세부를 다 외우지 않아도 됩니다. '왜 필요한가'를 먼저 잡고, 로그 추적이나 트랜잭션 같은 실제 사례와 연결하세요.",
+    sections: [
+      {
+        title: "공통 관심사",
+        body: [
+          p("모든 Service 메서드마다 실행 시간을 측정하거나 로그를 남기고 싶다면 매번 코드를 복사하게 됩니다. AOP는 이런 공통 관심사를 한 곳에 모아 적용할 수 있게 합니다."),
+          p("Spring의 @Transactional도 프록시와 AOP 원리를 활용합니다. 그래서 고급 원리를 알면 Spring이 왜 특정 상황에서 동작하지 않는지 이해할 수 있습니다.")
+        ]
+      },
+      {
+        title: "ThreadLocal 주의",
+        body: [
+          p("ThreadLocal은 같은 스레드 안에서 값을 보관하는 도구입니다. 로그 추적 같은 곳에 쓰일 수 있지만, 사용 후 정리하지 않으면 다른 요청에 값이 섞일 수 있어 주의해야 합니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "실행 시간 측정 AOP",
+        desc: "여러 메서드에 공통으로 시간을 측정합니다.",
+        sql: `
+@Aspect
+@Component
+public class TimeTraceAspect {
+    @Around("execution(* hello..*(..))")
+    public Object trace(ProceedingJoinPoint joinPoint) throws Throwable {
+        long start = System.currentTimeMillis();
+        try {
+            return joinPoint.proceed();
+        } finally {
+            long time = System.currentTimeMillis() - start;
+            System.out.println(joinPoint.getSignature() + " " + time + "ms");
+        }
+    }
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "AOP가 어울리는 작업 예시를 3개 적어보세요.",
+        answer: "로그 기록, 실행 시간 측정, 트랜잭션 처리, 권한 검사 같은 공통 관심사가 어울립니다."
+      }
+    ]
+  },
+  {
+    id: "js20_boot_ops",
+    course: "javaSpring",
+    part: "Spring Part 8. Spring Boot 활용",
+    title: "20. Spring Boot 핵심 기능과 운영 감각",
+    tags: ["spring", "boot", "backend"],
+    type: "info",
+    summary: "자동 설정, 외부 설정, Actuator, 로깅, 프로필처럼 Spring Boot를 실무에서 쓰기 위한 기능을 정리합니다.",
+    goal: "Spring Boot가 단순히 서버를 빨리 띄우는 도구가 아니라 운영까지 돕는 프레임워크임을 이해합니다.",
+    analogy: "Spring Boot는 기본 전기, 수도, 환기, 보안 장치가 미리 갖춰진 건물입니다. 개발자는 모든 배관을 직접 설치하지 않고 비즈니스 기능에 집중할 수 있습니다.",
+    studyHint: "Boot의 자동 설정은 편리하지만, 문제가 생겼을 때 '누가 이 Bean을 만들었는지'를 추적할 수 있어야 합니다. 자동 설정과 외부 설정은 실무에서 자주 마주칩니다.",
+    sections: [
+      {
+        title: "자동 설정",
+        body: [
+          p("Spring Boot는 클래스패스에 있는 라이브러리와 설정을 보고 필요한 Bean을 자동으로 등록합니다. 예를 들어 spring-boot-starter-web을 추가하면 웹 서버와 MVC 관련 설정이 준비됩니다."),
+          p("자동 설정 덕분에 시작은 빠르지만, 어떤 설정이 적용되었는지 이해하는 능력도 중요합니다.")
+        ]
+      },
+      {
+        title: "운영에 필요한 기능",
+        body: [
+          ul([
+            "<strong>Profile</strong>: local, dev, prod 환경별 설정을 나눕니다.",
+            "<strong>외부 설정</strong>: DB 주소, 비밀번호 같은 값을 코드 밖에서 주입합니다.",
+            "<strong>Actuator</strong>: 애플리케이션 상태, 헬스 체크, 메트릭을 확인합니다.",
+            "<strong>Logging</strong>: 장애 원인을 추적할 수 있게 기록을 남깁니다."
+          ])
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "프로필별 설정",
+        desc: "환경마다 다른 DB 주소를 사용할 수 있습니다.",
+        sql: `
+# application-local.yml
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+
+# application-prod.yml
+spring:
+  datasource:
+    url: jdbc:mysql://prod-db:3306/app
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "local과 prod 설정을 나누는 이유는 무엇인가요?",
+        answer: "개발 PC와 운영 서버는 DB 주소, 비밀번호, 로그 수준 등이 다르므로 환경별 설정을 분리해야 안전합니다."
+      }
+    ]
+  },
+  {
+    id: "js21_project",
+    course: "javaSpring",
+    part: "Spring Part 9. 미니 프로젝트",
+    title: "21. 미니 프로젝트: Todo API에서 주문 API까지",
+    tags: ["java", "spring", "backend", "practice"],
+    type: "info",
+    summary: "지금까지 배운 Java와 Spring Boot 지식을 작은 프로젝트 흐름으로 연결합니다.",
+    goal: "Todo API로 CRUD를 익히고, 주문 API로 계층 구조, 검증, 트랜잭션, JPA를 종합합니다.",
+    analogy: "미니 프로젝트는 지금까지 배운 재료로 처음 직접 요리를 해보는 시간입니다. 문법 하나하나가 따로 놀지 않고 하나의 서비스 흐름으로 이어집니다.",
+    studyHint: "처음 프로젝트는 화려할 필요가 없습니다. 작게 만들고, 동작을 확인하고, 한 기능씩 개선하는 경험이 가장 중요합니다.",
+    sections: [
+      {
+        title: "1단계 Todo API",
+        body: [
+          ul([
+            "Todo 생성: POST /todos",
+            "Todo 목록 조회: GET /todos",
+            "Todo 완료 처리: PATCH /todos/{id}/complete",
+            "Todo 삭제: DELETE /todos/{id}"
+          ]),
+          p("처음에는 메모리 저장소로 시작하고, 그 다음 H2 DB와 JPA로 바꿔보세요. 저장소 구현이 바뀌어도 Service 코드가 크게 흔들리지 않게 만드는 것이 목표입니다.")
+        ]
+      },
+      {
+        title: "2단계 주문 API",
+        body: [
+          ul([
+            "상품 등록과 조회",
+            "회원 등록과 조회",
+            "주문 생성",
+            "주문 취소",
+            "재고 감소와 트랜잭션 처리"
+          ]),
+          p("주문 API부터는 검증과 예외 처리, 트랜잭션이 중요해집니다. 재고가 부족한데 주문이 성공하면 안 되고, 결제 저장이 실패했는데 주문만 남아도 안 됩니다.")
+        ]
+      }
+    ],
+    examples: [
+      {
+        title: "Todo 생성 요청 DTO",
+        desc: "API 입력값을 DTO로 분리합니다.",
+        sql: `
+public record TodoCreateRequest(
+        @NotBlank String title
+) {
+}
+        `
+      },
+      {
+        title: "주문 생성 Service 뼈대",
+        desc: "비즈니스 로직은 Service에 둡니다.",
+        sql: `
+@Transactional
+public Long order(Long memberId, Long productId, int quantity) {
+    Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+    Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("상품 없음"));
+
+    product.decreaseStock(quantity);
+    Order order = orderRepository.save(new Order(member, product, quantity));
+    return order.getId();
+}
+        `
+      }
+    ],
+    drills: [
+      {
+        prompt: "Todo API를 만들 때 Controller, Service, Repository에 각각 어떤 코드를 둘지 적어보세요.",
+        answer: "Controller는 요청과 응답, Service는 Todo 생성/완료/삭제 규칙, Repository는 Todo 저장과 조회를 담당합니다."
+      },
+      {
+        prompt: "주문 생성 기능에 트랜잭션이 필요한 이유를 설명해보세요.",
+        answer: "주문 저장, 재고 감소, 결제 저장 같은 여러 작업이 함께 성공하거나 함께 실패해야 데이터가 일관되게 유지되기 때문입니다."
+      }
+    ],
+    practiceGuide: "Todo API를 먼저 메모리 저장소로 만들고, 그 다음 JPA 저장소로 바꿔보세요. 이후 상품/회원/주문 API를 추가하면 Spring Boot 백엔드의 기본 흐름을 한 번에 복습할 수 있습니다."
+  }
+];
+
+function buildJavaSpringPracticeSteps(chapter) {
+  const steps = [];
+  const firstExample = chapter.examples?.[0];
+  const isSpring = chapter.tags?.includes("spring") || chapter.tags?.includes("boot");
+  const isDb = chapter.tags?.includes("db") || chapter.tags?.includes("jpa");
+
+  steps.push(`
+    <strong>먼저 이 장의 핵심 질문을 적습니다.</strong>
+    예를 들어 "${chapter.title}은 왜 필요한가?"라고 쓰고, 답을 한 문장으로 예상해 보세요.
+    초보자는 정답을 맞히는 것보다 공부하기 전에 머릿속에 빈칸을 만드는 과정이 더 중요합니다.
+  `);
+
+  steps.push(`
+    <strong>예제 코드는 손으로 직접 입력합니다.</strong>
+    복사해서 붙여넣기보다 직접 입력하면 괄호, 세미콜론, 어노테이션 위치가 눈에 익습니다.
+    빨간 줄이 나오면 바로 지우지 말고 오류 메시지의 첫 줄을 읽어보세요.
+  `);
+
+  if (firstExample?.sql) {
+    steps.push(`
+      <strong>첫 번째 예제를 가장 작은 단위로 실행합니다.</strong>
+      Java 장이라면 <code>main</code> 메서드에서 실행하고, Spring 장이라면 서버를 켠 뒤 브라우저나 HTTP 도구로 요청을 보내세요.
+      ${code(firstExample.sql)}
+    `);
+  }
+
+  if (isSpring) {
+    steps.push(`
+      <strong>Spring 장에서는 요청 흐름을 화살표로 그립니다.</strong>
+      브라우저 또는 HTTP 클라이언트 → Controller → Service → Repository → DB 순서로 적고,
+      지금 작성한 코드가 어느 칸에 속하는지 표시하세요. 이 습관이 생기면 파일이 많아져도 길을 잃지 않습니다.
+    `);
+  }
+
+  if (isDb) {
+    steps.push(`
+      <strong>DB/JPA 장에서는 실제 SQL을 상상합니다.</strong>
+      Repository 메서드 하나를 실행했을 때 SELECT, INSERT, UPDATE, DELETE 중 무엇이 나갈지 먼저 예상하세요.
+      JPA는 편리하지만 DB에서 무슨 일이 일어나는지 모르면 성능 문제를 만나기 쉽습니다.
+    `);
+  }
+
+  steps.push(`
+    <strong>한 가지만 바꿔 다시 실행합니다.</strong>
+    변수값 하나, URL 하나, 조건 하나만 바꾸세요. 한 번에 여러 곳을 바꾸면 결과가 왜 달라졌는지 알기 어렵습니다.
+  `);
+
+  steps.push(`
+    <strong>마지막에는 나만의 말로 3줄 요약을 남깁니다.</strong>
+    1줄째는 "왜 쓰는가", 2줄째는 "코드에서 어떻게 쓰는가", 3줄째는 "주의할 점"을 적습니다.
+    이 3줄 요약이 쌓이면 나중에 Spring Boot 프로젝트를 만들 때 훨씬 빨리 복습할 수 있습니다.
+  `);
+
+  return steps;
+}
+
 function buildBeginnerPracticeSteps(chapter) {
+  if (chapter.practiceSteps?.length) {
+    return chapter.practiceSteps;
+  }
+
   if (chapter.course === "vue") {
     return vuePracticeSteps[chapter.id] || [];
+  }
+
+  if (chapter.course === "javaSpring") {
+    return buildJavaSpringPracticeSteps(chapter);
   }
 
   const steps = [];
@@ -5006,7 +6271,7 @@ function buildBeginnerPracticeSteps(chapter) {
   return steps;
 }
 
-const allChapters = [...chapters, ...vueChapters];
+const allChapters = [...chapters, ...vueChapters, ...javaSpringChapters];
 
 export const curriculum = allChapters.map(chapter => {
   const course = chapter.course || "sql";
