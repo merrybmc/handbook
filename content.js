@@ -8299,6 +8299,17 @@ const webCourseTopicBlueprints = [
   ["Part 8. 품질과 배포", "최종 리팩토링", "Todo와 쇼핑몰 구조 정리", "마지막에는 돌아가는 코드를 읽기 좋은 코드로 다듬어야 실무 감각이 붙습니다."]
 ];
 
+const webTopicKeys = [
+  "web_overview", "http", "static_dynamic", "folder", "environment",
+  "first_page", "form", "get_post", "template", "loop", "condition", "layout",
+  "todo_model", "todo_list", "todo_create", "todo_toggle", "todo_delete", "todo_filter", "todo_validation", "todo_refactor",
+  "db_reason", "table_design", "db_config", "select", "insert", "update", "delete", "transaction",
+  "mvc_overview", "controller", "service", "repository", "dto", "exception", "logging",
+  "session", "register", "login", "authorization", "input_security",
+  "products", "product_detail", "cart_add", "cart_quantity", "order_create", "order_history",
+  "testing", "env_vars", "deploy", "final_refactor"
+];
+
 const webCourseConfigs = {
   jspWeb: {
     label: "JSP",
@@ -8939,7 +8950,198 @@ function makeWebCourseChapter(config, blueprint, index) {
   };
 }
 
+function stackRoute(config, method, path, handlerName) {
+  if (config.course === "jspWeb") return `@WebServlet("${path}")\npublic class ${handlerName}Servlet extends HttpServlet {\n    protected void do${method === "GET" ? "Get" : "Post"}(HttpServletRequest request, HttpServletResponse response) throws IOException {\n        // ${method} ${path}\n    }\n}`;
+  if (config.course === "springMvc") return `@${method === "GET" ? "GetMapping" : "PostMapping"}("${path}")\npublic String ${handlerName}(Model model) {\n    return "${handlerName}";\n}`;
+  if (config.course === "phpWeb") return `// public${path === "/" ? "/index.php" : `${path}.php`}\nif ($_SERVER["REQUEST_METHOD"] === "${method}") {\n    // handle ${method} ${path}\n}`;
+  if (config.course === "laravelWeb") return `Route::${method.toLowerCase()}('${path}', [${handlerName}Controller::class, '${method === "GET" ? "index" : "store"}']);`;
+  return `[Http${method.charAt(0) + method.slice(1).toLowerCase()}]\npublic IActionResult ${handlerName}()\n{\n    return View();\n}`;
+}
+
+function stackParam(config, name = "title") {
+  if (config.course === "jspWeb") return `String ${name} = request.getParameter("${name}");`;
+  if (config.course === "springMvc") return `public record TodoCreateRequest(@NotBlank String ${name}) {}`;
+  if (config.course === "phpWeb") return `$${name} = trim($_POST["${name}"] ?? "");`;
+  if (config.course === "laravelWeb") return `$validated = $request->validate(["${name}" => ["required", "max:100"]]);`;
+  return `public async Task<IActionResult> Create(string ${name})`;
+}
+
+function stackList(config, itemName = "todo") {
+  if (config.course === "jspWeb") return `<c:forEach var="${itemName}" items="items">\n  <li>print ${itemName}.title</li>\n</c:forEach>`;
+  if (config.course === "springMvc") return `<li th:each="${itemName} : items" th:text="item title"></li>`;
+  if (config.course === "phpWeb") return `<?php foreach ($${itemName}s as $${itemName}): ?>\n  <li><?= htmlspecialchars($${itemName}["title"]) ?></li>\n<?php endforeach; ?>`;
+  if (config.course === "laravelWeb") return `@foreach ($${itemName}s as $${itemName})\n  <li>{{ $${itemName}->title }}</li>\n@endforeach`;
+  return `@foreach (var ${itemName} in Model)\n{\n    <li>@${itemName}.Title</li>\n}`;
+}
+
+function stackDb(config, sql, methodName = "run") {
+  const safeSql = sql.replaceAll('"', '\\"');
+  if (config.course === "jspWeb") return `try (Connection con = dataSource.getConnection();\n     PreparedStatement ps = con.prepareStatement("${safeSql}")) {\n    ps.executeUpdate();\n}`;
+  if (config.course === "springMvc") return `public void ${methodName}() {\n    jdbcTemplate.update("${safeSql}");\n}`;
+  if (config.course === "phpWeb") return `$stmt = $pdo->prepare("${safeSql}");\n$stmt->execute();`;
+  if (config.course === "laravelWeb") return `DB::statement("${safeSql}");`;
+  return `await _db.Database.ExecuteSqlRawAsync("${safeSql}");`;
+}
+
+function stackSession(config) {
+  if (config.course === "jspWeb") return `HttpSession session = request.getSession();\nsession.setAttribute("memberId", member.id());`;
+  if (config.course === "springMvc") return `session.setAttribute("memberId", member.id());\nreturn "redirect:/";`;
+  if (config.course === "phpWeb") return `session_start();\n$_SESSION["member_id"] = $member["id"];`;
+  if (config.course === "laravelWeb") return `Auth::attempt($credentials);\n$userId = auth()->id();`;
+  return `HttpContext.Session.SetInt32("memberId", member.Id);`;
+}
+
+function webDetail(topic) {
+  const map = {
+    http: ["HTTP는 브라우저와 서버가 주고받는 약속입니다.", "GET /todos와 POST /todos를 나눕니다.", "상품 조회, 장바구니 담기, 주문 생성을 주소와 메서드로 분리합니다.", "주소가 맞아도 메서드가 틀리면 동작하지 않습니다."],
+    form: ["폼은 사용자가 서버에 보내는 작성지입니다.", "title 입력값으로 Todo를 만듭니다.", "productId와 quantity로 장바구니 항목을 만듭니다.", "input name과 서버 파라미터 이름이 같아야 합니다."],
+    get_post: ["GET은 조회, POST는 변경에 사용합니다.", "GET /todos는 목록, POST /todos는 추가입니다.", "GET /products는 조회, POST /orders는 주문 생성입니다.", "POST 후 redirect로 중복 제출을 막으세요."],
+    template: ["템플릿은 서버 데이터를 HTML에 끼워 넣는 양식지입니다.", "Todo 제목과 에러를 출력합니다.", "상품명, 가격, 재고 상태를 카드에 출력합니다.", "사용자 입력은 escape해서 출력하세요."],
+    loop: ["반복 렌더링은 데이터 개수만큼 UI를 찍어내는 일입니다.", "todos 배열로 목록을 만듭니다.", "products 배열로 상품 카드를 만듭니다.", "빈 목록 안내도 준비하세요."],
+    condition: ["조건부 렌더링은 상황에 따라 다른 화면을 보여주는 일입니다.", "할 일이 없으면 빈 목록 안내를 보여줍니다.", "재고가 없으면 품절, 있으면 담기 버튼을 보여줍니다.", "조건이 많아지면 표시값을 미리 준비하세요."],
+    transaction: ["트랜잭션은 여러 변경을 하나의 작업으로 묶습니다.", "Todo 하나는 단순하지만 여러 저장이 묶이면 필요합니다.", "주문, 주문상세, 재고 감소는 함께 성공해야 합니다.", "중간 하나만 성공하면 데이터가 틀어집니다."],
+    session: ["세션과 쿠키는 사용자를 기억하는 방법입니다.", "로그인 사용자별 Todo를 구분합니다.", "장바구니와 주문 내역을 사용자별로 구분합니다.", "분산 서버에서는 세션 저장 위치를 고려하세요."],
+    login: ["로그인은 사용자를 확인하고 세션에 표시하는 과정입니다.", "memberId로 자기 Todo만 봅니다.", "장바구니와 주문 내역을 사용자별로 보여줍니다.", "로그아웃 때 세션을 제거하세요."],
+    authorization: ["인가는 사용자가 특정 일을 할 수 있는지 확인하는 것입니다.", "남의 Todo를 지우지 못하게 막습니다.", "관리자만 상품 등록과 주문 상태 변경을 합니다.", "버튼 숨김만으로는 보안이 아닙니다."],
+    products: ["상품 목록은 쇼핑몰의 핵심 첫 화면입니다.", "Todo 목록 반복을 상품 카드 반복으로 확장합니다.", "상품명, 가격, 재고, 담기 버튼을 보여줍니다.", "상품이 많으면 페이징과 검색이 필요합니다."],
+    cart_add: ["장바구니 담기는 productId와 quantity를 저장하는 기능입니다.", "Todo 추가와 같은 생성 흐름입니다.", "이미 있으면 수량을 늘리고 없으면 새로 추가합니다.", "상품 존재와 재고를 먼저 확인하세요."],
+    order_create: ["주문 생성은 쇼핑몰의 가장 중요한 트랜잭션입니다.", "Todo 추가보다 크지만 흐름은 입력, 검증, 저장입니다.", "주문, 주문상세, 재고 감소, 장바구니 비우기가 묶입니다.", "반드시 트랜잭션으로 처리하세요."],
+    testing: ["테스트는 기능이 계속 살아 있는지 확인하는 자동 점검표입니다.", "Todo 추가, 완료, 삭제를 테스트합니다.", "재고 부족 주문 실패와 총액 계산을 테스트합니다.", "테스트 없이 리팩토링하지 마세요."]
+  };
+  const d = map[topic.key] || [topic.why, `${topic.title}을 Todo 앱에서 작게 실습합니다.`, `${topic.title}을 쇼핑몰의 상품, 장바구니, 주문 흐름으로 확장합니다.`, "요청, 입력, 저장, 응답 순서로 확인하세요."];
+  return { concept: d[0], todo: d[1], shop: d[2], warning: d[3] };
+}
+
+function stackSnippet(config, key) {
+  if (key === "transaction") {
+    if (config.course === "jspWeb") return `connection.setAutoCommit(false);\ntry {\n    orderRepository.save(order);\n    stockRepository.decrease(productId, quantity);\n    connection.commit();\n} catch (Exception e) {\n    connection.rollback();\n}`;
+    if (config.course === "springMvc") return `@Transactional\npublic Long order(Long memberId, List<OrderItemRequest> items) {\n    Order order = orderRepository.save(memberId);\n    stockService.decreaseAll(items);\n    return order.id();\n}`;
+    if (config.course === "phpWeb") return `$pdo->beginTransaction();\ntry {\n    $orderRepository->create($order);\n    $stockRepository->decrease($productId, $quantity);\n    $pdo->commit();\n} catch (Throwable $e) {\n    $pdo->rollBack();\n}`;
+    if (config.course === "laravelWeb") return `DB::transaction(function () use ($cart) {\n    $order = Order::create([...]);\n    foreach ($cart->items as $item) {\n        OrderItem::create([...]);\n        $item->product->decrement("stock", $item->quantity);\n    }\n});`;
+    return `await using var tx = await _db.Database.BeginTransactionAsync();\n_db.Orders.Add(order);\nproduct.Stock -= quantity;\nawait _db.SaveChangesAsync();\nawait tx.CommitAsync();`;
+  }
+
+  if (key === "testing") {
+    if (config.course === "jspWeb") return `MockHttpServletRequest request = new MockHttpServletRequest();\nrequest.setParameter("title", "test todo");\n// call servlet and assert redirect`;
+    if (config.course === "springMvc") return `mockMvc.perform(post("/todos").param("title", "test"))\n    .andExpect(status().is3xxRedirection())\n    .andExpect(redirectedUrl("/todos"));`;
+    if (config.course === "phpWeb") return `$repo->create("test todo");\n$this->assertCount(1, $repo->all());`;
+    if (config.course === "laravelWeb") return `$this->post(route("todos.store"), ["title" => "test"])\n    ->assertRedirect(route("todos.index"));\n$this->assertDatabaseHas("todos", ["title" => "test"]);`;
+    return `var result = await controller.Create("test todo");\nAssert.IsType<RedirectToActionResult>(result);\nAssert.Contains(db.Todos, todo => todo.Title == "test todo");`;
+  }
+
+  return "";
+}
+
+function webCode(config, topic, variant = "core") {
+  const key = topic.key;
+  const prefix = `${config.label} / ${topic.title} / ${variant}`;
+  switch (key) {
+    case "web_overview": return `${prefix}\n\nBrowser -> Server -> View -> Database\n${stackRoute(config, "GET", "/", "Home")}`;
+    case "http": return `${prefix}\n\n${stackRoute(config, "GET", "/todos", "TodoIndex")}\n\n${stackRoute(config, "POST", "/todos", "TodoCreate")}`;
+    case "static_dynamic": return `${prefix}\n\nStatic: <h1>Welcome</h1>\nDynamic:\n${stackList(config, "todo")}`;
+    case "folder": return `${prefix}\n\ncontrollers/TodoController\nservices/TodoService\nrepositories/TodoRepository\nviews/todos/list\nshared/db`;
+    case "environment": return `${prefix}\n\nCheck runtime version\nStart local server\nOpen localhost URL\nRead server logs\nConnect DB`;
+    case "first_page": return `${prefix}\n\n${stackRoute(config, "GET", "/", "Home")}\n<h1>${config.label} study app</h1>\n<a href="/todos">Todo</a>\n<a href="/products">Products</a>`;
+    case "form": return `${prefix}\n\n<form method="post" action="/todos">\n  <input name="title">\n  <button>Create</button>\n</form>\n\n${stackParam(config, "title")}`;
+    case "get_post": return `${prefix}\n\nGET /todos -> render list\nPOST /todos -> validate, save, redirect\n${stackRoute(config, "POST", "/todos", "TodoStore")}`;
+    case "template": return `${prefix}\n\nServer sends model.message\nTemplate prints message\n${stackList(config, "todo")}`;
+    case "loop": return `${prefix}\n\n${stackList(config, "todo")}\n\nChange todo to product and print name, price, stock.`;
+    case "condition": return `${prefix}\n\nif list is empty -> show empty message\nif product.stock == 0 -> show Sold out\nelse -> show Add to cart`;
+    case "layout": return `${prefix}\n\n<header>Logo / Cart count / Login</header>\n<main>page content</main>\n<footer>common links</footer>`;
+    case "todo_model": return `${prefix}\n\nTodo(id, title, completed, createdAt)\nProduct(id, name, price, stock, imageUrl)`;
+    case "todo_list": return `${prefix}\n\n${stackDb(config, "select id, title, completed from todos order by id desc", "findAll")}`;
+    case "todo_create": return `${prefix}\n\n${stackParam(config, "title")}\nvalidate title\n${stackDb(config, "insert into todos(title, completed) values(?, false)", "saveTodo")}\nredirect /todos`;
+    case "todo_toggle": return `${prefix}\n\nPOST /todos/{id}/toggle\n${stackDb(config, "update todos set completed = not completed where id = ?", "toggleTodo")}`;
+    case "todo_delete": return `${prefix}\n\nPOST /todos/{id}/delete\ncheck owner\n${stackDb(config, "delete from todos where id = ?", "deleteTodo")}`;
+    case "todo_filter": return `${prefix}\n\nGET /todos?status=active\nactive -> completed=false\ndone -> completed=true\nall -> no condition`;
+    case "todo_validation": return `${prefix}\n\nRule: title required, max 100, trim whitespace\n${stackParam(config, "title")}`;
+    case "todo_refactor": return `${prefix}\n\nBefore: route + validation + SQL + HTML in one file\nAfter: Controller -> Service -> Repository -> View`;
+    case "db_reason": return `${prefix}\n\nMemory disappears after restart.\nDB keeps rows.\n${stackDb(config, "create table todos(id bigint primary key, title varchar(100), completed boolean)", "createSchema")}`;
+    case "table_design": return `${prefix}\n\ntodos(id, title, completed)\nproducts(id, name, price, stock)\norders(id, member_id, status)\norder_items(id, order_id, product_id, quantity)`;
+    case "db_config": return `${prefix}\n\nDB_HOST=localhost\nDB_PORT=3306\nDB_NAME=study_shop\nDB_USER=study_user\nDB_PASSWORD=change-me`;
+    case "select": return `${prefix}\n\n${stackDb(config, "select id, title, completed from todos order by id desc", "selectTodos")}\nselect id, name, price, stock from products where stock > 0`;
+    case "insert": return `${prefix}\n\n${stackDb(config, "insert into todos(title, completed) values(?, false)", "insertTodo")}\ninsert into cart_items(member_id, product_id, quantity) values(?, ?, ?)`;
+    case "update": return `${prefix}\n\n${stackDb(config, "update todos set completed = ? where id = ?", "updateTodo")}\nupdate cart_items set quantity = ? where member_id = ? and product_id = ?`;
+    case "delete": return `${prefix}\n\n${stackDb(config, "delete from todos where id = ?", "deleteTodo")}\ndelete from cart_items where member_id = ? and product_id = ?`;
+    case "transaction": return `${prefix}\n\n${stackSnippet(config, "transaction")}`;
+    case "mvc_overview": return `${prefix}\n\nController receives request\nService checks rules\nRepository talks to DB\nView renders HTML`;
+    case "controller": return `${prefix}\n\n${stackRoute(config, "GET", "/todos", "TodoIndex")}\nController reads input and chooses next path.`;
+    case "service": return `${prefix}\n\nTodoService.create(title)\n- validate title\n- check rule\n- call repository.save(title)\nShop rule: cannot order more than stock.`;
+    case "repository": return `${prefix}\n\nfindAll()\nfindById(id)\nsave(data)\nupdate(data)\ndeleteById(id)\n${stackDb(config, "select id, title from todos where id = ?", "findTodo")}`;
+    case "dto": return `${prefix}\n\nTodoCreateRequest(title)\nTodoView(id, title, completedLabel)\nCartItemView(productName, price, quantity, lineTotal)`;
+    case "exception": return `${prefix}\n\nTodo not found -> 404\nValidation fail -> same form with errors\nStock short -> cart error message`;
+    case "logging": return `${prefix}\n\nINFO todo.created id=10 memberId=3\nWARN order.stock_short productId=7 requested=5 stock=2\nERROR payment.failed orderId=15`;
+    case "session": return `${prefix}\n\n${stackSession(config)}\nUse memberId to query only current user's data.`;
+    case "register": return `${prefix}\n\nread email/password\nvalidate duplicate email\nhash password\nsave member\nredirect login page`;
+    case "login": return `${prefix}\n\nfind member by email\nverify password hash\nsave memberId in session\n${stackSession(config)}`;
+    case "authorization": return `${prefix}\n\nBefore changing todo: currentMemberId == todo.ownerId\nBefore product admin: currentUser.role == ADMIN\nCheck this on server.`;
+    case "input_security": return `${prefix}\n\nXSS: escape output\nSQL Injection: bind parameters\nCSRF: require token for changing requests`;
+    case "products": return `${prefix}\n\nselect id, name, price, stock from products order by id desc\nRender product card with price, stock, detail link, add-to-cart form`;
+    case "product_detail": return `${prefix}\n\nGET /products/{id}\nFind product by id\nMissing -> 404\nRender detail and quantity input`;
+    case "cart_add": return `${prefix}\n\nPOST /cart/items\nInput: productId, quantity\nCheck product exists and stock\nCreate or increase cart item`;
+    case "cart_quantity": return `${prefix}\n\nPOST /cart/items/{productId}/quantity\nValidate quantity >= 1\nValidate quantity <= stock\nUpdate cart and recalculate total`;
+    case "order_create": return `${prefix}\n\n${stackSnippet(config, "transaction")}\ncreate order\ncreate order_items\ndecrease stock\nclear cart`;
+    case "order_history": return `${prefix}\n\nGET /orders\nQuery by current memberId\nShow orderDate, status, totalAmount\nNever expose another user's order.`;
+    case "testing": return `${prefix}\n\n${stackSnippet(config, "testing")}`;
+    case "env_vars": return `${prefix}\n\nAPP_ENV=local\nDB_HOST=localhost\nDB_PASSWORD=secret\nSESSION_SECRET=dev-secret`;
+    case "deploy": return `${prefix}\n\nbuild/package app\nset env vars\nrun migration\nstart server\ncheck logs and health URL`;
+    case "final_refactor": return `${prefix}\n\nfeatures/todos\nfeatures/products\nfeatures/cart\nfeatures/orders\nshared/db\nshared/auth\nshared/layout`;
+    default: return `${prefix}\n\n${webDetail(topic).concept}\nTodo: ${webDetail(topic).todo}\nShop: ${webDetail(topic).shop}`;
+  }
+}
+
+function makeFocusedWebCourseChapter(config, blueprint, index) {
+  const [part, title, focus, why] = blueprint;
+  const no = index + 1;
+  const topic = { part, title, focus, why, no, key: webTopicKeys[index] || `topic_${no}` };
+  const detail = webDetail(topic);
+  const id = `${config.course}_${String(no).padStart(2, "0")}_${topic.key}`;
+
+  return {
+    id,
+    course: config.course,
+    part: `${config.titlePrefix} ${part}`,
+    title: `${no}. ${title}`,
+    tags: config.tags,
+    type: "info",
+    summary: `${config.label}에서 ${title}을 Todo와 쇼핑몰 예제로 따로 연습합니다.`,
+    goal: `${focus}을 이해하고 ${config.label} 코드로 구현합니다.`,
+    analogy: config.analogy,
+    studyHint: "이 장에서는 전체 앱 코드를 복붙하지 말고, 아래의 작은 코드 조각이 요청 흐름의 어느 위치인지 먼저 표시하세요.",
+    sections: [
+      { title: "이 장에서만 배울 것", body: [p(detail.concept), callout("note", "이번 장의 초점", `${focus}을 ${config.label} 방식으로 익힙니다.`)] },
+      { title: "Todo에서는 이렇게 작게 연습합니다", body: [p(detail.todo), code(webCode(config, topic, "todo").split("\n").slice(0, 14).join("\n"))] },
+      { title: "쇼핑몰에서는 이렇게 커집니다", body: [p(detail.shop), callout("warning", "주의할 점", detail.warning)] }
+    ],
+    examples: [
+      { title: `${title} 전용 핵심 코드`, desc: `이 장은 ${focus}만 보도록 분리했습니다.`, sql: webCode(config, topic, "core") },
+      { title: `${title} Todo 미니 실습`, desc: detail.todo, sql: webCode(config, topic, "todo") },
+      { title: `${title} 쇼핑몰 확장 실습`, desc: detail.shop, sql: webCode(config, topic, "shop") },
+      { title: `${title} 에러 재현과 점검`, desc: detail.warning, sql: `Debug checklist for ${config.label} / ${title}\n\n1. Break one thing intentionally.\n2. Read the exact error message.\n3. Check route, method, input name, database, view name.\n4. Fix only one thing.\n5. Run again.\n\nMain warning:\n${detail.warning}` }
+    ],
+    drills: [
+      { prompt: `${title}을 ${config.label}에서 왜 배우는지 한 문장으로 적어보세요.`, answer: detail.concept },
+      { prompt: `Todo 앱에서 ${title}이 어디에 들어가는지 적어보세요.`, answer: detail.todo },
+      { prompt: `쇼핑몰 앱에서 ${title}이 어떻게 커지는지 적어보세요.`, answer: detail.shop },
+      { prompt: "실습이 실패할 때 먼저 확인할 것을 적어보세요.", answer: detail.warning }
+    ],
+    practiceSteps: [
+      `<strong>이번 장의 목표를 확인합니다.</strong> ${title}: ${focus}`,
+      `<strong>개념을 말로 설명합니다.</strong> ${detail.concept}`,
+      `<strong>Todo 코드 조각을 직접 입력합니다.</strong> ${detail.todo}`,
+      `<strong>쇼핑몰 코드 조각으로 바꿔봅니다.</strong> ${detail.shop}`,
+      "<strong>입력, 처리, 저장, 응답 위치를 표시합니다.</strong> 코드에 주석으로 표시하세요.",
+      `<strong>일부러 에러를 냅니다.</strong> ${detail.warning}`,
+      "<strong>마지막에 코드 없이 흐름을 말합니다.</strong> 주소, 메서드, 처리 함수, 저장 위치, 응답 화면 순서로 말해보세요."
+    ]
+  };
+}
+
 function buildWebCourse(config) {
+  return webCourseTopicBlueprints.map((blueprint, index) => makeFocusedWebCourseChapter(config, blueprint, index));
+}
+
+function buildLegacyWebCourse(config) {
   return webCourseTopicBlueprints.map((blueprint, index) => makeWebCourseChapter(config, blueprint, index));
 }
 
@@ -8960,6 +9162,824 @@ const allChapters = [
   ...expandedCsharpWebChapters
 ];
 
+const cleanTitle = chapter => String(chapter.title || "").replace(/^\d+\.\s*/, "");
+const cleanId = value => String(value || "lesson").replace(/[^a-zA-Z0-9_]/g, "_");
+const ex = (title, desc, sql) => ({ title, desc, sql });
+
+function buildFocusedSqlExamples(chapter) {
+  const title = cleanTitle(chapter);
+  const first = chapter.examples?.[0] || ex(`${title} 핵심 예제`, "이번 장에서 가장 먼저 실행해볼 기본 예제입니다.", chapter.exercise?.starterSql || "SELECT 1;");
+  const lower = `${chapter.id} ${title}`.toLowerCase();
+
+  if (lower.includes("redis")) {
+    return [
+      first,
+      ex("Redis CLI로 직접 만져보기", "Redis는 SQL 테이블이 아니라 key-value 저장소입니다. 문자열, 만료 시간, 카운터를 손으로 확인합니다.", `
+SET session:user:1 "login"
+GET session:user:1
+EXPIRE session:user:1 60
+TTL session:user:1
+INCR product:1:view_count
+      `),
+      ex("캐시로 쓸 때의 흐름", "DB에서 읽은 결과를 잠깐 보관하고, 다음 요청에서는 Redis에서 먼저 찾습니다.", `
+# 1. 캐시에 있는지 확인
+GET product:42
+
+# 2. 없으면 DB 조회 후 JSON 문자열로 저장
+SETEX product:42 300 '{"id":42,"name":"keyboard","price":89000}'
+
+# 3. 상품 정보가 바뀌면 캐시 삭제
+DEL product:42
+      `),
+      ex("주의 실습", "Redis는 빠르지만 영구 원본 저장소처럼 쓰면 위험합니다. 사라져도 다시 만들 수 있는 데이터를 중심으로 연습합니다.", `
+# 캐시 키 이름 규칙 예시
+product:{id}
+member:{id}:cart
+rank:daily:sales
+
+# 만료 시간이 없는 캐시는 메모리를 계속 차지합니다.
+TTL product:42
+      `)
+    ];
+  }
+
+  if (lower.includes("elastic")) {
+    return [
+      first,
+      ex("Elasticsearch 문서 색인", "검색 엔진에는 행(row)이 아니라 문서(document)를 넣는다고 생각하면 쉽습니다.", `
+PUT products/_doc/1
+{
+  "name": "무선 키보드",
+  "category": "keyboard",
+  "price": 89000,
+  "description": "조용한 타건감의 블루투스 키보드"
+}
+      `),
+      ex("Query DSL 검색", "SQL의 WHERE와 비슷하지만 전문 검색, 관련도 점수, 형태소 분석을 같이 사용합니다.", `
+GET products/_search
+{
+  "query": {
+    "match": {
+      "description": "조용한 키보드"
+    }
+  }
+}
+      `),
+      ex("DB와 검색 엔진 역할 분리", "주문/결제 원본은 DB에 두고, 검색 편의용 복사본을 Elasticsearch에 둡니다.", `
+-- 원본 데이터는 MySQL/PostgreSQL
+SELECT product_id, name, price
+FROM products
+WHERE product_id = 1;
+
+-- 검색 화면은 Elasticsearch
+GET products/_search
+      `)
+    ];
+  }
+
+  if (lower.includes("index") || title.includes("인덱스")) {
+    return [
+      first,
+      ex("인덱스 전후 비교", "인덱스는 책 맨 뒤의 찾아보기와 같습니다. 전체 페이지를 넘기지 않고 위치를 먼저 찾습니다.", `
+EXPLAIN
+SELECT order_id, customer_id, order_date
+FROM orders
+WHERE customer_id = 10
+ORDER BY order_date DESC;
+
+CREATE INDEX idx_orders_customer_date
+ON orders(customer_id, order_date);
+      `),
+      ex("인덱스가 잘 맞는 조건", "등호 조건이 앞에 오고 정렬 컬럼이 뒤에 붙으면 자주 효과를 봅니다.", `
+SELECT order_id, total_amount
+FROM orders
+WHERE customer_id = 10
+  AND order_date >= '2026-01-01'
+ORDER BY order_date DESC
+LIMIT 20;
+      `),
+      ex("인덱스 남발 경계", "인덱스는 조회를 돕지만 INSERT/UPDATE 때 함께 고쳐야 하는 부가 장부도 늘립니다.", `
+SHOW INDEX FROM orders;
+
+-- 거의 검색하지 않는 컬럼에는 무작정 만들지 않습니다.
+-- 자주 쓰는 WHERE, JOIN, ORDER BY 조건부터 확인합니다.
+      `)
+    ];
+  }
+
+  if (lower.includes("normal") || title.includes("정규")) {
+    return [
+      first,
+      ex("정규화 전 테이블", "한 칸에 여러 의미가 섞이면 수정할 때 같은 값을 여러 곳에서 바꿔야 합니다.", `
+CREATE TABLE order_sheet_bad (
+  order_id BIGINT,
+  customer_name VARCHAR(100),
+  customer_email VARCHAR(255),
+  product_name VARCHAR(100),
+  product_price DECIMAL(10,2),
+  quantity INT
+);
+      `),
+      ex("정규화 후 테이블", "고객, 상품, 주문을 각자 자기 장부로 나누고 id로 연결합니다.", `
+CREATE TABLE customers (
+  customer_id BIGINT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(255) UNIQUE
+);
+
+CREATE TABLE products (
+  product_id BIGINT PRIMARY KEY,
+  name VARCHAR(100),
+  price DECIMAL(10,2)
+);
+
+CREATE TABLE order_items (
+  order_item_id BIGINT PRIMARY KEY,
+  order_id BIGINT,
+  product_id BIGINT,
+  quantity INT
+);
+      `),
+      ex("정규화 확인 질문", "같은 사실을 두 곳 이상에 적고 있다면 분리 후보입니다.", `
+-- 질문 1: 고객 이메일이 바뀌면 몇 행을 고쳐야 하나?
+-- 질문 2: 상품 가격이 바뀌면 과거 주문 금액도 같이 바뀌어도 되나?
+-- 질문 3: 주문 없이 상품만 먼저 등록할 수 있나?
+      `)
+    ];
+  }
+
+  if (lower.includes("join")) {
+    return [
+      first,
+      ex("JOIN을 그림처럼 읽기", "주문장에는 customer_id만 있고 이름은 고객 장부에 있습니다. JOIN은 두 장부를 id로 맞대는 작업입니다.", `
+SELECT o.order_id, c.name, o.total_amount
+FROM orders o
+JOIN customers c ON c.customer_id = o.customer_id
+ORDER BY o.order_id DESC;
+      `),
+      ex("쇼핑몰 주문 상세", "주문, 주문상품, 상품을 이어야 사용자가 산 상품명을 볼 수 있습니다.", `
+SELECT o.order_id, p.product_name, oi.quantity, p.price
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.order_id
+JOIN products p ON p.product_id = oi.product_id
+WHERE o.order_id = 1001;
+      `),
+      ex("JOIN 디버깅", "결과가 갑자기 늘어나면 연결 조건이 빠졌는지 먼저 봅니다.", `
+-- 나쁜 냄새: ON 없이 여러 테이블을 붙이면 곱셈처럼 행이 늘 수 있습니다.
+SELECT COUNT(*)
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.order_id;
+      `)
+    ];
+  }
+
+  return [
+    first,
+    ex(`${title}를 작은 데이터로 확인`, "처음에는 많은 데이터보다 3~5행만 보고 문법의 움직임을 확인합니다.", `
+SELECT customer_id, name, grade
+FROM customers
+ORDER BY customer_id
+LIMIT 5;
+
+-- 이번 장 주제: ${title}
+      `),
+    ex(`${title} 쇼핑몰 응용`, "Todo보다 실제 서비스에 가까운 고객, 상품, 주문 데이터로 바꿔봅니다.", `
+SELECT p.product_id, p.product_name, p.price, p.stock_quantity
+FROM products p
+WHERE p.stock_quantity > 0
+ORDER BY p.price DESC
+LIMIT 10;
+      `),
+    ex(`${title} 검증 쿼리`, "쿼리 결과가 맞는지 COUNT나 GROUP BY로 다시 확인하는 습관을 붙입니다.", `
+SELECT COUNT(*) AS row_count
+FROM orders;
+
+SELECT status, COUNT(*) AS count_by_status
+FROM orders
+GROUP BY status;
+      `)
+  ];
+}
+
+function buildFocusedVueExamples(chapter) {
+  const title = cleanTitle(chapter);
+  const id = toPascalName(chapter.id);
+  const first = chapter.examples?.[0] || ex(`${title} 핵심 예제`, "이번 장에서 바로 확인할 Vue 예제입니다.", "");
+  const key = `${chapter.id} ${title}`;
+  let focusedCode = "";
+
+  if (key.includes("Router") || title.includes("라우터")) {
+    focusedCode = `
+// router/index.js
+import { createRouter, createWebHistory } from "vue-router";
+import TodoPage from "@/pages/TodoPage.vue";
+import ProductListPage from "@/pages/ProductListPage.vue";
+import ProductDetailPage from "@/pages/ProductDetailPage.vue";
+
+export const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: "/todos", component: TodoPage },
+    { path: "/products", component: ProductListPage },
+    { path: "/products/:id", component: ProductDetailPage, props: true }
+  ]
+});
+    `;
+  } else if (key.includes("Pinia") || key.includes("store") || title.includes("상태")) {
+    focusedCode = `
+// stores/cartStore.js
+import { computed, ref } from "vue";
+import { defineStore } from "pinia";
+
+export const useCartStore = defineStore("cart", () => {
+  const items = ref([]);
+  const totalPrice = computed(() =>
+    items.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  );
+
+  function add(product) {
+    const found = items.value.find(item => item.id === product.id);
+    if (found) found.quantity += 1;
+    else items.value.push({ ...product, quantity: 1 });
+  }
+
+  return { items, totalPrice, add };
+});
+    `;
+  } else if (key.includes("props") || key.includes("emit") || title.includes("컴포넌트")) {
+    focusedCode = `
+<!-- ProductCard.vue -->
+<script setup>
+const props = defineProps({
+  product: { type: Object, required: true }
+});
+
+const emit = defineEmits(["add-to-cart"]);
+</script>
+
+<template>
+  <article>
+    <h3>{{ props.product.name }}</h3>
+    <p>{{ props.product.price.toLocaleString() }}원</p>
+    <button type="button" @click="emit('add-to-cart', props.product)">
+      장바구니 담기
+    </button>
+  </article>
+</template>
+    `;
+  } else if (key.includes("watch") || title.includes("watch")) {
+    focusedCode = `
+<script setup>
+import { ref, watch } from "vue";
+
+const keyword = ref("");
+const products = ref([]);
+
+watch(keyword, async (nextKeyword) => {
+  if (nextKeyword.trim().length < 2) {
+    products.value = [];
+    return;
+  }
+
+  const response = await fetch("/api/products?keyword=" + encodeURIComponent(nextKeyword));
+  products.value = await response.json();
+});
+</script>
+    `;
+  } else if (key.includes("computed") || title.includes("computed") || title.includes("계산")) {
+    focusedCode = `
+<script setup>
+import { computed, ref } from "vue";
+
+const cartItems = ref([
+  { name: "키보드", price: 89000, quantity: 1 },
+  { name: "마우스", price: 39000, quantity: 2 }
+]);
+
+const totalPrice = computed(() =>
+  cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+);
+</script>
+
+<template>
+  <strong>총액: {{ totalPrice.toLocaleString() }}원</strong>
+</template>
+    `;
+  } else if (key.includes("api") || key.includes("axios") || title.includes("API")) {
+    focusedCode = `
+<script setup>
+import { onMounted, ref } from "vue";
+
+const products = ref([]);
+const loading = ref(false);
+const errorMessage = ref("");
+
+onMounted(async () => {
+  loading.value = true;
+  try {
+    const response = await fetch("/api/products");
+    products.value = await response.json();
+  } catch (error) {
+    errorMessage.value = "상품을 불러오지 못했습니다.";
+  } finally {
+    loading.value = false;
+  }
+});
+</script>
+    `;
+  } else {
+    focusedCode = `
+<script setup>
+import { ref } from "vue";
+
+const lessonTitle = "${title}";
+const todos = ref([
+  { id: 1, title: lessonTitle + " 예제 따라하기", done: false }
+]);
+const input = ref("");
+
+function addTodo() {
+  const title = input.value.trim();
+  if (!title) return;
+  todos.value.push({ id: Date.now(), title, done: false });
+  input.value = "";
+}
+</script>
+
+<template>
+  <form @submit.prevent="addTodo">
+    <input v-model="input" placeholder="할 일을 입력하세요" />
+    <button>추가</button>
+  </form>
+  <ul>
+    <li v-for="todo in todos" :key="todo.id">{{ todo.title }}</li>
+  </ul>
+</template>
+    `;
+  }
+
+  return [
+    first,
+    ex(`${title} 전용 Vue 코드`, "이 장에서 배운 개념만 보이도록 기존 공통 Todo 템플릿 대신 전용 예제로 분리했습니다.", focusedCode),
+    ex("React로 생각하면", "Vue 기능을 React의 익숙한 이름과 나란히 비교합니다.", `
+Vue ref/reactive       -> React useState
+Vue computed           -> React useMemo
+Vue watch              -> React useEffect dependency
+Vue props              -> React props
+Vue emit               -> React callback props
+Vue Router             -> React Router
+Pinia store            -> Zustand/Redux 같은 전역 상태
+
+이번 장: ${title}
+    `),
+    ex(`${title} 실습 미션`, "코드를 그대로 복사한 뒤 이름 하나, 데이터 하나, 이벤트 하나를 바꿔보세요.", `
+1. 컴포넌트 이름을 ${id}Practice로 바꿉니다.
+2. 화면에 보이는 데이터를 Todo에서 상품 또는 장바구니 데이터로 바꿉니다.
+3. 버튼을 하나 추가하고 클릭했을 때 상태가 바뀌게 만듭니다.
+4. 바뀐 상태가 template에 바로 반영되는지 확인합니다.
+    `)
+  ];
+}
+
+function buildFocusedJavaSpringExamples(chapter) {
+  const title = cleanTitle(chapter);
+  const safe = cleanId(chapter.id);
+  const className = toPascalName(safe);
+  const isSpring = chapter.tags?.some(tag => ["spring", "boot", "jpa", "mvc", "http", "security"].includes(tag));
+  const first = chapter.examples?.[0] || ex(`${title} 핵심 코드`, "이번 장에서 먼저 실행해볼 코드입니다.", "");
+
+  if (isSpring) {
+    const key = `${chapter.id} ${title}`;
+    const focused = key.includes("JPA") || key.includes("Repository") || key.includes("DB")
+      ? `
+@Repository
+public class ${className}Repository {
+    private final JdbcTemplate jdbcTemplate;
+
+    public ${className}Repository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public List<TodoResponse> findTodos(Long memberId) {
+        return jdbcTemplate.query(
+            "select id, title, completed from todos where member_id = ? order by id desc",
+            (rs, rowNum) -> new TodoResponse(rs.getLong("id"), rs.getString("title"), rs.getBoolean("completed")),
+            memberId
+        );
+    }
+}
+      `
+      : key.includes("Transaction") || title.includes("트랜잭션")
+        ? `
+@Service
+public class OrderService {
+    private final OrderRepository orderRepository;
+    private final StockService stockService;
+
+    @Transactional
+    public Long order(Long memberId, List<OrderItemRequest> items) {
+        Long orderId = orderRepository.save(memberId);
+        stockService.decreaseAll(items);
+        orderRepository.saveItems(orderId, items);
+        return orderId;
+    }
+}
+        `
+        : `
+@RestController
+@RequestMapping("/api/todos")
+public class ${className}Controller {
+    private final TodoService todoService;
+
+    public ${className}Controller(TodoService todoService) {
+        this.todoService = todoService;
+    }
+
+    @PostMapping
+    public ResponseEntity<TodoResponse> create(@RequestBody TodoCreateRequest request) {
+        TodoResponse response = todoService.create(request.title());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+}
+        `;
+
+    return [
+      first,
+      ex(`${title} 전용 Spring 코드`, "Controller, Service, Repository 중 이번 장에서 중요한 층을 중심으로 예제를 다시 분리했습니다.", focused),
+      ex("Todo에서 쇼핑몰로 확장", "같은 구조를 상품, 장바구니, 주문으로 바꿀 때 이름과 책임이 어떻게 달라지는지 확인합니다.", `
+TodoController.create(title)
+  -> ProductAdminController.create(name, price, stock)
+  -> CartController.add(productId, quantity)
+  -> OrderController.order(cartId)
+
+TodoService: 할 일 규칙
+OrderService: 재고 확인, 주문 생성, 주문 상세 저장, 장바구니 비우기
+      `),
+      ex("검증 테스트", "Spring은 화면으로만 확인하지 말고 요청/응답을 테스트로 고정하는 연습이 중요합니다.", `
+mockMvc.perform(post("/api/todos")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\\"title\\":\\"테스트\\"}"))
+    .andExpect(status().isCreated())
+    .andExpect(jsonPath("$.title").value("테스트"));
+      `)
+    ];
+  }
+
+  return [
+    first,
+    ex(`${title} 전용 Java 코드`, "이번 장의 개념을 콘솔 프로그램으로 작게 실행해봅니다.", `
+public class ${className}Practice {
+    public static void main(String[] args) {
+        StudyNote note = new StudyNote("${title}");
+        note.markImportant();
+        System.out.println(note.describe());
+    }
+}
+
+class StudyNote {
+    private final String title;
+    private boolean important;
+
+    StudyNote(String title) {
+        this.title = title;
+    }
+
+    void markImportant() {
+        this.important = true;
+    }
+
+    String describe() {
+        return title + " / important=" + important;
+    }
+}
+    `),
+    ex("Todo 도메인으로 바꾸기", "단순 문자열 연습을 Todo 객체 연습으로 확장합니다.", `
+class Todo {
+    private final long id;
+    private final String title;
+    private boolean completed;
+
+    Todo(long id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+
+    void complete() {
+        this.completed = true;
+    }
+}
+    `),
+    ex("쇼핑몰 도메인으로 바꾸기", "중급 이후에는 상품과 주문처럼 규칙이 있는 객체로 바꿔 연습합니다.", `
+class Product {
+    private final String name;
+    private final int price;
+    private int stock;
+
+    Product(String name, int price, int stock) {
+        this.name = name;
+        this.price = price;
+        this.stock = stock;
+    }
+
+    void decreaseStock(int quantity) {
+        if (quantity > stock) throw new IllegalArgumentException("재고 부족");
+        stock -= quantity;
+    }
+}
+    `)
+  ];
+}
+
+function stackName(course) {
+  return ({
+    jspWeb: "JSP",
+    springMvc: "Spring MVC",
+    phpWeb: "PHP",
+    laravelWeb: "Laravel",
+    csharpWeb: "C# ASP.NET Core"
+  })[course] || "Web";
+}
+
+function buildFocusedWebExamples(chapter) {
+  const title = cleanTitle(chapter);
+  const label = stackName(chapter.course);
+  const first = chapter.examples?.[0] || ex(`${title} 핵심 코드`, "이번 장의 핵심 코드입니다.", "");
+  const key = `${chapter.id} ${title}`;
+  const route = key.includes("상품") ? "/products" : key.includes("주문") || key.includes("트랜잭션") ? "/orders" : key.includes("장바구니") ? "/cart/items" : "/todos";
+  const action = key.includes("삭제") ? "delete" : key.includes("수정") || key.includes("완료") ? "update" : key.includes("주문") || key.includes("트랜잭션") ? "order" : "create";
+
+  if (key.includes("주문") || key.includes("트랜잭션")) {
+    return [
+      first,
+      ex(`${label} 주문/트랜잭션 흐름`, "주문은 한 줄 저장이 아니라 여러 작업이 한 묶음으로 성공해야 하는 기능입니다.", `
+브라우저
+  -> POST /orders
+  -> ${label} 주문 컨트롤러
+  -> OrderService.order()
+  -> 주문 저장
+  -> 주문 상세 저장
+  -> 상품 재고 감소
+  -> 장바구니 비우기
+  -> 하나라도 실패하면 전체 취소
+      `),
+      ex("실패 케이스 실습", "초보자는 성공 코드만 보면 위험합니다. 일부러 실패를 넣고 롤백을 확인해야 트랜잭션이 이해됩니다.", `
+상황:
+1. 장바구니에 상품 A 2개가 있습니다.
+2. 주문 저장은 성공했습니다.
+3. 재고 감소 중 재고 부족 예외가 발생했습니다.
+
+기대 결과:
+- orders 행이 남으면 안 됩니다.
+- order_items 행도 남으면 안 됩니다.
+- stock 값도 줄어들면 안 됩니다.
+      `),
+      ex("쇼핑몰 심화 코드 설계", "Todo 완료 처리는 한 행 수정이지만, 주문 생성은 여러 모델이 함께 움직입니다.", `
+OrderController
+  - 요청을 받습니다.
+
+OrderService
+  - 재고를 확인합니다.
+  - 트랜잭션 범위를 시작합니다.
+  - 주문, 주문상세, 재고감소, 장바구니 비우기를 실행합니다.
+
+OrderRepository / ProductRepository / CartRepository
+  - 실제 DB 작업만 담당합니다.
+      `),
+      ex("디버깅 체크리스트", "주문 장에서는 URL보다 데이터 일관성을 더 강하게 확인합니다.", `
+1. 같은 주문이 새로고침으로 두 번 생성되지 않는가?
+2. 재고 부족일 때 주문 행이 남지 않는가?
+3. 주문 상세 합계와 주문 총액이 일치하는가?
+4. 다른 사용자의 장바구니로 주문할 수 없는가?
+5. 로그에 orderId, memberId, productId가 남는가?
+      `)
+    ];
+  }
+
+  if (key.includes("장바구니")) {
+    return [
+      first,
+      ex(`${label} 장바구니 흐름`, "장바구니는 '상품을 바로 주문하기 전 임시 보관함'입니다. 같은 상품을 또 담으면 새 줄이 아니라 수량이 늘어납니다.", `
+POST /cart/items
+입력: productId, quantity
+
+처리:
+1. 현재 로그인 사용자의 cart를 찾습니다.
+2. productId 상품이 실제로 있는지 확인합니다.
+3. 이미 담긴 상품이면 quantity를 더합니다.
+4. 없으면 cart_items에 새로 추가합니다.
+      `),
+      ex("수량 변경 실습", "수량은 0 이하가 될 수 없고, 상품 재고보다 커질 수도 없습니다.", `
+POST /cart/items/{productId}/quantity
+
+검증:
+- quantity >= 1
+- quantity <= product.stock
+- cartItem.memberId == currentMemberId
+
+응답:
+- 성공하면 장바구니 화면으로 redirect
+- 실패하면 오류 메시지와 함께 장바구니 화면 유지
+      `),
+      ex("쇼핑몰 화면 구성", "상품 목록과 장바구니는 서로 다른 화면처럼 보여도 같은 cart_items 데이터를 중심으로 움직입니다.", `
+상품 목록:
+- 상품명, 가격, 재고, 담기 버튼
+
+장바구니:
+- 상품명, 단가, 수량, 줄 합계
+- 수량 변경 버튼
+- 삭제 버튼
+- 총 결제 예정 금액
+      `),
+      ex("디버깅 체크리스트", "장바구니 문제는 사용자 구분과 수량 계산에서 자주 납니다.", `
+1. 로그인 사용자별로 장바구니가 분리되는가?
+2. 같은 상품을 두 번 담으면 수량만 증가하는가?
+3. 총액 = 단가 * 수량의 합계인가?
+4. 품절 상품을 담지 못하게 막는가?
+      `)
+    ];
+  }
+
+  if (key.includes("상품")) {
+    return [
+      first,
+      ex(`${label} 상품 기능 흐름`, "상품은 쇼핑몰의 목록 데이터입니다. 사용자는 상품을 보고, 상세로 들어가고, 장바구니에 담습니다.", `
+GET /products
+  -> 상품 목록 조회
+
+GET /products/{id}
+  -> 상품 상세 조회
+
+POST /cart/items
+  -> productId와 quantity를 받아 장바구니에 담기
+      `),
+      ex("상품 데이터 모델", "Todo의 title/done보다 상품은 화면에 보여줄 속성이 더 많습니다.", `
+Product
+- id
+- name
+- description
+- price
+- stock
+- imageUrl
+- status: ON_SALE / SOLD_OUT / HIDDEN
+      `),
+      ex("검색과 정렬 실습", "상품이 많아지면 목록 조회는 필터, 정렬, 페이지가 필요해집니다.", `
+조건:
+- keyword가 있으면 상품명 검색
+- minPrice/maxPrice가 있으면 가격 범위 검색
+- sort=priceDesc면 높은 가격순
+- page/size로 일부만 조회
+      `),
+      ex("디버깅 체크리스트", "상품 화면은 데이터 표시 실수가 눈에 잘 띕니다.", `
+1. 가격에 천 단위 표시가 되는가?
+2. 품절 상품은 담기 버튼이 비활성화되는가?
+3. 없는 productId는 404로 처리되는가?
+4. 관리자만 상품 등록/수정/숨김을 할 수 있는가?
+      `)
+    ];
+  }
+
+  if (key.includes("세션") || key.includes("로그인") || key.includes("회원") || key.includes("인증") || key.includes("보안")) {
+    return [
+      first,
+      ex(`${label} 인증 흐름`, "인증은 '이 사람이 누구인가'를 확인하고, 인가는 '이 사람이 이 행동을 해도 되는가'를 확인합니다.", `
+로그인:
+1. email/password를 받습니다.
+2. 회원을 조회합니다.
+3. 비밀번호 해시를 검증합니다.
+4. session에 memberId를 저장합니다.
+
+이후 요청:
+- session의 memberId로 현재 사용자를 찾습니다.
+      `),
+      ex("Todo 권한 실습", "Todo 삭제는 버튼을 숨기는 것만으로는 부족합니다. 서버에서 소유자를 다시 확인해야 합니다.", `
+삭제 요청:
+POST /todos/{id}/delete
+
+검증:
+1. 로그인했는가?
+2. todo가 존재하는가?
+3. todo.ownerId == currentMemberId 인가?
+4. 맞으면 삭제, 아니면 403
+      `),
+      ex("쇼핑몰 권한 실습", "쇼핑몰에서는 사용자와 관리자의 권한이 갈라집니다.", `
+사용자:
+- 자기 장바구니 보기
+- 자기 주문 내역 보기
+
+관리자:
+- 상품 등록/수정
+- 주문 상태 변경
+
+공통:
+- 비밀번호는 원문 저장 금지
+- POST/PUT/DELETE는 CSRF 토큰 확인
+      `),
+      ex("디버깅 체크리스트", "인증 문제는 화면보다 서버 상태를 확인해야 합니다.", `
+1. 로그아웃 후 protected URL에 접근하면 막히는가?
+2. 다른 사용자 id를 URL에 넣어도 데이터가 막히는가?
+3. 비밀번호가 DB에 원문으로 저장되지 않는가?
+4. 세션 만료 후 다시 로그인 화면으로 가는가?
+      `)
+    ];
+  }
+
+  if (key.includes("DB") || key.includes("SQL") || key.includes("테이블")) {
+    return [
+      first,
+      ex(`${label} DB 연결 흐름`, "웹 앱은 화면만으로 끝나지 않습니다. 요청을 받은 뒤 DB에 읽고 쓰는 지점을 분리해야 합니다.", `
+Controller
+  -> 입력값과 로그인 사용자를 확인
+
+Service
+  -> 비즈니스 규칙 확인
+
+Repository
+  -> SQL 또는 ORM으로 DB 접근
+
+View
+  -> 조회 결과를 화면에 표시
+      `),
+      ex("Todo 테이블 실습", "가장 작은 테이블부터 시작해서 CRUD 흐름을 익힙니다.", `
+todos
+- id: 기본키
+- member_id: 작성자
+- title: 할 일 제목
+- completed: 완료 여부
+- created_at: 생성 시각
+      `),
+      ex("쇼핑몰 테이블 실습", "쇼핑몰은 테이블 간 연결을 연습하기 좋습니다.", `
+products(id, name, price, stock)
+carts(id, member_id)
+cart_items(id, cart_id, product_id, quantity)
+orders(id, member_id, status, total_amount)
+order_items(id, order_id, product_id, quantity, order_price)
+      `),
+      ex("디버깅 체크리스트", "DB 장에서는 화면보다 SQL 결과를 먼저 확인하면 빠릅니다.", `
+1. 연결 정보 host/port/database/user/password가 맞는가?
+2. 테이블 이름과 컬럼 이름이 코드와 같은가?
+3. INSERT 후 SELECT로 실제 저장을 확인했는가?
+4. FK 때문에 삭제가 막히는 경우를 확인했는가?
+      `)
+    ];
+  }
+
+  return [
+    first,
+    ex(`${label} ${title} 요청 흐름`, "브라우저 요청이 서버 코드의 어느 함수로 들어가는지 먼저 확인합니다.", `
+브라우저
+  -> ${route} 요청
+  -> ${label} 라우트/컨트롤러
+  -> ${action} 처리 함수
+  -> 필요하면 DB 조회/저장
+  -> HTML 또는 redirect 응답
+    `),
+    ex("Todo 기초 실습", "처음에는 Todo로 입력, 저장, 목록, 수정, 삭제 흐름을 작게 연습합니다.", `
+기능: ${title}
+데이터: Todo(id, title, completed)
+화면: 목록, 입력 폼, 오류 메시지
+확인:
+1. input name과 서버 파라미터 이름이 같은가?
+2. 저장 후 새로고침해도 데이터가 남는가?
+3. 실패했을 때 사용자가 이유를 볼 수 있는가?
+    `),
+    ex("쇼핑몰 심화 실습", "같은 개념을 상품, 장바구니, 주문 도메인으로 확장합니다.", `
+기능: ${title}
+데이터: Product, CartItem, Order, OrderItem
+규칙:
+1. 상품 재고보다 많이 담을 수 없습니다.
+2. 주문 생성은 주문 저장과 재고 감소가 함께 성공해야 합니다.
+3. 다른 사용자의 장바구니와 주문은 볼 수 없습니다.
+    `),
+    ex("디버깅 체크리스트", "장마다 같은 코드가 아니라 같은 점검 순서를 익히는 것이 목표입니다.", `
+1. URL이 맞는지 확인합니다: ${route}
+2. GET/POST 같은 HTTP 메서드가 맞는지 확인합니다.
+3. 폼 input name과 서버 파라미터 이름을 맞춥니다.
+4. DB SQL 또는 ORM 호출을 단독으로 확인합니다.
+5. redirect/view 이름을 확인합니다.
+    `)
+  ];
+}
+
+function refineLesson(chapter) {
+  if (chapter.course === "sql") {
+    return { ...chapter, examples: buildFocusedSqlExamples(chapter) };
+  }
+
+  if (chapter.course === "vue") {
+    return { ...chapter, examples: buildFocusedVueExamples(chapter) };
+  }
+
+  if (chapter.course === "javaSpring") {
+    return { ...chapter, examples: buildFocusedJavaSpringExamples(chapter) };
+  }
+
+  if (["jspWeb", "springMvc", "phpWeb", "laravelWeb", "csharpWeb"].includes(chapter.course)) {
+    return { ...chapter, examples: buildFocusedWebExamples(chapter) };
+  }
+
+  return chapter;
+}
+
 export const curriculum = allChapters.map(chapter => {
   const course = chapter.course || "sql";
   const baseChapter = {
@@ -8971,11 +9991,14 @@ export const curriculum = allChapters.map(chapter => {
     ...learningGuides[chapter.id],
     practiceSteps: buildBeginnerPracticeSteps(baseChapter)
   };
-
-  return {
+  const refined = refineLesson({
     course,
     ...chapter,
-    ...lessonExtras,
-    content: renderLesson({ ...chapter, course, ...lessonExtras })
+    ...lessonExtras
+  });
+
+  return {
+    ...refined,
+    content: renderLesson(refined)
   };
 });
