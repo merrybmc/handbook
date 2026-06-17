@@ -163,9 +163,7 @@ function initEditor() {
 
 function initSidebar() {
   curriculumList.innerHTML = "";
-  document.querySelectorAll(".course-tab").forEach(tab => {
-    tab.classList.toggle("active", tab.dataset.course === state.activeCourse);
-  });
+  updateCourseSwitcherUI();
 
   const activeCourse = getActiveCourseMeta();
   if (sidebarCourseDesc && activeCourse) {
@@ -234,12 +232,55 @@ function initSidebar() {
 function initCourseSwitcher() {
   if (!courseSwitcher) return;
 
-  courseSwitcher.innerHTML = getCourses().map(course => `
-    <button class="course-tab" type="button" data-course="${course.id}" title="${course.desc}">
-      <i data-lucide="${course.icon}"></i>
-      <span>${course.label}</span>
+  const courses = getCourses();
+
+  courseSwitcher.innerHTML = `
+    <button class="course-menu-trigger" type="button" aria-expanded="false" aria-haspopup="menu">
+      <span class="course-menu-current">
+        <i data-lucide="${getActiveCourseMeta()?.icon || "book-open"}"></i>
+        <span class="course-menu-current-label">${getActiveCourseMeta()?.label || "학습서 선택"}</span>
+      </span>
+      <span class="course-menu-hint">학습서 선택</span>
+      <i data-lucide="chevron-down" class="course-menu-chevron"></i>
     </button>
-  `).join("");
+    <div class="course-menu" role="menu" aria-label="학습서 목록">
+      ${courses.map(course => `
+        <button class="course-option" type="button" role="menuitem" data-course="${course.id}" title="${course.desc}">
+          <i data-lucide="${course.icon}"></i>
+          <span class="course-option-text">
+            <strong>${course.label}</strong>
+            <small>${course.desc}</small>
+          </span>
+          <i data-lucide="check" class="course-option-check"></i>
+        </button>
+      `).join("")}
+    </div>
+  `;
+
+  updateCourseSwitcherUI();
+}
+
+function updateCourseSwitcherUI() {
+  if (!courseSwitcher) return;
+  const activeCourse = getActiveCourseMeta();
+  const triggerIcon = courseSwitcher.querySelector(".course-menu-current i");
+  const triggerLabel = courseSwitcher.querySelector(".course-menu-current-label");
+  const trigger = courseSwitcher.querySelector(".course-menu-trigger");
+
+  if (triggerIcon && activeCourse) {
+    triggerIcon.setAttribute("data-lucide", activeCourse.icon);
+  }
+  if (triggerLabel && activeCourse) {
+    triggerLabel.textContent = activeCourse.label;
+  }
+
+  courseSwitcher.querySelectorAll(".course-option").forEach(option => {
+    const isActive = option.dataset.course === state.activeCourse;
+    option.classList.toggle("active", isActive);
+    option.setAttribute("aria-current", isActive ? "true" : "false");
+  });
+
+  trigger?.setAttribute("aria-expanded", courseSwitcher.classList.contains("open") ? "true" : "false");
 }
 
 function loadChapter(chapterId) {
@@ -509,13 +550,36 @@ function bindEvents() {
   });
 
   courseSwitcher?.addEventListener("click", event => {
-    const button = event.target.closest(".course-tab");
+    const trigger = event.target.closest(".course-menu-trigger");
+    if (trigger) {
+      const nextOpen = !courseSwitcher.classList.contains("open");
+      courseSwitcher.classList.toggle("open", nextOpen);
+      trigger.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+      return;
+    }
+
+    const button = event.target.closest(".course-option");
     if (!button) return;
     state.activeCourse = button.dataset.course;
     localStorage.setItem("learning_book_course", state.activeCourse);
+    courseSwitcher.classList.remove("open");
+    updateCourseSwitcherUI();
     initSidebar();
     loadChapter(getActiveCurriculum()[0]?.id);
     updateProgressUI();
+  });
+
+  document.addEventListener("click", event => {
+    if (!courseSwitcher || courseSwitcher.contains(event.target)) return;
+    courseSwitcher.classList.remove("open");
+    updateCourseSwitcherUI();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Escape" || !courseSwitcher?.classList.contains("open")) return;
+    courseSwitcher.classList.remove("open");
+    updateCourseSwitcherUI();
+    courseSwitcher.querySelector(".course-menu-trigger")?.focus();
   });
 
   document.getElementById("start-learning-btn")?.addEventListener("click", () => loadChapter(getActiveCurriculum()[0]?.id));
