@@ -6137,6 +6137,208 @@ public Long order(Long memberId, Long productId, int quantity) {
   }
 ];
 
+function buildJavaSpringExamples(item, isSpring, baseCode) {
+  const safeName = item.id
+    .replaceAll("-", "_")
+    .replaceAll("spring", "Spring")
+    .replaceAll("java", "Java");
+
+  if (isSpring) {
+    return [
+      {
+        title: item.exampleTitle || `${item.title} 기본 코드`,
+        desc: item.exampleDesc || "이 장의 핵심 개념을 가장 작은 Spring 코드로 확인합니다. 먼저 그대로 입력하고 서버가 뜨는지 확인하세요.",
+        sql: baseCode
+      },
+      {
+        title: "Controller-Service-Repository 실습 뼈대",
+        desc: "Spring 장에서는 코드를 한 파일에 몰아넣지 말고 요청 입구, 비즈니스 로직, 저장소 역할을 나누어 연습합니다.",
+        sql: `
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+// 1. Controller: HTTP 요청을 받는 입구
+@RestController
+@RequestMapping("/api/${item.id.replaceAll("_", "-")}")
+public class ${safeName}Controller {
+    private final ${safeName}Service service;
+
+    public ${safeName}Controller(${safeName}Service service) {
+        this.service = service;
+    }
+
+    @GetMapping
+    public ${safeName}Response find() {
+        return service.find();
+    }
+}
+
+// 2. Service: 핵심 규칙을 처리
+@Service
+public class ${safeName}Service {
+    public ${safeName}Response find() {
+        return new ${safeName}Response("${item.title}", "OK");
+    }
+}
+
+// 3. DTO: API 응답 모양
+public record ${safeName}Response(String title, String status) {
+}
+        `
+      },
+      {
+        title: "HTTP 요청으로 검증하기",
+        desc: "브라우저나 REST Client에서 직접 호출하며 요청과 응답을 확인합니다.",
+        sql: `
+# 서버 실행
+./gradlew bootRun
+
+# 브라우저 또는 REST Client에서 호출
+GET http://localhost:8080/api/${item.id.replaceAll("_", "-")}
+
+# 기대 응답 예시
+{
+  "title": "${item.title}",
+  "status": "OK"
+}
+        `
+      },
+      {
+        title: "테스트 코드로 고정하기",
+        desc: "한 번 동작한 예제를 테스트로 남기면 나중에 수정해도 기능이 깨졌는지 바로 알 수 있습니다.",
+        sql: `
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ${safeName}ServiceTest {
+
+    @Test
+    void practice() {
+        ${safeName}Service service = new ${safeName}Service();
+
+        ${safeName}Response response = service.find();
+
+        assertThat(response.title()).contains("${item.title.split(" ")[0]}");
+        assertThat(response.status()).isEqualTo("OK");
+    }
+}
+        `
+      }
+    ];
+  }
+
+  return [
+    {
+      title: item.exampleTitle || `${item.title} 기본 코드`,
+      desc: item.exampleDesc || "이 장의 핵심 개념을 가장 작은 Java 코드로 확인합니다. 먼저 그대로 실행하고 출력 결과를 적어보세요.",
+      sql: baseCode
+    },
+    {
+      title: "단계별 콘솔 실습 코드",
+      desc: "변수, 객체, 메서드 흐름을 직접 따라가며 값이 어디서 바뀌는지 확인합니다.",
+      sql: `
+public class ${safeName}Lab {
+    public static void main(String[] args) {
+        PracticeTopic topic = new PracticeTopic("${item.title}", false);
+
+        System.out.println("1단계: " + topic.name());
+        topic.complete();
+        System.out.println("2단계 완료 여부: " + topic.completed());
+    }
+}
+
+class PracticeTopic {
+    private final String name;
+    private boolean completed;
+
+    public PracticeTopic(String name, boolean completed) {
+        this.name = name;
+        this.completed = completed;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public boolean completed() {
+        return completed;
+    }
+
+    public void complete() {
+        this.completed = true;
+    }
+}
+      `
+    },
+    {
+      title: "변형 과제 코드",
+      desc: "기본 예제가 동작하면 값을 추가하고 조건을 넣어보세요. 작은 변형이 진짜 이해를 만듭니다.",
+      sql: `
+import java.util.ArrayList;
+import java.util.List;
+
+public class ${safeName}Challenge {
+    public static void main(String[] args) {
+        List<String> todos = new ArrayList<>();
+        todos.add("${item.title} 복습");
+        todos.add("예제 직접 입력");
+        todos.add("나만의 설명 3줄 작성");
+
+        for (int i = 0; i < todos.size(); i++) {
+            System.out.println((i + 1) + ". " + todos.get(i));
+        }
+    }
+}
+      `
+    },
+    {
+      title: "JUnit 검증 코드",
+      desc: "학습한 코드를 테스트로 확인하는 습관을 붙입니다.",
+      sql: `
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ${safeName}LabTest {
+
+    @Test
+    void completeTopic() {
+        PracticeTopic topic = new PracticeTopic("${item.title}", false);
+
+        topic.complete();
+
+        assertThat(topic.completed()).isTrue();
+    }
+}
+      `
+    }
+  ];
+}
+
+function buildJavaSpringDrills(item, isSpring) {
+  return [
+    {
+      prompt: `${item.title}을 왜 배우는지 한 문장으로 설명해보세요.`,
+      answer: item.goal
+    },
+    {
+      prompt: "기본 예제 코드에서 입력, 처리, 출력에 해당하는 줄을 각각 표시해보세요.",
+      answer: "입력은 변수나 요청 DTO, 처리는 메서드 또는 Service 로직, 출력은 return이나 System.out.println에 해당합니다."
+    },
+    {
+      prompt: isSpring ? "Controller, Service, DTO 중 이 장의 코드는 어디에 두는 것이 가장 자연스러운가요?" : "이 장의 코드를 class, method, variable 중 어떤 단위로 나누면 읽기 쉬운가요?",
+      answer: isSpring ? "HTTP 요청과 응답은 Controller, 핵심 규칙은 Service, 요청/응답 데이터 모양은 DTO에 두는 것이 기본입니다." : "작은 실행 흐름은 method로 나누고, 함께 움직이는 데이터와 행동은 class로 묶습니다."
+    },
+    {
+      prompt: "예제에서 값 하나를 바꾸고 결과가 어떻게 달라지는지 적어보세요.",
+      answer: "정답은 바꾼 값에 따라 달라집니다. 중요한 것은 변경 전 예상 결과와 실행 후 실제 결과를 비교하는 것입니다."
+    }
+  ];
+}
+
 function makeJavaSpringChapter(item) {
   const isSpring = item.kind === "spring";
   const title = `${item.no}. ${item.title}`;
@@ -6202,24 +6404,8 @@ public class PracticeController {
         ]
       }
     ],
-    examples: [
-      {
-        title: item.exampleTitle || `${item.title} 최소 예제`,
-        desc: item.exampleDesc || "개념을 가장 작은 코드로 확인합니다. 먼저 그대로 실행하고, 그 다음 값 하나만 바꿔보세요.",
-        sql: item.exampleCode || (isSpring ? defaultSpringCode : defaultJavaCode)
-      }
-    ],
-    drills: item.drills || [
-      {
-        prompt: `${item.title}을 왜 배우는지 한 문장으로 설명해보세요.`,
-        answer: item.goal
-      },
-      {
-        prompt: "예제에서 가장 중요한 한 줄을 고르고 그 이유를 적어보세요.",
-        answer: "정답은 하나가 아닙니다. 중요한 것은 해당 줄이 입력, 처리, 출력 중 어느 역할인지 설명하는 것입니다."
-      }
-    ]
-  };
+    examples: buildJavaSpringExamples(item, isSpring, item.exampleCode || (isSpring ? defaultSpringCode : defaultJavaCode)),
+    drills: item.drills || buildJavaSpringDrills(item, isSpring),};
 }
 
 const expandedJavaTopics = [
@@ -7449,6 +7635,112 @@ function buildBeginnerPracticeSteps(chapter) {
   return steps;
 }
 
+function buildSqlExamples(topic, exampleSql) {
+  const safeTitle = String(topic.title || "SQL").replaceAll("'", "''");
+
+  return [
+    {
+      title: topic.exampleTitle || `${topic.title} 기본 예제`,
+      desc: topic.exampleDesc || "먼저 그대로 실행해서 결과가 어떤 모양으로 나오는지 확인하세요. 그 다음 컬럼, 조건, 정렬 중 하나만 바꿔 봅니다.",
+      sql: exampleSql
+    },
+    {
+      title: "실습 1: 테이블 모양 먼저 살펴보기",
+      desc: "쿼리를 잘 쓰려면 먼저 재료를 봐야 합니다. 요리하기 전에 냉장고를 여는 것처럼, 어떤 테이블과 컬럼이 있는지 확인합니다.",
+      sql: `
+-- 고객, 주문, 상품 테이블의 샘플 데이터를 먼저 확인합니다.
+SELECT customer_id, name, email, grade
+FROM customers
+LIMIT 5;
+
+SELECT order_id, customer_id, status, total_amount, order_date
+FROM orders
+LIMIT 5;
+
+SELECT product_id, product_name, price, stock_quantity
+FROM products
+LIMIT 5;
+      `
+    },
+    {
+      title: "실습 2: 조건을 하나씩 바꿔보기",
+      desc: "처음에는 한 번에 많이 고치지 마세요. WHERE, ORDER BY, LIMIT을 하나씩 바꾸면 어떤 문법이 결과를 바꾸는지 몸으로 익힐 수 있습니다.",
+      sql: `
+-- 1단계: 금액이 큰 주문만 봅니다.
+SELECT order_id, customer_id, total_amount, order_date
+FROM orders
+WHERE total_amount >= 30000
+ORDER BY order_date DESC
+LIMIT 10;
+
+-- 2단계: 기준 금액을 30000에서 50000으로 바꿔 보세요.
+-- 3단계: DESC를 ASC로 바꾸면 정렬 방향이 어떻게 달라지는지 확인하세요.
+      `
+    },
+    {
+      title: "실습 3: 내가 쓴 쿼리 검증하기",
+      desc: "SQL은 결과가 나왔다고 끝이 아닙니다. 집계나 비교 쿼리로 '내 결과가 말이 되는지' 다시 확인하는 습관이 중요합니다.",
+      sql: `
+-- 전체 주문 수를 확인합니다.
+SELECT COUNT(*) AS total_orders
+FROM orders;
+
+-- 상태별 주문 수를 확인합니다.
+SELECT status, COUNT(*) AS count_by_status
+FROM orders
+GROUP BY status
+ORDER BY count_by_status DESC;
+
+-- 현재 학습 주제를 표시합니다.
+SELECT '${safeTitle}' AS current_topic;
+      `
+    },
+    {
+      title: "실습 4: 작은 미션으로 확장하기",
+      desc: "예제와 비슷하지만 완전히 같지는 않은 문제를 직접 풀어 봅니다. 이 단계가 진짜 실력으로 넘어가는 다리입니다.",
+      sql: `
+-- 미션 A: VIP 고객만 조회하세요.
+SELECT customer_id, name, email, grade
+FROM customers
+WHERE grade = 'VIP';
+
+-- 미션 B: 상품 가격이 높은 순서대로 10개만 조회하세요.
+SELECT product_id, product_name, price
+FROM products
+ORDER BY price DESC
+LIMIT 10;
+
+-- 미션 C: 고객별 주문 수를 구하세요.
+SELECT customer_id, COUNT(*) AS order_count
+FROM orders
+GROUP BY customer_id
+ORDER BY order_count DESC;
+      `
+    }
+  ];
+}
+
+function buildSqlDrills(topic) {
+  return [
+    {
+      prompt: `${topic.title}을 언제 쓰는지 초보자에게 설명하듯 한 문장으로 적어보세요.`,
+      answer: topic.why
+    },
+    {
+      prompt: "예제 SQL에서 SELECT, FROM, WHERE, ORDER BY가 각각 어떤 역할을 하는지 표시해보세요.",
+      answer: "SELECT는 보여줄 컬럼, FROM은 가져올 테이블, WHERE는 남길 행의 조건, ORDER BY는 결과의 순서를 정합니다."
+    },
+    {
+      prompt: "예제에서 조건값 하나를 바꾼 뒤 결과 행 수가 늘었는지 줄었는지 기록하세요.",
+      answer: "조건을 좁히면 행 수가 줄고, 조건을 넓히면 행 수가 늘어납니다. 결과 수 변화를 보는 습관이 중요합니다."
+    },
+    {
+      prompt: "내 쿼리가 맞는지 확인하기 위한 검증 쿼리를 하나 작성해보세요.",
+      answer: "COUNT(*), GROUP BY, LIMIT, 샘플 조회를 이용해 전체 수와 분포를 확인하면 실수를 빨리 찾을 수 있습니다."
+    }
+  ];
+}
+
 function makeExpandedSqlChapter(topic) {
   const exampleSql = topic.exampleSql || "SELECT 1 AS practice;";
 
@@ -7506,23 +7798,8 @@ function makeExpandedSqlChapter(topic) {
         ]
       }
     ],
-    examples: [
-      {
-        title: topic.exampleTitle || `${topic.title} 기본 예제`,
-        desc: topic.exampleDesc || "먼저 그대로 실행한 뒤 조건이나 컬럼 하나만 바꿔보세요.",
-        sql: exampleSql
-      }
-    ],
-    drills: topic.drills || [
-      {
-        prompt: `${topic.title}을 언제 쓰는지 한 문장으로 설명해보세요.`,
-        answer: topic.why
-      },
-      {
-        prompt: "예제 SQL에서 FROM, WHERE, SELECT가 각각 어떤 역할을 하는지 표시해보세요.",
-        answer: "FROM은 데이터를 가져올 테이블, WHERE는 남길 행의 조건, SELECT는 보여줄 컬럼을 정합니다."
-      }
-    ],
+    examples: buildSqlExamples(topic, exampleSql),
+    drills: topic.drills || buildSqlDrills(topic),
     exercise: {
       type: "query",
       starterSql: exampleSql,
@@ -7609,6 +7886,228 @@ const expandedSqlTopics = [
 
 const expandedSqlChapters = expandedSqlTopics.map(makeExpandedSqlChapter);
 
+function toPascalName(value) {
+  return String(value || "Practice")
+    .split(/[_-]/)
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
+
+function buildVueExamples(topic, exampleCode) {
+  const componentName = toPascalName(topic.id);
+
+  return [
+    {
+      title: topic.exampleTitle || `${topic.title} 기본 예제`,
+      desc: topic.exampleDesc || "먼저 그대로 붙여 넣어 화면이 바뀌는지 확인하세요. script setup은 데이터와 함수, template은 사용자가 보는 화면이라고 생각하면 쉽습니다.",
+      sql: exampleCode
+    },
+    {
+      title: "Todo 실습: 입력, 추가, 완료, 삭제까지 한 번에 보기",
+      desc: "Vue의 핵심인 ref, computed, v-model, v-for, @click을 한 예제 안에서 연습합니다. React로 치면 useState, useMemo, map, onClick을 함께 쓰는 연습입니다.",
+      sql: `
+<script setup>
+import { computed, ref } from "vue";
+
+const newTodoTitle = ref("");
+const todos = ref([
+  { id: 1, title: "Vue 예제 그대로 실행하기", done: true },
+  { id: 2, title: "${topic.title} 복습하기", done: false }
+]);
+
+const remainingCount = computed(() => {
+  return todos.value.filter(todo => !todo.done).length;
+});
+
+function addTodo() {
+  const title = newTodoTitle.value.trim();
+  if (!title) return;
+
+  todos.value.push({
+    id: Date.now(),
+    title,
+    done: false
+  });
+  newTodoTitle.value = "";
+}
+
+function toggleTodo(id) {
+  const target = todos.value.find(todo => todo.id === id);
+  if (target) target.done = !target.done;
+}
+
+function removeTodo(id) {
+  todos.value = todos.value.filter(todo => todo.id !== id);
+}
+</script>
+
+<template>
+  <section class="todo-lab">
+    <h2>Todo 실습</h2>
+    <form @submit.prevent="addTodo">
+      <input v-model="newTodoTitle" placeholder="할 일을 입력하세요" />
+      <button type="submit">추가</button>
+    </form>
+
+    <p>남은 할 일: {{ remainingCount }}개</p>
+
+    <ul>
+      <li v-for="todo in todos" :key="todo.id">
+        <label>
+          <input type="checkbox" :checked="todo.done" @change="toggleTodo(todo.id)" />
+          <span :class="{ done: todo.done }">{{ todo.title }}</span>
+        </label>
+        <button type="button" @click="removeTodo(todo.id)">삭제</button>
+      </li>
+    </ul>
+  </section>
+</template>
+
+<style scoped>
+.todo-lab { max-width: 520px; padding: 20px; border: 1px solid #ddd; }
+.done { text-decoration: line-through; color: #888; }
+</style>
+      `
+    },
+    {
+      title: "쇼핑몰 실습: 상품 목록과 장바구니",
+      desc: "중급 이후에는 Todo보다 데이터 흐름이 많은 쇼핑몰 예제로 확장합니다. 상품 목록, 장바구니 추가, 수량 계산, 총액 계산을 함께 연습합니다.",
+      sql: `
+<script setup>
+import { computed, ref } from "vue";
+
+const products = ref([
+  { id: 1, name: "키보드", price: 89000, stock: 5 },
+  { id: 2, name: "마우스", price: 39000, stock: 8 },
+  { id: 3, name: "모니터", price: 249000, stock: 3 }
+]);
+
+const cartItems = ref([]);
+
+const cartTotal = computed(() => {
+  return cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
+});
+
+function addToCart(product) {
+  const item = cartItems.value.find(cartItem => cartItem.id === product.id);
+
+  if (item) {
+    item.quantity += 1;
+    return;
+  }
+
+  cartItems.value.push({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    quantity: 1
+  });
+}
+
+function decreaseQuantity(id) {
+  const item = cartItems.value.find(cartItem => cartItem.id === id);
+  if (!item) return;
+
+  item.quantity -= 1;
+  if (item.quantity <= 0) {
+    cartItems.value = cartItems.value.filter(cartItem => cartItem.id !== id);
+  }
+}
+</script>
+
+<template>
+  <main class="shop-lab">
+    <section>
+      <h2>상품 목록</h2>
+      <article v-for="product in products" :key="product.id">
+        <strong>{{ product.name }}</strong>
+        <span>{{ product.price.toLocaleString() }}원</span>
+        <button type="button" @click="addToCart(product)">담기</button>
+      </article>
+    </section>
+
+    <section>
+      <h2>장바구니</h2>
+      <p v-if="cartItems.length === 0">아직 담은 상품이 없습니다.</p>
+      <article v-for="item in cartItems" :key="item.id">
+        <span>{{ item.name }} x {{ item.quantity }}</span>
+        <button type="button" @click="decreaseQuantity(item.id)">-</button>
+      </article>
+      <strong>총액: {{ cartTotal.toLocaleString() }}원</strong>
+    </section>
+  </main>
+</template>
+      `
+    },
+    {
+      title: "컴포넌트 분리 실습: 부모와 자식으로 나누기",
+      desc: "한 파일이 길어지면 컴포넌트로 나눕니다. 부모는 데이터를 들고 있고, 자식은 화면 조각을 맡는다고 생각하면 쉽습니다.",
+      sql: `
+<!-- ${componentName}Item.vue -->
+<script setup>
+const props = defineProps({
+  item: {
+    type: Object,
+    required: true
+  }
+});
+
+const emit = defineEmits(["remove"]);
+</script>
+
+<template>
+  <li>
+    <span>{{ props.item.title }}</span>
+    <button type="button" @click="emit('remove', props.item.id)">삭제</button>
+  </li>
+</template>
+
+<!-- 부모 컴포넌트에서 사용하는 모습 -->
+<${componentName}Item
+  v-for="item in items"
+  :key="item.id"
+  :item="item"
+  @remove="removeItem"
+/>
+      `
+    }
+  ];
+}
+
+function buildVueDrills(topic) {
+  return [
+    {
+      prompt: `${topic.title}이 Todo 앱이나 쇼핑몰 앱에서 어디에 쓰일지 적어보세요.`,
+      answer: topic.why
+    },
+    {
+      prompt: "예제 코드에서 상태(ref 또는 reactive), 계산값(computed), 이벤트 함수(@click 또는 submit)를 각각 찾아보세요.",
+      answer: "상태는 화면이 기억해야 하는 값, computed는 상태에서 계산되는 값, 이벤트 함수는 사용자의 행동에 반응해 상태를 바꾸는 코드입니다."
+    },
+    {
+      prompt: "React에서는 같은 기능을 어떤 코드로 표현하는지 비교해보세요.",
+      answer: topic.react || "React에서는 보통 useState, useMemo, props, 이벤트 핸들러, JSX map 렌더링으로 비슷한 기능을 만듭니다."
+    },
+    {
+      prompt: "Todo 예제를 쇼핑몰 예제로 바꾼다면 변수 이름과 데이터 구조가 어떻게 바뀌어야 할지 적어보세요.",
+      answer: "todos는 products 또는 cartItems가 되고, title/done은 name/price/quantity 같은 쇼핑몰 도메인 값으로 바뀝니다."
+    }
+  ];
+}
+
+function buildVuePracticeSteps(topic) {
+  return [
+    `<strong>목표를 먼저 적습니다.</strong> ${topic.title}을 배우면 Todo 또는 쇼핑몰 화면에서 어떤 문제를 해결할 수 있는지 한 문장으로 적어보세요.`,
+    "<strong>기본 예제를 그대로 실행합니다.</strong> 처음에는 코드를 예쁘게 바꾸지 말고 화면이 정상적으로 나오는지 확인합니다.",
+    "<strong>script와 template을 색으로 구분하듯 읽습니다.</strong> script setup은 준비실, template은 무대라고 생각하세요. 준비실의 값이 바뀌면 무대의 화면도 바뀝니다.",
+    "<strong>상태를 하나만 바꿔봅니다.</strong> 배열의 초기값, 버튼 문구, 조건식 중 하나만 바꾸고 화면 변화를 확인합니다.",
+    "<strong>Todo 실습 코드로 다시 연습합니다.</strong> 입력, 추가, 완료, 삭제가 모두 어떻게 연결되는지 함수 이름 옆에 설명을 적어보세요.",
+    "<strong>쇼핑몰 실습 코드로 확장합니다.</strong> 상품을 담고, 수량을 줄이고, 총액이 바뀌는 흐름을 직접 따라가세요.",
+    "<strong>React와 비교합니다.</strong> Vue의 ref는 React의 useState와 어디가 비슷하고 어디가 다른지 한 줄로 적어보세요."
+  ];
+}
+
 function makeExpandedVueChapter(topic) {
   const exampleCode = topic.exampleCode || `
 <script setup>
@@ -7676,31 +8175,9 @@ const message = ref("${topic.title}");
         ]
       }
     ],
-    examples: [
-      {
-        title: topic.exampleTitle || `${topic.title} 최소 예제`,
-        desc: topic.exampleDesc || "먼저 그대로 실행한 뒤 Todo 또는 쇼핑몰 예제로 연결해보세요.",
-        sql: exampleCode
-      }
-    ],
-    drills: topic.drills || [
-      {
-        prompt: `${topic.title}을 Todo 앱이나 쇼핑몰에서 어디에 쓸 수 있을지 적어보세요.`,
-        answer: topic.why
-      },
-      {
-        prompt: "React에서는 이 개념을 어떤 식으로 표현하는지 비교해보세요.",
-        answer: topic.react || "React는 보통 JSX, useState, props, custom hook 같은 방식으로 비슷한 문제를 해결합니다."
-      }
-    ],
-    practiceSteps: [
-      `<strong>목표를 먼저 적습니다.</strong> ${topic.title}을 배우면 어떤 화면 문제를 해결할 수 있는지 한 문장으로 적으세요.`,
-      "<strong>예제를 그대로 실행합니다.</strong> 처음부터 응용하지 말고 화면이 정상적으로 뜨는지 먼저 확인하세요.",
-      "<strong>상태와 화면을 색으로 구분하듯 표시합니다.</strong> script setup의 변수, 함수와 template의 출력 위치를 따로 표시하세요.",
-      "<strong>한 가지만 바꿔봅니다.</strong> 변수명, 문구, 조건, 배열 값 중 하나만 바꾸고 결과를 확인하세요.",
-      "<strong>Todo 또는 쇼핑몰에 연결합니다.</strong> 이 개념이 입력, 목록, 상세, 장바구니, 주문 중 어디에 쓰일지 적으세요."
-    ]
-  };
+    examples: buildVueExamples(topic, exampleCode),
+    drills: topic.drills || buildVueDrills(topic),
+    practiceSteps: buildVuePracticeSteps(topic)};
 }
 
 const expandedVueTopics = [
